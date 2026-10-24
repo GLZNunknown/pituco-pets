@@ -12,6 +12,7 @@ window.ZP = window.ZP || {};
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const norm = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
   const icon = (name, cls = "") => `<svg class="i ${cls}" aria-hidden="true"><use href="#i-${name}"/></svg>`;
+  const brandIcon = (name, cls = "") => `<svg class="bi ${cls}" aria-hidden="true"><use href="#ic-${name}"/></svg>`;
   const onlyDigits = (s) => String(s).replace(/\D/g, "");
 
   const debounce = (fn, ms = 200) => {
@@ -97,5 +98,5 @@ window.ZP = window.ZP || {};
     }
   });
 
-  ZP.u = { $, $$, brl, esc, norm, icon, onlyDigits, debounce, storage, stars, waLink, toast, openLayer, closeLayer, topLayer };
+  ZP.u = { $, $$, brl, esc, norm, icon, brandIcon, onlyDigits, debounce, storage, stars, waLink, toast, openLayer, closeLayer, topLayer };
 })(window.ZP);

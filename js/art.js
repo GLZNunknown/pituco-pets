@@ -83,9 +83,31 @@ window.ZP = window.ZP || {};
     },
   };
 
+  /* ---------- Fotos reais ---------- */
+  const DIR = "assets/img/produtos/";
+
+  const photoSrc = (base, w) => `${DIR}${base}-${w}.webp`;
+
+  // Fotos do produto: as definidas à mão (img/gallery) ou as geradas pelo script (js/fotos.js)
+  function photosOf(p) {
+    const manual = [p.img, ...(p.gallery || [])].filter(Boolean);
+    return manual.length ? manual : (ZP.photos && ZP.photos[p.slug]) || [];
+  }
+
+  function photo(base, { sizes = "(max-width: 560px) 46vw, 280px", eager = false, alt = "", cls = "" } = {}) {
+    const src = (w) => photoSrc(base, w);
+    return `<img class="product-img ${cls}" src="${src(400)}" srcset="${src(400)} 400w, ${src(800)} 800w" sizes="${sizes}"
+      width="800" height="800" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" alt="${ZP.u.esc(alt)}">`;
+  }
+
   ZP.art = {
-    product(p, { cls = "" } = {}) {
-      if (p.img) return `<img class="product-img ${cls}" src="${p.img}" alt="" loading="lazy">`;
+    photos: photosOf,
+    photo,
+    photoSrc,
+    // Foto real (se houver) ou ilustração automática do frasco
+    product(p, { cls = "", sizes, eager, alt = "", index = 0 } = {}) {
+      const photos = photosOf(p);
+      if (photos.length) return photo(photos[Math.min(index, photos.length - 1)], { sizes, eager, alt, cls });
       const a = p.art || {};
       const cat = ZP.catById(p.cat);
       const shape = a.shape || DEFAULT_SHAPE[p.cat] || "pump";

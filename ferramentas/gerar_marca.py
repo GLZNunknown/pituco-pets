@@ -19,6 +19,7 @@ na primeira execução e guardadas em ferramentas/fontes/.
 """
 import math
 import re
+import sys
 import urllib.request
 from pathlib import Path
 
@@ -26,6 +27,10 @@ from fontTools.pens.svgPathPen import SVGPathPen
 from fontTools.pens.transformPen import TransformPen
 from fontTools.ttLib import TTFont
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
+
+# O terminal do Windows usa cp1252 por padrão; força UTF-8 para imprimir acentos e símbolos
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 RAIZ = Path(__file__).resolve().parent.parent
 IMG = RAIZ / "assets" / "img"

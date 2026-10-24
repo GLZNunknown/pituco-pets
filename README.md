@@ -39,7 +39,8 @@ Depois acesse http://localhost:8000.
 │   ├── data.js         # 📦 produtos, categorias, dicas e depoimentos
 │   ├── utils.js        # helpers (formatação, modais, toast)
 │   ├── store.js        # sacola, favoritos e cálculo de preços
-│   ├── art.js          # ilustração automática dos frascos (SVG)
+│   ├── fotos.js        # 🤖 gerado pelo script de fotos (não editar)
+│   ├── art.js          # fotos dos produtos ou ilustração automática (SVG)
 │   ├── catalog.js      # vitrine, filtros, busca e detalhe do produto
 │   ├── cart.js         # sacola e favoritos
 │   ├── checkout.js     # finalização do pedido
@@ -52,7 +53,7 @@ Depois acesse http://localhost:8000.
 
 1. **`js/config.js`**: troque WhatsApp, telefone, e-mail, Instagram, endereço, horário e CNPJ (hoje são exemplos).
 2. **`js/data.js`**: ajuste produtos e preços (hoje são exemplos). **Avaliações e depoimentos só com dados reais**: preencha `rating`/`reviews` no produto e a lista `ZP.testimonials`. Enquanto estiverem vazios, o site mostra "Novo na loja" e esconde a seção de depoimentos.
-3. **Fotos reais** (opcional): coloque a imagem em `assets/img/produtos/` e adicione `img: "assets/img/produtos/arquivo.webp"` no produto. A foto substitui a ilustração automática.
+3. **Fotos reais**: veja a seção "📸 Fotos dos produtos" abaixo. Sem foto, o produto mostra a ilustração automática.
 4. **Área de entrega, frete e cupons**: em `config.js`, `shipping.serviceArea` define os estados atendidos (hoje só SP) e `shipping.zones` as faixas de frete por cidade/região. Para ampliar, adicione o estado e uma nova faixa.
 
 ## 🎟️ Cupons de exemplo
@@ -76,3 +77,21 @@ Requer `pip install pillow fonttools`. As fontes da marca (Baloo 2 e Nunito, lic
 ## 🔄 Atualizando o site
 
 Ao alterar CSS ou JS, troque o número `?v=...` nos `<script>`/`<link>` do `index.html` e do `politicas.html` (ex.: a data do dia). Isso força o navegador dos clientes a baixar a versão nova.
+
+## 📸 Fotos dos produtos
+
+1. Veja o nome certo de cada produto:
+   ```bash
+   python ferramentas/otimizar_imagens.py --listar
+   ```
+2. Salve as fotos em `fotos-originais/produtos/` com esse nome. Por exemplo, `shampoo-limpeza-profunda.jpg` é a foto principal e `shampoo-limpeza-profunda-2.jpg` é a 2ª foto da galeria.
+3. Rode:
+   ```bash
+   python ferramentas/otimizar_imagens.py
+   ```
+
+O script recorta em quadrado, gera versões leves (400 e 800 px, WebP) e atualiza `js/fotos.js`. As fotos aparecem sozinhas no site, nos cards, na página do produto (com galeria), na sacola e no checkout.
+
+**Fotos de clientes ("Pituco no banho")**: coloque em `fotos-originais/clientes/` (**só com autorização do tutor**) e rode o mesmo script. A seção aparece automaticamente. As legendas são opcionais e ficam em `ZP.customerCaptions`, no `data.js`.
+
+As pastas `fotos-originais/` não vão para o GitHub. Só as versões otimizadas são publicadas.

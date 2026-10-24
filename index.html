@@ -26,7 +26,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20261024">
+  <link rel="stylesheet" href="css/styles.css?v=20261024e">
 
   <script type="application/ld+json">
   { "@context": "https://schema.org", "@type": "PetStore", "name": "Pituco Pets",
@@ -34,15 +34,16 @@
     "priceRange": "R$", "paymentAccepted": "Pix, Cartão de crédito, Dinheiro" }
   </script>
 
-  <script src="js/config.js?v=20261024" defer></script>
-  <script src="js/data.js?v=20261024" defer></script>
-  <script src="js/utils.js?v=20261024" defer></script>
-  <script src="js/store.js?v=20261024" defer></script>
-  <script src="js/art.js?v=20261024" defer></script>
-  <script src="js/catalog.js?v=20261024" defer></script>
-  <script src="js/cart.js?v=20261024" defer></script>
-  <script src="js/checkout.js?v=20261024" defer></script>
-  <script src="js/main.js?v=20261024" defer></script>
+  <script src="js/config.js?v=20261024e" defer></script>
+  <script src="js/data.js?v=20261024e" defer></script>
+  <script src="js/utils.js?v=20261024e" defer></script>
+  <script src="js/store.js?v=20261024e" defer></script>
+  <script src="js/fotos.js?v=20261024e" defer></script>
+  <script src="js/art.js?v=20261024e" defer></script>
+  <script src="js/catalog.js?v=20261024e" defer></script>
+  <script src="js/cart.js?v=20261024e" defer></script>
+  <script src="js/checkout.js?v=20261024e" defer></script>
+  <script src="js/main.js?v=20261024e" defer></script>
 </head>
 <body>
   <!-- ===== Ícones (SVG sprite) ===== -->
@@ -81,6 +82,17 @@
     <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
     <symbol id="i-gift" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v9H5v-9M7.5 8a2.5 2.5 0 0 1 0-5C10 3 12 8 12 8s2-5 4.5-5a2.5 2.5 0 0 1 0 5"/></symbol>
     <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></symbol>
+    <!-- Ícones da marca (categorias e pets): traço roxo + preenchimento limão via --bi-accent -->
+    <symbol id="ic-shampoo" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7h10M29 7h4v3M24 7v6"/><rect x="18.5" y="13" width="11" height="5" rx="1.5"/><rect x="13" y="18" width="22" height="25" rx="6" style="fill:var(--bi-accent,#b6e61e)"/><path d="M19 28h10M19 33h6"/></symbol>
+    <symbol id="ic-condicionador" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="17" y="5" width="14" height="8" rx="3"/><path d="M15.5 13h17l2.5 26a4 4 0 0 1-4 4H17a4 4 0 0 1-4-4z" style="fill:var(--bi-accent,#b6e61e)"/><path d="M24 23c-2.6 3.2-3.8 5-3.8 6.6a3.8 3.8 0 0 0 7.6 0c0-1.6-1.2-3.4-3.8-6.6z"/></symbol>
+    <symbol id="ic-leave-in" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 6h11l6 3.5V13h-4l-2-2H17z"/><rect x="18" y="11" width="8" height="6" rx="1"/><rect x="13" y="17" width="18" height="26" rx="5" style="fill:var(--bi-accent,#b6e61e)"/><path d="M39 6h.01M42.5 10h.01M39 14h.01"/></symbol>
+    <symbol id="ic-perfume" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="20" y="5" width="8" height="6" rx="1.5"/><rect x="18.5" y="11" width="11" height="5" rx="1.5"/><rect x="11" y="16" width="26" height="27" rx="11" style="fill:var(--bi-accent,#b6e61e)"/><path d="m24 23.5 1.6 3.3 3.4.5-2.5 2.4.6 3.4-3.1-1.6-3.1 1.6.6-3.4-2.5-2.4 3.4-.5z"/></symbol>
+    <symbol id="ic-higiene" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="19" cy="29" r="11" style="fill:var(--bi-accent,#b6e61e)"/><circle cx="34" cy="16" r="7"/><circle cx="37" cy="34" r="4"/><path d="M13 26a6.5 6.5 0 0 1 5-4.5M31 13.5a3.5 3.5 0 0 1 2.5-1.5"/></symbol>
+    <symbol id="ic-kit" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="17" width="34" height="9" rx="2"/><path d="M10 26h28v15a2 2 0 0 1-2 2H12a2 2 0 0 1-2-2z" style="fill:var(--bi-accent,#b6e61e)"/><path d="M24 17v26M24 17c-2-5-9-8-10.5-4.5S18 17 24 17zM24 17c2-5 9-8 10.5-4.5S30 17 24 17z"/></symbol>
+    <symbol id="ic-dog" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17c0-5.5 4-9.5 9-9.5s9 4 9 9.5v9c0 7-4 12-9 12s-9-5-9-12z" style="fill:var(--bi-accent,#b6e61e)"/><path d="M15.5 14C11 12 6.5 15 7 22c.3 4 3.5 5 7 2M32.5 14c4.5-2 9 1 8.5 8-.3 4-3.5 5-7 2"/><circle cx="20" cy="21" r="1.6" fill="currentColor" stroke="none"/><circle cx="28" cy="21" r="1.6" fill="currentColor" stroke="none"/><path d="M21.5 28h5L24 30.8z" fill="currentColor"/><path d="M24 30.8v2.4M20.5 34.3c1.8 1.4 5.2 1.4 7 0"/></symbol>
+    <symbol id="ic-cat" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 25c0-6 1.5-11 1.5-17l8 6h7l8-6c0 6 1.5 11 1.5 17 0 8.5-6 14-13 14s-13-5.5-13-14z" style="fill:var(--bi-accent,#b6e61e)"/><circle cx="19" cy="24" r="1.6" fill="currentColor" stroke="none"/><circle cx="29" cy="24" r="1.6" fill="currentColor" stroke="none"/><path d="M22 29h4l-2 2.2z" fill="currentColor"/><path d="M24 31.2c-.8 1.6-2.6 2-4 1.2M24 31.2c.8 1.6 2.6 2 4 1.2M4 28h8M5 33.5l7-2M44 28h-8M43 33.5l-7-2"/></symbol>
+    <symbol id="ic-rabbit" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20C16 12 15.5 4.5 19 4.5s5 7 4.2 15M28 20c4-8 4.5-15.5 1-15.5s-5 7-4.2 15" style="fill:var(--bi-accent,#b6e61e)"/><circle cx="24" cy="30.5" r="11.5" style="fill:var(--bi-accent,#b6e61e)"/><circle cx="20" cy="28.5" r="1.6" fill="currentColor" stroke="none"/><circle cx="28" cy="28.5" r="1.6" fill="currentColor" stroke="none"/><path d="M22.5 32.5h3L24 34.2z" fill="currentColor"/><path d="M24 34.2v1.8M22.4 36h3.2v2.6h-3.2z"/></symbol>
+    <symbol id="ic-horse" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 13 13.5 4.5l6.5 5.5M32.5 13l2-8.5-6.5 5.5" style="fill:var(--bi-accent,#b6e61e)"/><path d="M15 13c2-3.2 5.5-4.8 9-4.8s7 1.6 9 4.8c1.4 5-.4 10.5-1.3 15.5l-1.2 9c-.5 3.6-3.3 6.2-6.5 6.2s-6-2.6-6.5-6.2l-1.2-9c-.9-5-2.7-10.5-1.3-15.5z" style="fill:var(--bi-accent,#b6e61e)"/><path d="M21 9.5c.8 3 2.2 5 3 7.5.8-2.5 2.2-4.5 3-7.5"/><circle cx="17.8" cy="21.5" r="1.6" fill="currentColor" stroke="none"/><circle cx="30.2" cy="21.5" r="1.6" fill="currentColor" stroke="none"/><path d="M18.6 33.5c1.6-1.4 3.4-2 5.4-2s3.8.6 5.4 2"/><circle cx="21.4" cy="37.2" r="1.2" fill="currentColor" stroke="none"/><circle cx="26.6" cy="37.2" r="1.2" fill="currentColor" stroke="none"/></symbol>
     <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol>
   </svg>
 
@@ -145,7 +157,7 @@
             <a class="btn btn--light btn--lg" href="#kits"><svg class="i"><use href="#i-gift"/></svg> Ver kits</a>
           </div>
           <ul class="hero__pets" aria-label="Pets atendidos">
-            <li>🐶 Cães</li><li>🐱 Gatos</li><li>🐰 Coelhos</li><li>🐴 Cavalos</li>
+            <li><svg class="bi" aria-hidden="true"><use href="#ic-dog"/></svg> Cães</li><li><svg class="bi" aria-hidden="true"><use href="#ic-cat"/></svg> Gatos</li><li><svg class="bi" aria-hidden="true"><use href="#ic-rabbit"/></svg> Coelhos</li><li><svg class="bi" aria-hidden="true"><use href="#ic-horse"/></svg> Cavalos</li>
           </ul>
         </div>
         <div class="hero__media">
@@ -281,6 +293,19 @@
           <h2>Quem usa, recomenda</h2>
         </header>
         <div class="testimonial-grid" id="testimonialGrid"></div>
+      </div>
+    </section>
+
+    <!-- ===== Pituco no banho (fotos de clientes, só com autorização) ===== -->
+    <section class="section" id="clientes" hidden>
+      <div class="container">
+        <header class="section__head">
+          <span class="eyebrow">Pituco no banho</span>
+          <h2>Banho tomado, rabinho abanando</h2>
+          <p>Os pets dos nossos clientes depois do banho com os produtos Pituco.</p>
+        </header>
+        <div class="ugc-grid" id="ugcGrid"></div>
+        <div class="center"><a class="btn btn--outline" data-wa="Olá! Quero mandar a foto do meu pet de banho tomado para a galeria da Pituco Pets 🐾" href="#">Mande a foto do seu pet</a></div>
       </div>
     </section>
 

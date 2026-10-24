@@ -17,7 +17,7 @@ window.ZP = window.ZP || {};
   const filters = { cat: "all", pet: "all", q: "", sort: "relevance", promo: false, max: PRICE_CEIL, shown: cfg.pageSize };
 
   /* ---------- Pedaços reutilizáveis ---------- */
-  const petIcons = (p) => p.pets.map((id) => `<span title="${ZP.petById(id).name}">${ZP.petById(id).icon}</span>`).join("");
+  const petIcons = (p) => p.pets.map((id) => `<span title="${ZP.petById(id).name}">${ZP.u.brandIcon(ZP.petById(id).icon)}</span>`).join("");
 
   function discountPct(v) {
     return v.old ? Math.round((1 - v.price / v.old) * 100) : 0;
@@ -50,7 +50,7 @@ window.ZP = window.ZP || {};
     const cat = ZP.catById(p.cat);
     return `
       <article class="product-card">
-        <div class="product-card__media" style="--tint:${cat.tint}">
+        <div class="product-card__media${ZP.art.photos(p).length ? " has-photo" : ""}" style="--tint:${cat.tint}">
           ${badges(p)}
           ${favButton(p)}
           <button class="product-card__img" data-open="${p.id}" aria-label="Ver detalhes: ${esc(p.name)}">${ZP.art.product(p)}</button>
@@ -85,7 +85,7 @@ window.ZP = window.ZP || {};
       const n = ZP.products.filter((p) => p.cat === c.id).length;
       return `
         <button class="category-card" data-go-cat="${c.id}" style="--tint:${c.tint}">
-          <span class="category-card__icon">${c.icon}</span>
+          <span class="category-card__icon">${ZP.u.brandIcon(c.icon)}</span>
           <b>${c.name}</b>
           <small>${c.desc}</small>
           <span class="category-card__count">${n} produtos ${icon("arrow-right")}</span>
@@ -98,7 +98,7 @@ window.ZP = window.ZP || {};
       const n = ZP.products.filter((p) => p.pets.includes(pet.id)).length;
       return `
         <button class="pet-card" data-go-pet="${pet.id}">
-          <span class="pet-card__icon">${pet.icon}</span>
+          <span class="pet-card__icon">${ZP.u.brandIcon(pet.icon)}</span>
           <b>${pet.name}</b><small>${n} produtos</small>
         </button>`;
     }).join("");
@@ -117,7 +117,7 @@ window.ZP = window.ZP || {};
     }).join("");
 
     $("#petFilter").innerHTML = `<option value="all">Todos os pets</option>` +
-      ZP.pets.map((p) => `<option value="${p.id}" ${filters.pet === p.id ? "selected" : ""}>${p.icon} ${p.name}</option>`).join("");
+      ZP.pets.map((p) => `<option value="${p.id}" ${filters.pet === p.id ? "selected" : ""}>${p.name}</option>`).join("");
 
     const range = $("#priceMax");
     range.max = PRICE_CEIL;
@@ -158,7 +158,7 @@ window.ZP = window.ZP || {};
     const pills = [];
     if (filters.q) pills.push(["q", `Busca: “${esc(filters.q)}”`]);
     if (filters.cat !== "all") pills.push(["cat", ZP.catById(filters.cat).name]);
-    if (filters.pet !== "all") pills.push(["pet", `${ZP.petById(filters.pet).icon} ${ZP.petById(filters.pet).name}`]);
+    if (filters.pet !== "all") pills.push(["pet", ZP.petById(filters.pet).name]);
     if (filters.promo) pills.push(["promo", "Em oferta"]);
     if (filters.max < PRICE_CEIL) pills.push(["max", `Até ${brl(filters.max)}`]);
     $("#activeFilters").innerHTML = pills.map(([k, label]) =>
@@ -216,7 +216,7 @@ window.ZP = window.ZP || {};
   function hideSuggestions() { $("#searchSuggest").hidden = true; }
 
   /* ---------- Detalhe do produto ---------- */
-  const detail = { id: null, v: 0, qty: 1 };
+  const detail = { id: null, v: 0, qty: 1, img: 0 };
 
   function related(p) {
     return ZP.products
@@ -229,11 +229,16 @@ window.ZP = window.ZP || {};
     const p = ZP.byId(detail.id);
     const cat = ZP.catById(p.cat);
     const v = p.variants[detail.v];
-    const pets = p.pets.map((id) => ZP.petById(id)).map((x) => `${x.icon} ${x.name}`).join(" · ");
+    const photos = ZP.art.photos(p);
+    const pets = p.pets.map((id) => ZP.petById(id)).map((x) => `<span class="pet-tag">${ZP.u.brandIcon(x.icon)} ${x.name}</span>`).join(" ");
 
     $("#productContent").innerHTML = `
       <div class="pd">
-        <div class="pd__media" style="--tint:${cat.tint}">${badges(p, v)}${ZP.art.product(p)}</div>
+        <div class="pd__gallery">
+          <div class="pd__media${photos.length ? " has-photo" : ""}" style="--tint:${cat.tint}">${badges(p, v)}${ZP.art.product(p, { sizes: "(max-width: 860px) 90vw, 480px", eager: true, alt: p.name, index: detail.img })}</div>
+          ${photos.length > 1 ? `<div class="pd__thumbs" role="group" aria-label="Fotos do produto">${photos.map((b, i) => `
+            <button class="pd__thumb ${i === detail.img ? "is-active" : ""}" data-thumb="${i}" aria-pressed="${i === detail.img}" aria-label="Foto ${i + 1} de ${photos.length}">${ZP.art.photo(b, { sizes: "72px" })}</button>`).join("")}</div>` : ""}
+        </div>
         <div class="pd__info">
           <p class="pd__crumbs"><button data-go-cat="${cat.id}">${cat.name}</button> <span>·</span> ${pets}</p>
           <h2 class="pd__title" id="productTitle">${esc(p.name)}</h2>
@@ -284,7 +289,7 @@ window.ZP = window.ZP || {};
     const p = ZP.byId(id);
     if (!p) return;
     hideSuggestions();
-    Object.assign(detail, { id, v: 0, qty: 1 });
+    Object.assign(detail, { id, v: 0, qty: 1, img: 0 });
     renderDetail();
     if (!fromHash) history.replaceState(null, "", `#p/${p.slug}`);
     document.title = `${p.name} — ${cfg.store.name}`;
@@ -322,7 +327,7 @@ window.ZP = window.ZP || {};
 
   function bind() {
     document.addEventListener("click", (e) => {
-      const t = e.target.closest("[data-open],[data-quickadd],[data-fav],[data-go-cat],[data-go-pet],[data-filter-cat],[data-clear],[data-variant],[data-pd-qty],[data-share],#pdAdd,#loadMore");
+      const t = e.target.closest("[data-open],[data-quickadd],[data-fav],[data-thumb],[data-go-cat],[data-go-pet],[data-filter-cat],[data-clear],[data-variant],[data-pd-qty],[data-share],#pdAdd,#loadMore");
       if (!t) return;
       const d = t.dataset;
 
@@ -336,6 +341,15 @@ window.ZP = window.ZP || {};
       else if (d.goPet) update({ pet: d.goPet }, { scroll: true });
       else if (d.filterCat) update({ cat: d.filterCat });
       else if (d.clear) update(clearers[d.clear]());
+      else if (d.thumb) {
+        // Troca só a foto (sem redesenhar a ficha) para não piscar enquanto a nova carrega
+        detail.img = +d.thumb;
+        const base = ZP.art.photos(ZP.byId(detail.id))[detail.img];
+        const img = $(".pd__media img");
+        img.srcset = `${ZP.art.photoSrc(base, 400)} 400w, ${ZP.art.photoSrc(base, 800)} 800w`;
+        img.src = ZP.art.photoSrc(base, 400);
+        $$(".pd__thumb").forEach((b, i) => { b.classList.toggle("is-active", i === detail.img); b.setAttribute("aria-pressed", i === detail.img); });
+      }
       else if (d.variant) { detail.v = +d.variant; renderDetail(); $(`[data-variant="${d.variant}"]`).focus(); }
       else if (d.pdQty) { detail.qty = Math.max(1, Math.min(99, detail.qty + +d.pdQty)); renderDetail(); $(`[data-pd-qty="${d.pdQty}"]`).focus(); }
       else if (d.share) share(ZP.byId(+d.share));

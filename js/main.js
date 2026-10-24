@@ -103,6 +103,19 @@
       </figure>`).join("");
   }
 
+  /* ---------- Pituco no banho (fotos de clientes) ---------- */
+  function customerGallery() {
+    const fotos = ZP.customerPhotos || [];
+    if (!fotos.length) return;
+    $("#ugcGrid").innerHTML = fotos.map((base) => {
+      const legenda = (ZP.customerCaptions || {})[base] || "";
+      return `<figure class="ugc">
+        <img src="assets/img/clientes/${base}-600.webp" width="600" height="600" loading="lazy" decoding="async" alt="${esc(legenda || "Pet de cliente depois do banho")}">
+        ${legenda ? `<figcaption>${esc(legenda)}</figcaption>` : ""}</figure>`;
+    }).join("");
+    $("#clientes").hidden = false;
+  }
+
   /* ---------- Formulários ---------- */
   function forms() {
     document.addEventListener("click", async (e) => {
@@ -149,6 +162,7 @@
     header();
     articles();
     testimonials();
+    customerGallery();
     forms();
     cookies();
   });

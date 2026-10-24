@@ -7,19 +7,19 @@
 window.ZP = window.ZP || {};
 
 ZP.categories = [
-  { id: "shampoo",       name: "Shampoo",             desc: "Limpeza profunda e pelagem saudável",      icon: "🧴", tint: "#efe4ff" },
-  { id: "condicionador", name: "Condicionador",       desc: "Maciez, hidratação e desembaraço",          icon: "✨", tint: "#eefbc9" },
-  { id: "leave-in",      name: "Leave-in",            desc: "Proteção, brilho e perfumação",             icon: "💧", tint: "#dff6f4" },
-  { id: "perfumes",      name: "Perfumes e colônias", desc: "Aquele cheirinho delicioso por mais tempo", icon: "🌸", tint: "#ffe6f1" },
-  { id: "higiene",       name: "Higiene e cuidados",  desc: "Tudo para manter seu pet bem cuidado",      icon: "🫧", tint: "#e4efff" },
-  { id: "kits",          name: "Kits de banho",       desc: "Combinações completas com desconto",        icon: "🎁", tint: "#fff3cf" },
+  { id: "shampoo",       name: "Shampoo",             desc: "Limpeza profunda e pelagem saudável",      icon: "shampoo", tint: "#efe4ff" },
+  { id: "condicionador", name: "Condicionador",       desc: "Maciez, hidratação e desembaraço",          icon: "condicionador", tint: "#eefbc9" },
+  { id: "leave-in",      name: "Leave-in",            desc: "Proteção, brilho e perfumação",             icon: "leave-in", tint: "#dff6f4" },
+  { id: "perfumes",      name: "Perfumes e colônias", desc: "Aquele cheirinho delicioso por mais tempo", icon: "perfume", tint: "#ffe6f1" },
+  { id: "higiene",       name: "Higiene e cuidados",  desc: "Tudo para manter seu pet bem cuidado",      icon: "higiene", tint: "#e4efff" },
+  { id: "kits",          name: "Kits de banho",       desc: "Combinações completas com desconto",        icon: "kit", tint: "#fff3cf" },
 ];
 
 ZP.pets = [
-  { id: "caes",    name: "Cães",    icon: "🐶" },
-  { id: "gatos",   name: "Gatos",   icon: "🐱" },
-  { id: "coelhos", name: "Coelhos", icon: "🐰" },
-  { id: "cavalos", name: "Cavalos", icon: "🐴" },
+  { id: "caes",    name: "Cães",    icon: "dog" },
+  { id: "gatos",   name: "Gatos",   icon: "cat" },
+  { id: "coelhos", name: "Coelhos", icon: "rabbit" },
+  { id: "cavalos", name: "Cavalos", icon: "horse" },
 ];
 
 /* Campos de cada produto:
@@ -28,7 +28,9 @@ ZP.pets = [
                         Sem esses campos, o site mostra "Novo na loja" no lugar das estrelas.
    tags[] ("destaque" | "novo" | "promo"), short, description, benefits[], howTo,
    art { shape?, body?, cap?, label?, sub? }  → ilustração automática do frasco
-   img?  → caminho de uma foto real (ex.: "assets/img/produtos/shampoo.webp"); se existir, substitui a ilustração */
+   FOTOS → o jeito fácil: salve a foto com o slug do produto (ex.: shampoo-limpeza-profunda.jpg) em
+           fotos-originais/produtos/ e rode `python ferramentas/otimizar_imagens.py`. Ela aparece sozinha.
+           (Avançado: img: "nome-base" e gallery: ["nome-2", ...] forçam fotos específicas.) */
 ZP.products = [
   // ---------- SHAMPOO ----------
   {
@@ -325,3 +327,9 @@ ZP.articles = [
    { name: "Mariana S.", pet: "tutora do Thor 🐶", text: "O que o cliente disse...", rating: 5 },
 */
 ZP.testimonials = [];
+
+/* ---------- LEGENDAS DAS FOTOS DE CLIENTES (opcional) ----------
+   As fotos vêm de fotos-originais/clientes/ (ver ferramentas/otimizar_imagens.py).
+   ⚠️ Publique só fotos com autorização do tutor. Legenda pelo nome do arquivo:
+   ex.: "thor": "Thor, depois do Kit Banho Completo" */
+ZP.customerCaptions = {};
