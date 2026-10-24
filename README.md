@@ -51,7 +51,7 @@ Depois acesse http://localhost:8000.
 ## ⚙️ Antes de publicar
 
 1. **`js/config.js`**: troque WhatsApp, telefone, e-mail, Instagram, endereço, horário e CNPJ (hoje são exemplos).
-2. **`js/data.js`**: ajuste produtos e preços. **Avaliações e depoimentos são exemplos** e devem ser trocados por dados reais.
+2. **`js/data.js`**: ajuste produtos e preços (hoje são exemplos). **Avaliações e depoimentos só com dados reais**: preencha `rating`/`reviews` no produto e a lista `ZP.testimonials`. Enquanto estiverem vazios, o site mostra "Novo na loja" e esconde a seção de depoimentos.
 3. **Fotos reais** (opcional): coloque a imagem em `assets/img/produtos/` e adicione `img: "assets/img/produtos/arquivo.webp"` no produto. A foto substitui a ilustração automática.
 4. **Área de entrega, frete e cupons**: em `config.js`, `shipping.serviceArea` define os estados atendidos (hoje só SP) e `shipping.zones` as faixas de frete por cidade/região. Para ampliar, adicione o estado e uma nova faixa.
 
@@ -62,3 +62,17 @@ Depois acesse http://localhost:8000.
 | `BEMVINDO10` | 10% OFF |
 | `PITUCO20` | 20% OFF acima de R$ 250 |
 | `FRETEGRATIS` | Frete grátis acima de R$ 80 |
+
+## 🎨 Identidade visual
+
+O logo, o favicon, os ícones de celular e a imagem de compartilhamento são gerados por script:
+
+```bash
+python ferramentas/gerar_marca.py
+```
+
+Requer `pip install pillow fonttools`. As fontes da marca (Baloo 2 e Nunito, licença livre OFL) são baixadas automaticamente na primeira vez.
+
+## 🔄 Atualizando o site
+
+Ao alterar CSS ou JS, troque o número `?v=...` nos `<script>`/`<link>` do `index.html` e do `politicas.html` (ex.: a data do dia). Isso força o navegador dos clientes a baixar a versão nova.

@@ -23,8 +23,10 @@ ZP.pets = [
 ];
 
 /* Campos de cada produto:
-   id, slug, name, cat, pets[], variants[{label, price, old?}], rating, reviews,
-   tags[] ("mais-vendido" | "novo" | "promo"), short, description, benefits[], howTo,
+   id, slug, name, cat, pets[], variants[{label, price, old?}],
+   rating?, reviews?  → SÓ preencha com avaliações reais (ex.: rating: 4.8, reviews: 12).
+                        Sem esses campos, o site mostra "Novo na loja" no lugar das estrelas.
+   tags[] ("destaque" | "novo" | "promo"), short, description, benefits[], howTo,
    art { shape?, body?, cap?, label?, sub? }  → ilustração automática do frasco
    img?  → caminho de uma foto real (ex.: "assets/img/produtos/shampoo.webp"); se existir, substitui a ilustração */
 ZP.products = [
@@ -32,7 +34,7 @@ ZP.products = [
   {
     id: 1, slug: "shampoo-limpeza-profunda", name: "Shampoo Limpeza Profunda", cat: "shampoo", pets: ["caes", "gatos"],
     variants: [{ label: "500 ml", price: 34.9, old: 42.9 }, { label: "1 L", price: 59.9, old: 69.9 }],
-    rating: 4.9, reviews: 312, tags: ["mais-vendido", "promo"],
+    tags: ["destaque", "promo"],
     short: "Remove sujeira e oleosidade sem ressecar a pele.",
     description: "Fórmula com pH balanceado para a pele do pet, que limpa em profundidade e deixa a pelagem leve, solta e com brilho natural. Rende muito e tem enxágue fácil.",
     benefits: ["pH balanceado para cães e gatos", "Limpeza profunda sem ressecar", "Perfume suave e duradouro", "Enxágue rápido"],
@@ -42,7 +44,7 @@ ZP.products = [
   {
     id: 2, slug: "shampoo-neutro-hipoalergenico", name: "Shampoo Neutro Hipoalergênico", cat: "shampoo", pets: ["caes", "gatos"],
     variants: [{ label: "500 ml", price: 29.9 }, { label: "1 L", price: 49.9 }],
-    rating: 4.8, reviews: 198, tags: [],
+    tags: [],
     short: "Suave para peles sensíveis e filhotes.",
     description: "Sem corantes e com fragrância leve, é ideal para pets com pele sensível, filhotes a partir de 3 meses e banhos mais frequentes.",
     benefits: ["Sem corantes", "Ideal para pele sensível", "Indicado para filhotes", "Não arde os olhos"],
@@ -52,7 +54,7 @@ ZP.products = [
   {
     id: 3, slug: "shampoo-pelos-brancos", name: "Shampoo Pelos Brancos e Claros", cat: "shampoo", pets: ["caes", "gatos"],
     variants: [{ label: "500 ml", price: 39.9 }],
-    rating: 4.7, reviews: 87, tags: ["novo"],
+    tags: ["novo"],
     short: "Realça o branco e reduz o amarelado da pelagem.",
     description: "Com pigmentos violeta que neutralizam o tom amarelado, devolve a luminosidade de pelagens brancas, cinzas e claras.",
     benefits: ["Neutraliza o amarelado", "Realça o brilho", "Pelagem macia"],
@@ -62,7 +64,7 @@ ZP.products = [
   {
     id: 4, slug: "shampoo-citronela", name: "Shampoo Citronela para Cães", cat: "shampoo", pets: ["caes"],
     variants: [{ label: "500 ml", price: 36.9 }],
-    rating: 4.6, reviews: 142, tags: [],
+    tags: [],
     short: "Com óleo de citronela, perfeito para passeios ao ar livre.",
     description: "Limpa e perfuma com o frescor da citronela. Uso exclusivo para cães (óleos essenciais podem fazer mal a gatos).",
     benefits: ["Aroma refrescante de citronela", "Limpeza completa", "Pelagem perfumada por mais tempo"],
@@ -72,7 +74,7 @@ ZP.products = [
   {
     id: 5, slug: "shampoo-equinos-brilho", name: "Shampoo Equinos Brilho Intenso", cat: "shampoo", pets: ["cavalos"],
     variants: [{ label: "1 L", price: 79.9 }, { label: "5 L", price: 289.9 }],
-    rating: 4.9, reviews: 54, tags: [],
+    tags: [],
     short: "Brilho de pista para pelagem, crina e cauda.",
     description: "Desenvolvido para equinos, remove poeira e suor e deixa a pelagem com brilho intenso. Rendimento alto, ideal para haras e criadores.",
     benefits: ["Alto rendimento", "Brilho intenso", "Remove suor e poeira"],
@@ -84,7 +86,7 @@ ZP.products = [
   {
     id: 6, slug: "condicionador-maciez-hidratacao", name: "Condicionador Maciez & Hidratação", cat: "condicionador", pets: ["caes", "gatos"],
     variants: [{ label: "500 ml", price: 32.9 }, { label: "1 L", price: 54.9 }],
-    rating: 4.8, reviews: 176, tags: ["mais-vendido"],
+    tags: ["destaque"],
     short: "Hidrata, desembaraça e deixa o pelo sedoso.",
     description: "Complemento ideal do shampoo: repõe a hidratação, sela as cutículas e facilita a escovação, com perfume delicado.",
     benefits: ["Hidratação profunda", "Facilita a escovação", "Reduz o frizz", "Perfume delicado"],
@@ -94,7 +96,7 @@ ZP.products = [
   {
     id: 7, slug: "condicionador-pelos-longos", name: "Condicionador Pelos Longos Desembaraçante", cat: "condicionador", pets: ["caes", "gatos"],
     variants: [{ label: "500 ml", price: 36.9, old: 44.9 }],
-    rating: 4.7, reviews: 93, tags: ["promo"],
+    tags: ["promo"],
     short: "Desembaraça nós sem puxar o pelo.",
     description: "Para Shih Tzu, Lhasa, Yorkshire, Persas e outras raças de pelo longo. Desfaz nós com facilidade e deixa o pelo solto.",
     benefits: ["Desfaz nós com facilidade", "Ideal para pelos longos", "Brilho e leveza"],
@@ -104,7 +106,7 @@ ZP.products = [
   {
     id: 8, slug: "condicionador-equinos-crina-cauda", name: "Condicionador Equinos Crina & Cauda", cat: "condicionador", pets: ["cavalos"],
     variants: [{ label: "1 L", price: 84.9 }],
-    rating: 4.8, reviews: 31, tags: [],
+    tags: [],
     short: "Crina e cauda soltas, macias e volumosas.",
     description: "Nutre os fios da crina e da cauda, reduz a quebra e deixa um acabamento solto e brilhante.",
     benefits: ["Reduz a quebra dos fios", "Fios soltos e volumosos", "Brilho duradouro"],
@@ -116,7 +118,7 @@ ZP.products = [
   {
     id: 9, slug: "leave-in-protecao-brilho", name: "Leave-in Proteção & Brilho", cat: "leave-in", pets: ["caes", "gatos"],
     variants: [{ label: "240 ml", price: 27.9 }],
-    rating: 4.8, reviews: 121, tags: [],
+    tags: [],
     short: "Finalizador sem enxágue com brilho e perfume.",
     description: "Protege a pelagem do sol e da poeira, dá brilho e mantém o perfume do banho por mais tempo. Não deixa o pelo pesado.",
     benefits: ["Sem enxágue", "Protege do sol e da poeira", "Brilho instantâneo"],
@@ -126,7 +128,7 @@ ZP.products = [
   {
     id: 10, slug: "leave-in-desembaracante-spray", name: "Leave-in Desembaraçante Spray", cat: "leave-in", pets: ["caes", "gatos"],
     variants: [{ label: "240 ml", price: 29.9 }],
-    rating: 4.7, reviews: 64, tags: ["novo"],
+    tags: ["novo"],
     short: "Escovação sem sofrimento entre os banhos.",
     description: "Spray que solta os nós e reduz a estática na hora de escovar. Ótimo para o dia a dia entre um banho e outro.",
     benefits: ["Solta os nós na hora", "Reduz a estática", "Uso diário"],
@@ -136,7 +138,7 @@ ZP.products = [
   {
     id: 11, slug: "leave-in-crina-cauda", name: "Leave-in Crina e Cauda", cat: "leave-in", pets: ["cavalos"],
     variants: [{ label: "500 ml", price: 59.9 }],
-    rating: 4.9, reviews: 22, tags: [],
+    tags: [],
     short: "Desembaraça e protege crina e cauda.",
     description: "Facilita o pentear e protege os fios da crina e da cauda contra a quebra, com brilho e perfume suave.",
     benefits: ["Facilita o pentear", "Protege contra a quebra", "Brilho de pista"],
@@ -148,7 +150,7 @@ ZP.products = [
   {
     id: 12, slug: "colonia-cheirinho-de-bebe", name: "Colônia Cheirinho de Bebê", cat: "perfumes", pets: ["caes", "gatos"],
     variants: [{ label: "120 ml", price: 24.9, old: 29.9 }],
-    rating: 4.9, reviews: 257, tags: ["mais-vendido", "promo"],
+    tags: ["destaque", "promo"],
     short: "Aquele cheirinho delicioso por mais tempo.",
     description: "A clássica fragrância de talco de bebê, suave e duradoura, para finalizar o banho ou perfumar entre um banho e outro.",
     benefits: ["Fragrância suave e duradoura", "Não mancha a pelagem", "Finalização perfeita"],
@@ -158,7 +160,7 @@ ZP.products = [
   {
     id: 13, slug: "perfume-floral-premium", name: "Perfume Floral Premium", cat: "perfumes", pets: ["caes"],
     variants: [{ label: "100 ml", price: 39.9 }],
-    rating: 4.7, reviews: 48, tags: [],
+    tags: [],
     short: "Notas florais sofisticadas e marcantes.",
     description: "Perfume com fixação prolongada e notas florais delicadas, para o pet sair do banho cheiroso por dias.",
     benefits: ["Alta fixação", "Notas florais", "Frasco premium"],
@@ -168,7 +170,7 @@ ZP.products = [
   {
     id: 14, slug: "colonia-fresh-lavanda", name: "Colônia Fresh Lavanda para Cães", cat: "perfumes", pets: ["caes"],
     variants: [{ label: "120 ml", price: 26.9 }],
-    rating: 4.6, reviews: 39, tags: ["novo"],
+    tags: ["novo"],
     short: "Frescor relaxante de lavanda.",
     description: "Fragrância fresca e relaxante. Uso exclusivo para cães (lavanda não é indicada para gatos).",
     benefits: ["Aroma relaxante", "Sensação de frescor", "Uso exclusivo para cães"],
@@ -180,7 +182,7 @@ ZP.products = [
   {
     id: 15, slug: "banho-a-seco-espuma", name: "Banho a Seco em Espuma", cat: "higiene", pets: ["caes", "gatos", "coelhos"],
     variants: [{ label: "200 ml", price: 31.9 }],
-    rating: 4.7, reviews: 71, tags: ["novo"],
+    tags: ["novo"],
     short: "Limpeza sem água — ideal para coelhos e dias frios.",
     description: "Espuma que limpa e perfuma sem precisar de água nem enxágue. Perfeita para coelhos (que não devem tomar banho molhado), pets idosos e dias frios.",
     benefits: ["Sem água e sem enxágue", "Seguro para coelhos", "Seca rapidinho"],
@@ -190,7 +192,7 @@ ZP.products = [
   {
     id: 16, slug: "lenco-umedecido-pet", name: "Lenço Umedecido Pet (50 un)", cat: "higiene", pets: ["caes", "gatos", "coelhos"],
     variants: [{ label: "50 un", price: 19.9 }, { label: "3 pacotes", price: 52.9, old: 59.7 }],
-    rating: 4.8, reviews: 166, tags: [],
+    tags: [],
     short: "Patinhas limpas depois do passeio.",
     description: "Lenços com aloe vera para limpar patas, rosto e pelagem no dia a dia. Sem álcool.",
     benefits: ["Sem álcool", "Com aloe vera", "Prático para levar"],
@@ -200,7 +202,7 @@ ZP.products = [
   {
     id: 17, slug: "escova-removedora-de-pelos", name: "Escova Removedora de Pelos", cat: "higiene", pets: ["caes", "gatos", "coelhos"],
     variants: [{ label: "Unidade", price: 22.9 }],
-    rating: 4.6, reviews: 104, tags: [],
+    tags: [],
     short: "Remove pelos mortos e massageia a pele.",
     description: "Cerdas macias de silicone que removem pelos soltos e estimulam a circulação. Fácil de lavar.",
     benefits: ["Cerdas macias", "Reduz a queda de pelos", "Fácil de lavar"],
@@ -210,7 +212,7 @@ ZP.products = [
   {
     id: 18, slug: "limpador-de-orelhas", name: "Limpador de Orelhas", cat: "higiene", pets: ["caes", "gatos"],
     variants: [{ label: "100 ml", price: 24.9 }],
-    rating: 4.7, reviews: 58, tags: [],
+    tags: [],
     short: "Higiene suave para os ouvidos.",
     description: "Solução suave para remover cera e sujeira do pavilhão auricular. Em caso de vermelhidão ou odor forte, consulte o veterinário.",
     benefits: ["Fórmula suave", "Remove cera e sujeira", "Uso semanal"],
@@ -222,7 +224,7 @@ ZP.products = [
   {
     id: 19, slug: "kit-banho-completo", name: "Kit Banho Completo", cat: "kits", pets: ["caes", "gatos"],
     variants: [{ label: "3 itens", price: 84.9, old: 92.7 }],
-    rating: 4.9, reviews: 143, tags: ["mais-vendido", "promo"],
+    tags: ["destaque", "promo"],
     short: "Shampoo + Condicionador + Colônia Cheirinho de Bebê.",
     description: "Tudo para o banho perfeito em casa: Shampoo Limpeza Profunda 500 ml, Condicionador Maciez & Hidratação 500 ml e Colônia Cheirinho de Bebê 120 ml.",
     benefits: ["Economia em relação aos itens avulsos", "Banho completo do início ao fim", "Ótimo para presentear"],
@@ -232,7 +234,7 @@ ZP.products = [
   {
     id: 20, slug: "kit-pelos-longos", name: "Kit Pelos Longos", cat: "kits", pets: ["caes", "gatos"],
     variants: [{ label: "3 itens", price: 84.9, old: 96.7 }],
-    rating: 4.8, reviews: 61, tags: ["promo"],
+    tags: ["promo"],
     short: "Shampoo + Condicionador Desembaraçante + Leave-in Spray.",
     description: "A rotina completa para raças de pelo longo: Shampoo Neutro 500 ml, Condicionador Pelos Longos 500 ml e Leave-in Desembaraçante 240 ml.",
     benefits: ["Fim dos nós", "Pelagem solta e brilhante", "Economia no kit"],
@@ -242,7 +244,7 @@ ZP.products = [
   {
     id: 21, slug: "kit-equinos-show", name: "Kit Equinos Show", cat: "kits", pets: ["cavalos"],
     variants: [{ label: "3 itens", price: 199.9, old: 224.7 }],
-    rating: 5.0, reviews: 18, tags: ["promo"],
+    tags: ["promo"],
     short: "Shampoo 1 L + Condicionador 1 L + Leave-in Crina e Cauda.",
     description: "Para deixar o cavalo pronto para provas e exposições: Shampoo Brilho Intenso 1 L, Condicionador Crina & Cauda 1 L e Leave-in Crina e Cauda 500 ml.",
     benefits: ["Brilho de pista", "Crina e cauda impecáveis", "Economia no kit"],
@@ -252,7 +254,7 @@ ZP.products = [
   {
     id: 22, slug: "kit-primeiro-banho-filhote", name: "Kit Primeiro Banho do Filhote", cat: "kits", pets: ["caes", "gatos"],
     variants: [{ label: "3 itens", price: 64.9, old: 77.7 }],
-    rating: 4.9, reviews: 47, tags: ["novo", "promo"],
+    tags: ["novo", "promo"],
     short: "Shampoo Neutro + Colônia Bebê + Escova macia.",
     description: "O kit de boas-vindas para o novo membro da família: Shampoo Neutro Hipoalergênico 500 ml, Colônia Cheirinho de Bebê 120 ml e Escova Removedora de Pelos.",
     benefits: ["Fórmulas suaves", "Perfeito para presentear", "Economia no kit"],
@@ -316,9 +318,10 @@ ZP.articles = [
   },
 ];
 
-/* ---------- DEPOIMENTOS (EXEMPLOS — substitua por depoimentos reais) ---------- */
-ZP.testimonials = [
-  { name: "Mariana S.", pet: "tutora do Thor 🐶", text: "O Kit Banho Completo virou rotina aqui em casa. O Thor fica cheiroso a semana toda e o pelo nunca esteve tão macio!", rating: 5 },
-  { name: "Carlos R.",  pet: "dono da Estrela 🐴", text: "Uso o shampoo e o leave-in de crina na Estrela antes das provas. Brilho absurdo e rende muito.", rating: 5 },
-  { name: "Juliana P.", pet: "tutora da Mel e do Floquinho 🐱🐰", text: "Atendimento pelo WhatsApp super rápido e me indicaram o banho a seco pro Floquinho. Amei o cuidado!", rating: 5 },
-];
+/* ---------- DEPOIMENTOS ----------
+   ⚠️ Coloque aqui SOMENTE depoimentos reais, com autorização do cliente.
+   Enquanto a lista estiver vazia, a seção "Quem usa, recomenda" fica escondida.
+   Formato:
+   { name: "Mariana S.", pet: "tutora do Thor 🐶", text: "O que o cliente disse...", rating: 5 },
+*/
+ZP.testimonials = [];

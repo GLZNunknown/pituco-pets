@@ -10,7 +10,9 @@ window.ZP = window.ZP || {};
 
   const minPrice = (p) => Math.min(...p.variants.map((v) => v.price));
   const PRICE_CEIL = Math.ceil(Math.max(...ZP.products.map(minPrice)) / 10) * 10;
-  const TAGS = { "mais-vendido": "Mais vendido", novo: "Novo", promo: "Oferta" };
+  const TAGS = { destaque: "Destaque", novo: "Novo", promo: "Oferta" };
+  const HAS_RATINGS = ZP.products.some((p) => p.rating);
+  const score = (p) => (p.tags.includes("destaque") ? 3 : 0) + (p.tags.includes("promo") ? 1 : 0) + (p.rating || 0);
 
   const filters = { cat: "all", pet: "all", q: "", sort: "relevance", promo: false, max: PRICE_CEIL, shown: cfg.pageSize };
 
@@ -57,7 +59,7 @@ window.ZP = window.ZP || {};
         <div class="product-card__body">
           <div class="product-card__meta"><span>${cat.name}</span><span class="pets">${petIcons(p)}</span></div>
           <h3 class="product-card__title"><a href="#p/${p.slug}">${esc(p.name)}</a></h3>
-          <div class="product-card__rating">${stars(p.rating)}<small>(${p.reviews})</small></div>
+          <div class="product-card__rating">${p.rating ? `${stars(p.rating)}<small>(${p.reviews})</small>` : `<span class="new-pill">✨ Novo na loja</span>`}</div>
           ${priceBlock(p)}
           <button class="btn btn--primary btn--block" data-quickadd="${p.id}">${icon("bag")} Adicionar</button>
         </div>
@@ -122,6 +124,8 @@ window.ZP = window.ZP || {};
     range.value = filters.max;
     $("#priceMaxLabel").textContent = filters.max >= PRICE_CEIL ? "Qualquer preço" : `Até ${brl(filters.max)}`;
     $("#promoOnly").checked = filters.promo;
+    const ratingOpt = $('#sortSelect option[value="rating"]');
+    if (ratingOpt && !HAS_RATINGS) ratingOpt.remove();
     $("#sortSelect").value = filters.sort;
   }
 
@@ -139,10 +143,9 @@ window.ZP = window.ZP || {};
       minPrice(p) <= filters.max &&
       (!tokens.length || matches(p, tokens)));
 
-    const score = (p) => (p.tags.includes("mais-vendido") ? 3 : 0) + (p.tags.includes("promo") ? 1 : 0) + p.rating;
     const sorters = {
       relevance: (a, b) => score(b) - score(a),
-      rating: (a, b) => b.rating - a.rating || b.reviews - a.reviews,
+      rating: (a, b) => (b.rating || 0) - (a.rating || 0) || (b.reviews || 0) - (a.reviews || 0),
       "price-asc": (a, b) => minPrice(a) - minPrice(b),
       "price-desc": (a, b) => minPrice(b) - minPrice(a),
       newest: (a, b) => (b.tags.includes("novo") - a.tags.includes("novo")) || b.id - a.id,
@@ -218,7 +221,7 @@ window.ZP = window.ZP || {};
   function related(p) {
     return ZP.products
       .filter((x) => x.id !== p.id && x.pets.some((pet) => p.pets.includes(pet)))
-      .sort((a, b) => (a.cat === p.cat) - (b.cat === p.cat) || b.rating - a.rating)
+      .sort((a, b) => (a.cat === p.cat) - (b.cat === p.cat) || score(b) - score(a))
       .slice(0, 4);
   }
 
@@ -234,7 +237,9 @@ window.ZP = window.ZP || {};
         <div class="pd__info">
           <p class="pd__crumbs"><button data-go-cat="${cat.id}">${cat.name}</button> <span>·</span> ${pets}</p>
           <h2 class="pd__title" id="productTitle">${esc(p.name)}</h2>
-          <div class="pd__rating">${stars(p.rating)} <b>${p.rating.toFixed(1).replace(".", ",")}</b> <small>(${p.reviews} avaliações)</small></div>
+          <div class="pd__rating">${p.rating
+            ? `${stars(p.rating)} <b>${p.rating.toFixed(1).replace(".", ",")}</b> <small>(${p.reviews} avaliações)</small>`
+            : `<span class="new-pill">✨ Novo na loja</span> <a href="${waLink(`Olá! Comprei o ${p.name} e quero deixar minha avaliação.`)}" target="_blank" rel="noopener">Seja o primeiro a avaliar</a>`}</div>
           <p class="pd__short">${esc(p.short)}</p>
 
           ${p.variants.length > 1 ? `

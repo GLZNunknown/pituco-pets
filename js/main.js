@@ -94,6 +94,7 @@
 
   /* ---------- Depoimentos ---------- */
   function testimonials() {
+    if (!ZP.testimonials.length) { $("#depoimentos").hidden = true; return; }
     $("#testimonialGrid").innerHTML = ZP.testimonials.map((t) => `
       <figure class="testimonial">
         ${stars(t.rating)}

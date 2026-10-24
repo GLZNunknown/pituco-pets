@@ -7,34 +7,42 @@
   <meta name="description" content="Shampoo, condicionador, leave-in, perfumes e produtos de higiene para cães, gatos, coelhos e cavalos. Entrega em todo o estado de São Paulo, frete grátis acima de R$ 150 e atendimento direto no WhatsApp.">
   <meta name="theme-color" content="#5b1fa8">
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/img/icon-180.png">
+  <link rel="manifest" href="manifest.webmanifest">
 
   <!-- Compartilhamento em redes sociais -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="Pituco Pets — Banho é cuidado, é bem-estar!">
   <meta property="og:description" content="Tudo o que seu pet precisa, em um só lugar! Linha completa de banho e cuidados para cães, gatos, coelhos e cavalos.">
-  <meta property="og:image" content="assets/img/hero-pets.webp">
+  <meta property="og:url" content="https://izabelys818-arch.github.io/products-pets/">
+  <meta property="og:site_name" content="Pituco Pets">
+  <meta property="og:image" content="https://izabelys818-arch.github.io/products-pets/assets/img/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Pituco Pets: cachorro, gato, coelho e cavalo depois do banho, com o slogan Banho é cuidado, é bem-estar!">
+  <meta name="twitter:card" content="summary_large_image">
   <meta property="og:locale" content="pt_BR">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css?v=20261024">
 
   <script type="application/ld+json">
   { "@context": "https://schema.org", "@type": "PetStore", "name": "Pituco Pets",
-    "slogan": "Banho é cuidado, é bem-estar!", "image": "assets/img/hero-pets.webp",
+    "slogan": "Banho é cuidado, é bem-estar!", "image": "https://izabelys818-arch.github.io/products-pets/assets/img/og-image.jpg", "logo": "https://izabelys818-arch.github.io/products-pets/assets/img/icon-512.png", "url": "https://izabelys818-arch.github.io/products-pets/",
     "priceRange": "R$", "paymentAccepted": "Pix, Cartão de crédito, Dinheiro" }
   </script>
 
-  <script src="js/config.js" defer></script>
-  <script src="js/data.js" defer></script>
-  <script src="js/utils.js" defer></script>
-  <script src="js/store.js" defer></script>
-  <script src="js/art.js" defer></script>
-  <script src="js/catalog.js" defer></script>
-  <script src="js/cart.js" defer></script>
-  <script src="js/checkout.js" defer></script>
-  <script src="js/main.js" defer></script>
+  <script src="js/config.js?v=20261024" defer></script>
+  <script src="js/data.js?v=20261024" defer></script>
+  <script src="js/utils.js?v=20261024" defer></script>
+  <script src="js/store.js?v=20261024" defer></script>
+  <script src="js/art.js?v=20261024" defer></script>
+  <script src="js/catalog.js?v=20261024" defer></script>
+  <script src="js/cart.js?v=20261024" defer></script>
+  <script src="js/checkout.js?v=20261024" defer></script>
+  <script src="js/main.js?v=20261024" defer></script>
 </head>
 <body>
   <!-- ===== Ícones (SVG sprite) ===== -->
@@ -89,8 +97,7 @@
       </button>
 
       <a class="logo" href="#inicio" aria-label="Pituco Pets — início">
-        <svg class="logo__paw i i--fill"><use href="#i-paw"/></svg>
-        <span class="logo__text"><span>PITUCO</span><i>PETS</i></span>
+        <img class="logo__img" src="assets/img/logo.svg" alt="Pituco Pets" width="203" height="56">
       </a>
 
       <form class="search" id="searchForm" role="search" autocomplete="off">
@@ -360,7 +367,7 @@
   <footer class="footer">
     <div class="container footer__grid">
       <div class="footer__brand">
-        <a class="logo logo--light" href="#inicio"><svg class="logo__paw i i--fill"><use href="#i-paw"/></svg><span class="logo__text"><span>PITUCO</span><i>PETS</i></span></a>
+        <a class="logo" href="#inicio" aria-label="Pituco Pets — voltar ao topo"><img class="logo__img" src="assets/img/logo-branco.svg" alt="Pituco Pets" width="203" height="56"></a>
         <p>Tudo o que seu pet precisa, em um só lugar! Banho é cuidado, é bem-estar. 💜</p>
         <div class="footer__social">
           <a data-insta href="#" aria-label="Instagram"><svg class="i"><use href="#i-instagram"/></svg></a>
@@ -403,7 +410,7 @@
   <div class="layer layer--drawer layer--left" id="menuLayer" hidden>
     <div class="layer__backdrop" data-close></div>
     <aside class="layer__panel drawer" role="dialog" aria-modal="true" aria-label="Menu" tabindex="-1">
-      <header class="drawer__head"><a class="logo" href="#inicio"><svg class="logo__paw i i--fill"><use href="#i-paw"/></svg><span class="logo__text"><span>PITUCO</span><i>PETS</i></span></a><button class="icon-btn" data-close aria-label="Fechar menu"><svg class="i"><use href="#i-x"/></svg></button></header>
+      <header class="drawer__head"><a class="logo" href="#inicio" aria-label="Pituco Pets — início"><img class="logo__img" src="assets/img/logo.svg" alt="Pituco Pets" width="203" height="56"></a><button class="icon-btn" data-close aria-label="Fechar menu"><svg class="i"><use href="#i-x"/></svg></button></header>
       <nav class="drawer__nav">
         <a href="#inicio">Início</a><a href="#categorias">Categorias</a><a href="#produtos">Produtos</a><a href="#kits">Kits de banho</a>
         <a href="#como-comprar">Como comprar</a><a href="#dicas">Dicas</a><a href="#duvidas">Dúvidas</a><a href="#contato">Contato</a>

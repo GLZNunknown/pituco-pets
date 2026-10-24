@@ -55,7 +55,7 @@ window.ZP = window.ZP || {};
     const inCart = new Set(ZP.store.state.cart.map((l) => l.id));
     const picks = ZP.products
       .filter((p) => !inCart.has(p.id) && p.cat !== "kits" && p.variants[0].price <= 40)
-      .sort((a, b) => b.reviews - a.reviews)
+      .sort((a, b) => (b.reviews || 0) - (a.reviews || 0) || a.variants[0].price - b.variants[0].price)
       .slice(0, 3);
     return picks.length ? `<div class="upsell"><h3>Aproveite também</h3><div class="mini-grid mini-grid--stack">${picks.map(ZP.catalog.miniCard).join("")}</div></div>` : "";
   }
