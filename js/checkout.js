@@ -1,19 +1,22 @@
 /* =========================================================================
-   CHECKOUT — 4 etapas (dados → entrega → pagamento → revisão),
-   CEP automático (ViaCEP), cálculo de frete e envio do pedido pelo WhatsApp
+   CHECKOUT — 3 etapas (dados → entrega → confirmação).
+   Ao finalizar, o cliente é levado direto ao WhatsApp da loja com o pedido
+   completo (itens, valores, dados e endereço). Pagamento e atendimento
+   são concluídos pela equipe no WhatsApp.
    ========================================================================= */
 window.ZP = window.ZP || {};
 
 (function (ZP) {
-  const { $, $$, brl, esc, icon, onlyDigits, storage, toast, openLayer, closeLayer, waLink } = ZP.u;
+  const { $, brl, esc, icon, onlyDigits, storage, toast, openLayer, closeLayer, waLink } = ZP.u;
   const cfg = ZP.config;
+  const area = cfg.shipping.serviceArea;
 
   const UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
-  const STEPS = ["Seus dados", "Entrega", "Pagamento", "Revisão"];
+  const STEPS = ["Seus dados", "Entrega", "Confirmar"];
   const PAYMENTS = {
-    pix:  { label: "Pix", desc: `${cfg.payment.pixDiscount}% de desconto · enviamos a chave Pix no WhatsApp`, icon: "pix" },
-    card: { label: "Cartão de crédito", desc: `Até ${cfg.payment.maxInstallments}x sem juros · enviamos um link de pagamento seguro`, icon: "card" },
-    cash: { label: "Dinheiro", desc: "Pague na entrega ou na retirada", icon: "money" },
+    pix:  { label: "Pix", desc: `${cfg.payment.pixDiscount}% de desconto`, icon: "pix" },
+    card: { label: "Cartão de crédito", desc: `Até ${cfg.payment.maxInstallments}x sem juros, por link seguro`, icon: "card" },
+    cash: { label: "Dinheiro", desc: "Na entrega ou na retirada", icon: "money" },
   };
 
   // Dados do cliente ficam salvos só neste navegador, para agilizar a próxima compra
@@ -36,16 +39,17 @@ window.ZP = window.ZP || {};
   };
   const maskCep = (v) => { const d = onlyDigits(v).slice(0, 8); return d.length > 5 ? `${d.slice(0, 5)}-${d.slice(5)}` : d; };
 
-  /* ---------- Frete ---------- */
+  /* ---------- Frete e área de entrega ---------- */
+  // null = falta informação | { outside: true } = região ainda não atendida | { price, days, name }
   function quote() {
     if (data.mode === "pickup") return { price: 0, days: cfg.shipping.pickup.days, name: cfg.shipping.pickup.label };
-    if (!UFS.includes(data.uf)) return null;
-    return ZP.pricing.shippingFor(data.uf);
+    if (!data.uf || !data.city.trim()) return null;
+    return ZP.pricing.shippingFor(data.uf, data.city) || { outside: true };
   }
 
   const totals = () => {
     const q = quote();
-    return ZP.pricing.compute({ shipping: q ? q.price : null, payment: data.payment });
+    return ZP.pricing.compute({ shipping: q && !q.outside ? q.price : null, payment: data.payment });
   };
 
   /* ---------- Componentes de formulário ---------- */
@@ -56,13 +60,18 @@ window.ZP = window.ZP || {};
       <small class="field__error" aria-live="polite"></small>
     </div>`;
 
-  const option = (group, value, title, desc, iconName, checked) => `
-    <label class="option ${checked ? "is-active" : ""}">
+  const option = (group, value, title, desc, iconName, checked, extra = "") => `
+    <label class="option ${extra} ${checked ? "is-active" : ""}">
       <input type="radio" name="${group}" value="${value}" ${checked ? "checked" : ""}>
       <span class="option__icon">${icon(iconName)}</span>
       <span class="option__text"><b>${title}</b><small>${desc}</small></span>
       <span class="option__check">${icon("check")}</span>
     </label>`;
+
+  function addressLine() {
+    return data.mode === "pickup" ? `${cfg.shipping.pickup.label} — ${cfg.store.address}` :
+      `${data.street}, ${data.number}${data.complement ? ` (${data.complement})` : ""} — ${data.district}, ${data.city}/${data.uf} — CEP ${data.cep}`;
+  }
 
   /* ---------- Etapas ---------- */
   const views = [
@@ -71,16 +80,15 @@ window.ZP = window.ZP || {};
       <h3 class="co__title">Como podemos falar com você?</h3>
       <div class="form-grid">
         ${field("name", "Nome completo", { req: true, ph: "Ex.: Maria Silva", cls: "span-2", attrs: 'autocomplete="name"' })}
-        ${field("phone", "WhatsApp", { type: "tel", req: true, ph: "(11) 99999-9999", attrs: 'autocomplete="tel" inputmode="tel"' })}
+        ${field("phone", "Seu WhatsApp", { type: "tel", req: true, ph: "(11) 99999-9999", attrs: 'autocomplete="tel" inputmode="tel"' })}
         ${field("email", "E-mail (opcional)", { type: "email", ph: "voce@email.com", attrs: 'autocomplete="email"' })}
       </div>
-      <p class="co__note">${icon("shield")} Seus dados ficam salvos apenas neste navegador para agilizar a próxima compra.</p>`,
+      <p class="co__note">${icon("shield")} Seus dados ficam salvos apenas neste navegador e só são enviados para a loja quando você finaliza o pedido.</p>`,
 
     // 2. Entrega
-    () => {
-      const q = quote();
-      return `
+    () => `
       <h3 class="co__title">Como você quer receber?</h3>
+      <p class="co__area">${icon("pin")} Por enquanto entregamos no <b>${esc(area.label)}</b>.</p>
       <div class="options">
         ${option("mode", "delivery", "Receber em casa", "Entregamos no seu endereço", "truck", data.mode === "delivery")}
         ${cfg.shipping.pickup.enabled ? option("mode", "pickup", cfg.shipping.pickup.label, `Grátis · ${cfg.shipping.pickup.days}`, "store", data.mode === "pickup") : ""}
@@ -89,7 +97,7 @@ window.ZP = window.ZP || {};
         <div class="pickup-card">${icon("pin")}<div><b>${esc(cfg.store.address)}</b><small>${esc(cfg.store.hours)}</small></div></div>` : `
         <div class="form-grid">
           ${field("cep", "CEP", { req: true, ph: "00000-000", attrs: 'inputmode="numeric" autocomplete="postal-code"' })}
-          <div class="field field--hint"><a href="https://buscacepinter.correios.com.br/" target="_blank" rel="noopener">Não sei meu CEP</a><small id="cepStatus" aria-live="polite">${cepStatus}</small></div>
+          <div class="field field--hint"><a href="https://buscacepinter.correios.com.br/" target="_blank" rel="noopener">Não sei meu CEP</a><small id="cepStatus" aria-live="polite">${esc(cepStatus)}</small></div>
           ${field("street", "Rua / Avenida", { req: true, cls: "span-2", attrs: 'autocomplete="address-line1"' })}
           ${field("number", "Número", { req: true, attrs: 'inputmode="numeric"' })}
           ${field("complement", "Complemento", { ph: "Apto, bloco..." })}
@@ -101,41 +109,38 @@ window.ZP = window.ZP || {};
             <small class="field__error" aria-live="polite"></small>
           </div>
         </div>`}
-      <div class="ship-quote" id="shipQuote">${shipQuoteHTML(q)}</div>`;
-    },
+      <div class="ship-quote" id="shipQuote">${shipQuoteHTML(quote())}</div>`,
 
-    // 3. Pagamento
-    () => `
-      <h3 class="co__title">Como você prefere pagar?</h3>
-      <div class="options">
-        ${Object.entries(PAYMENTS).map(([k, p]) => option("payment", k, p.label, p.desc, p.icon, data.payment === k)).join("")}
-      </div>
-      ${data.payment === "cash" ? `<div class="form-grid">${field("change", "Troco para quanto? (opcional)", { ph: "Ex.: R$ 100", attrs: 'inputmode="decimal"' })}</div>` : ""}
-      <div class="form-grid">
-        <div class="field span-2">
-          <label for="co-notes">Observações (opcional)</label>
-          <textarea id="co-notes" name="notes" rows="3" placeholder="Ex.: entregar após as 14h, presente...">${esc(data.notes)}</textarea>
-        </div>
-      </div>
-      <p class="co__note">${icon("chat")} O pagamento é combinado com segurança pelo WhatsApp, depois que confirmamos o pedido. Nenhum dado de cartão é digitado neste site.</p>`,
-
-    // 4. Revisão
+    // 3. Confirmar
     () => {
       const t = totals();
       const q = quote();
-      const addr = data.mode === "pickup" ? `${cfg.shipping.pickup.label} — ${cfg.store.address}` :
-        `${data.street}, ${data.number}${data.complement ? ` (${data.complement})` : ""} — ${data.district}, ${data.city}/${data.uf} — CEP ${data.cep}`;
       return `
-      <h3 class="co__title">Confira seu pedido</h3>
+      <h3 class="co__title">Confira e finalize no WhatsApp</h3>
       <div class="review">
-        <section><header><b>${icon("user")} Seus dados</b><button class="link-btn" data-go-step="0">Editar</button></header>
+        <section><header><b>${icon("user")} Seus dados</b><button type="button" class="link-btn" data-go-step="0">Editar</button></header>
           <p>${esc(data.name)}<br>${esc(data.phone)}${data.email ? `<br>${esc(data.email)}` : ""}</p></section>
-        <section><header><b>${icon("truck")} Entrega</b><button class="link-btn" data-go-step="1">Editar</button></header>
-          <p>${esc(addr)}<br><small>${q ? esc(q.days) : ""}</small></p></section>
-        <section><header><b>${icon(PAYMENTS[data.payment].icon)} Pagamento</b><button class="link-btn" data-go-step="2">Editar</button></header>
-          <p>${PAYMENTS[data.payment].label}${data.payment === "card" ? ` · até ${ZP.pricing.installments(t.total).n}x de ${brl(ZP.pricing.installments(t.total).each)}` : ""}${data.payment === "cash" && data.change ? ` · troco para ${esc(data.change)}` : ""}</p></section>
+        <section><header><b>${icon("truck")} Entrega</b><button type="button" class="link-btn" data-go-step="1">Editar</button></header>
+          <p>${esc(addressLine())}<br><small>${q && !q.outside ? esc(q.days) : ""}</small></p></section>
         <section class="span-2"><header><b>${icon("bag")} Itens (${ZP.store.count()})</b></header>
           <ul class="review__items">${t.lines.map((l) => `<li><span>${l.qty}× ${esc(l.p.name)} <small>${l.variant.label}</small></span><b>${brl(l.total)}</b></li>`).join("")}</ul></section>
+      </div>
+
+      <h4 class="co__subtitle">Como prefere pagar? <small>Você confirma o pagamento com a nossa equipe no WhatsApp.</small></h4>
+      <div class="options options--row">
+        ${Object.entries(PAYMENTS).map(([k, p]) => option("payment", k, p.label, p.desc, p.icon, data.payment === k, "option--compact")).join("")}
+      </div>
+      <div class="form-grid">
+        ${data.payment === "cash" ? field("change", "Troco para quanto? (opcional)", { ph: "Ex.: R$ 100", attrs: 'inputmode="decimal"' }) : ""}
+        <div class="field ${data.payment === "cash" ? "" : "span-2"}">
+          <label for="co-notes">Observações (opcional)</label>
+          <textarea id="co-notes" name="notes" rows="2" placeholder="Ex.: entregar após as 14h, é presente...">${esc(data.notes)}</textarea>
+        </div>
+      </div>
+
+      <div class="wa-hint">
+        ${icon("whatsapp")}
+        <p>Ao finalizar, abrimos o <b>WhatsApp da ${esc(cfg.store.name)}</b> com o seu pedido já escrito. É só tocar em <b>enviar</b> e a nossa equipe confirma o frete, o pagamento e o prazo com você por lá.</p>
       </div>
       <label class="consent"><input type="checkbox" id="co-consent"> <span>Li e concordo com as <a href="politicas.html" target="_blank">políticas de troca, entrega e privacidade</a>.</span></label>
       <small class="field__error" id="consentError" aria-live="polite"></small>`;
@@ -144,6 +149,12 @@ window.ZP = window.ZP || {};
 
   function shipQuoteHTML(q) {
     if (!q) return `${icon("truck")} <span>Informe o CEP para calcular o frete.</span>`;
+    if (q.outside) {
+      return `<div class="ship-quote__out">${icon("pin")}<span><b>Ainda não entregamos em ${esc(data.city || "sua cidade")}${data.uf ? `/${esc(data.uf)}` : ""}.</b>
+        Por enquanto atendemos o ${esc(area.label)}, mas estamos crescendo!
+        <a href="${waLink(`Olá! Moro em ${data.city}/${data.uf} e queria saber quando a ${cfg.store.name} vai entregar aqui.`)}" target="_blank" rel="noopener">Avise-me quando chegar</a>
+        ${cfg.shipping.pickup.enabled ? ` ou escolha <b>${esc(cfg.shipping.pickup.label)}</b>.` : ""}</span></div>`;
+    }
     const t = ZP.pricing.compute({ shipping: q.price });
     const price = data.mode === "pickup" || t.shipping === 0 ? "<b class='ok'>Grátis</b>" : `<b>${brl(t.shipping)}</b>`;
     return `${icon(data.mode === "pickup" ? "store" : "truck")} <span>${esc(q.name)}: ${price} · ${esc(q.days)}</span>`;
@@ -165,7 +176,14 @@ window.ZP = window.ZP || {};
       </dl>`;
   }
 
+  function refreshQuote() {
+    const box = $("#shipQuote");
+    if (box) box.innerHTML = shipQuoteHTML(quote());
+    $("#coSummary").innerHTML = summaryHTML();
+  }
+
   function render() {
+    const last = step === STEPS.length - 1;
     $("#checkoutContent").innerHTML = `
       <ol class="co-steps" aria-label="Etapas do checkout">
         ${STEPS.map((s, i) => `<li class="${i < step ? "is-done" : ""} ${i === step ? "is-current" : ""}" ${i === step ? 'aria-current="step"' : ""}>
@@ -176,13 +194,13 @@ window.ZP = window.ZP || {};
           ${views[step]()}
           <div class="co__nav">
             ${step > 0 ? `<button type="button" class="btn btn--ghost" data-co-back>${icon("arrow-left")} Voltar</button>` : `<button type="button" class="btn btn--ghost" data-close>Voltar à sacola</button>`}
-            <button class="btn btn--primary btn--lg">${step < STEPS.length - 1 ? `Continuar ${icon("arrow-right")}` : `${icon("whatsapp")} Enviar pedido pelo WhatsApp`}</button>
+            <button class="btn btn--lg ${last ? "btn--whatsapp" : "btn--primary"}">${last ? `${icon("whatsapp")} Finalizar no WhatsApp` : `Continuar ${icon("arrow-right")}`}</button>
           </div>
         </form>
         <aside class="co-sum" id="coSummary">${summaryHTML()}</aside>
       </div>`;
     const first = $("#coForm input:not([type=radio]):not([type=checkbox]), #coForm select");
-    if (first && !first.value) setTimeout(() => first.focus(), 80);
+    if (first && !first.value && step < 2) setTimeout(() => first.focus(), 80);
   }
 
   /* ---------- Validação ---------- */
@@ -207,10 +225,13 @@ window.ZP = window.ZP || {};
       if (onlyDigits(data.cep).length !== 8) errors.cep = "CEP deve ter 8 dígitos.";
       ["street", "number", "district", "city"].forEach((k) => { if (!data[k].trim()) errors[k] = "Campo obrigatório."; });
       if (!UFS.includes(data.uf)) errors.uf = "Selecione o estado.";
+      const q = quote();
+      if (!errors.cep && q && q.outside) errors.cep = `Ainda não entregamos nesta região (só ${area.label}).`;
     }
     Object.keys(data).forEach((k) => setError(k, errors[k]));
-    if (step === 3 && !$("#co-consent").checked) {
-      $("#consentError").textContent = "Confirme que leu as políticas para enviar o pedido.";
+    if (step === 2 && !$("#co-consent").checked) {
+      $("#consentError").textContent = "Confirme que leu as políticas para finalizar.";
+      $("#co-consent").focus();
       return false;
     }
     const firstError = Object.keys(errors)[0];
@@ -229,7 +250,7 @@ window.ZP = window.ZP || {};
       const r = await res.json();
       if (r.erro) throw new Error();
       Object.assign(data, { street: r.logradouro || data.street, district: r.bairro || data.district, city: r.localidade, uf: r.uf });
-      cepStatus = "Endereço encontrado ✓";
+      cepStatus = area.ufs.includes(r.uf) ? "Endereço encontrado ✓" : "";
       render();
       $(data.street ? "#co-number" : "#co-street").focus();
     } catch {
@@ -242,18 +263,15 @@ window.ZP = window.ZP || {};
     const t = totals();
     const q = quote();
     const lines = t.lines.map((l) => `• ${l.qty}x ${l.p.name} (${l.variant.label}) — ${brl(l.total)}`).join("\n");
-    const ship = data.mode === "pickup" ? "Retirada na loja (grátis)" : t.shipping === 0 ? `Grátis (${q.days})` : `${brl(t.shipping)} (${q.days})`;
-    const pay = PAYMENTS[data.payment].label +
-      (data.payment === "card" ? ` — até ${ZP.pricing.installments(t.total).n}x sem juros (enviar link)` : "") +
-      (data.payment === "cash" && data.change ? ` — troco para ${data.change}` : "");
-    const address = data.mode === "pickup" ? "Retirada na loja" :
+    const ship = data.mode === "pickup" ? "Retirada na loja (grátis)" : t.shipping === 0 ? `Grátis — ${q.name} (${q.days})` : `${brl(t.shipping)} — ${q.name} (${q.days})`;
+    const pay = PAYMENTS[data.payment].label + (data.payment === "cash" && data.change ? ` (troco para ${data.change})` : "");
+    const address = data.mode === "pickup" ? "Vou retirar na loja" :
       `${data.street}, ${data.number}${data.complement ? ` - ${data.complement}` : ""}\n${data.district} — ${data.city}/${data.uf}\nCEP ${data.cep}`;
 
     return [
-      `*Novo pedido — ${cfg.store.name}* 🐾`,
-      `Pedido: *${id}*`,
+      `Olá, ${cfg.store.name}! 🐾 Quero finalizar meu pedido:`,
       "",
-      "*Itens*",
+      `*Pedido ${id}*`,
       lines,
       "",
       `Subtotal: ${brl(t.subtotal)}`,
@@ -262,9 +280,9 @@ window.ZP = window.ZP || {};
       `Frete: ${ship}`,
       `*Total: ${brl(t.total)}*`,
       "",
-      `*Pagamento:* ${pay}`,
+      `*Forma de pagamento preferida:* ${pay}`,
       "",
-      "*Cliente*",
+      "*Meus dados*",
       data.name,
       data.phone,
       data.email || null,
@@ -275,20 +293,30 @@ window.ZP = window.ZP || {};
     ].filter((x) => x !== null).join("\n");
   }
 
+  // Abre o WhatsApp da loja: no celular vai direto para o app; no computador, abre em nova aba
+  function openWhatsApp(url) {
+    const mobile = matchMedia("(pointer: coarse)").matches;
+    if (mobile) { location.href = url; return; }
+    const w = window.open(url, "_blank");
+    if (w) w.opener = null;
+    else location.href = url;
+  }
+
   function submitOrder() {
-    const id = "ZP-" + Date.now().toString(36).slice(-6).toUpperCase();
+    const id = "PT-" + Date.now().toString(36).slice(-6).toUpperCase();
     const total = totals().total;
-    window.open(waLink(orderMessage(id)), "_blank", "noopener");
+    const url = waLink(orderMessage(id));
     ZP.store.clear();
     $("#checkoutContent").innerHTML = `
       <div class="co-done">
-        <span class="co-done__icon">🎉</span>
-        <h2>Pedido enviado!</h2>
-        <p>Seu pedido <b>${id}</b> no valor de <b>${brl(total)}</b> foi enviado para o nosso WhatsApp.<br>
-        Agora é só aguardar a confirmação e as instruções de pagamento.</p>
-        <p class="co__note">${icon("chat")} O WhatsApp não abriu? <a href="${waLink(`Olá! Acabei de fazer o pedido ${id} pelo site.`)}" target="_blank" rel="noopener">Clique aqui para falar com a gente</a>.</p>
-        <button class="btn btn--primary" data-close>Voltar para a loja</button>
+        <span class="co-done__icon">💬</span>
+        <h2>Quase lá! Finalize no WhatsApp</h2>
+        <p>Abrimos o WhatsApp da <b>${esc(cfg.store.name)}</b> com o seu pedido <b>${id}</b> (${brl(total)}) já escrito.<br>
+        <b>Toque em enviar</b> e a nossa equipe confirma o frete, o pagamento e o prazo com você.</p>
+        <a class="btn btn--whatsapp btn--lg" href="${url}" target="_blank" rel="noopener">${icon("whatsapp")} Abrir o WhatsApp de novo</a>
+        <button class="link-btn" data-close>Voltar para a loja</button>
       </div>`;
+    openWhatsApp(url);
   }
 
   /* ---------- Eventos ---------- */
@@ -303,12 +331,16 @@ window.ZP = window.ZP || {};
       data[el.name] = el.value;
       if (el.closest(".field")?.classList.contains("is-error")) setError(el.name, "");
       if (el.name === "cep" && onlyDigits(el.value).length === 8) lookupCep();
-      if (el.name === "uf") { $("#shipQuote").innerHTML = shipQuoteHTML(quote()); $("#coSummary").innerHTML = summaryHTML(); }
+      if (el.name === "uf" || el.name === "city") refreshQuote();
     });
 
     root.addEventListener("change", (e) => {
       const el = e.target;
-      if (el.type === "radio") { data[el.name] = el.value; render(); }
+      if (el.type === "radio") {
+        data[el.name] = el.value;
+        render();
+        $(`#coForm input[name="${el.name}"][value="${el.value}"]`)?.focus();
+      }
       if (el.id === "co-consent") $("#consentError").textContent = "";
     });
 

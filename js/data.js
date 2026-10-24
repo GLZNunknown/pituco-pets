@@ -1,5 +1,5 @@
 /* =========================================================================
-   ZECA PETS — DADOS DO CATÁLOGO
+   PITUCO PETS — DADOS DO CATÁLOGO
    Produtos, categorias, pets, dicas e depoimentos.
    ⚠️ Preços, avaliações e depoimentos abaixo são EXEMPLOS.
       Substitua pelos dados reais da loja antes de publicar.

@@ -1,8 +1,8 @@
-﻿# 🐾 Zeca Pets — Loja online
+﻿# 🐾 Pituco Pets — Loja online
 
 > **Banho é cuidado, é bem-estar!** Loja de produtos de banho e cuidado para cães, gatos, coelhos e cavalos.
 
-Site em **HTML, CSS e JavaScript puros**, sem instalação e sem dependências. Os pedidos chegam prontos no **WhatsApp** da loja.
+Site em **HTML, CSS e JavaScript puros**, sem instalação e sem dependências. O cliente monta o pedido no site e **finaliza no WhatsApp da loja**, onde a equipe combina pagamento e entrega. Atende hoje o **estado de São Paulo**.
 
 ## ▶️ Como abrir
 
@@ -23,7 +23,7 @@ Depois acesse http://localhost:8000.
 | **Produto** | Página de detalhe com tamanhos, quantidade, benefícios, modo de uso, produtos relacionados e link compartilhável (`#p/nome-do-produto`) |
 | **Favoritos** | Coração nos produtos e gaveta de favoritos |
 | **Sacola** | Barra de frete grátis, cupons, economia, preço no Pix e sugestões de compra |
-| **Checkout** | 4 etapas: dados, entrega (CEP automático via ViaCEP ou retirada), pagamento (Pix, cartão ou dinheiro) e revisão. O pedido sai formatado para o WhatsApp |
+| **Checkout** | 3 etapas: dados, entrega (CEP automático via ViaCEP, frete por região de SP ou retirada) e confirmação. Ao finalizar, abre o WhatsApp da loja com o pedido completo para a equipe concluir pagamento e entrega |
 | **Conteúdo** | Como comprar, depoimentos, dicas de banho (blog), FAQ, contato e newsletter |
 | **Extras** | Página de políticas (entregas, trocas, pagamentos, LGPD), aviso de cookies, botão flutuante do WhatsApp, SEO e acessibilidade |
 
@@ -53,12 +53,12 @@ Depois acesse http://localhost:8000.
 1. **`js/config.js`**: troque WhatsApp, telefone, e-mail, Instagram, endereço, horário e CNPJ (hoje são exemplos).
 2. **`js/data.js`**: ajuste produtos e preços. **Avaliações e depoimentos são exemplos** e devem ser trocados por dados reais.
 3. **Fotos reais** (opcional): coloque a imagem em `assets/img/produtos/` e adicione `img: "assets/img/produtos/arquivo.webp"` no produto. A foto substitui a ilustração automática.
-4. **Frete e cupons**: edite as faixas por estado e os cupons em `config.js`.
+4. **Área de entrega, frete e cupons**: em `config.js`, `shipping.serviceArea` define os estados atendidos (hoje só SP) e `shipping.zones` as faixas de frete por cidade/região. Para ampliar, adicione o estado e uma nova faixa.
 
 ## 🎟️ Cupons de exemplo
 
 | Cupom | Benefício |
 |---|---|
 | `BEMVINDO10` | 10% OFF |
-| `ZECA20` | 20% OFF acima de R$ 250 |
+| `PITUCO20` | 20% OFF acima de R$ 250 |
 | `FRETEGRATIS` | Frete grátis acima de R$ 80 |

@@ -1,6 +1,6 @@
 /* =========================================================================
    ILUSTRAÇÕES — desenha automaticamente o frasco de cada produto em SVG,
-   com as cores e o rótulo da Zeca Pets. Se o produto tiver `img`, a foto
+   com as cores e o rótulo da Pituco Pets. Se o produto tiver `img`, a foto
    real é usada no lugar.
    ========================================================================= */
 window.ZP = window.ZP || {};
@@ -17,7 +17,7 @@ window.ZP = window.ZP || {};
     return `
       <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="10" fill="#fff"/>
       <use href="#i-paw" x="${cx - 6}" y="${y + 6}" width="12" height="12" fill="${accent}"/>
-      <text x="${cx}" y="${y + 28}" text-anchor="middle" style="${FONT};font-weight:800;font-size:7.5px;letter-spacing:.8px" fill="${PURPLE}">ZECA PETS</text>
+      <text x="${cx}" y="${y + 28}" text-anchor="middle" style="${FONT};font-weight:800;font-size:7px;letter-spacing:.3px" fill="${PURPLE}">PITUCO PETS</text>
       <text x="${cx}" y="${y + 43}" text-anchor="middle" style="${FONT};font-weight:800;font-size:${fit(l1, w, 12.5)}px" fill="${PURPLE}">${l1}</text>
       ${l2 ? `<text x="${cx}" y="${y + 55}" text-anchor="middle" style="${FONT};font-weight:600;font-size:${fit(l2, w, 8)}px" fill="#7a6a92">${l2}</text>` : ""}`;
   }

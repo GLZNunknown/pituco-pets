@@ -87,9 +87,13 @@ window.ZP = window.ZP || {};
       return { ok: true, coupon: c };
     },
 
-    shippingFor(uf) {
-      const zone = cfg.shipping.zones.find((z) => z.ufs.includes(uf)) || cfg.shipping.fallback;
-      return { price: zone.price, days: zone.days, name: zone.name };
+    // Faixa de frete para uma cidade/UF. Retorna null quando a região ainda não é atendida.
+    shippingFor(uf, city = "") {
+      if (!cfg.shipping.serviceArea.ufs.includes(uf)) return null;
+      const c = ZP.u.norm(city.trim());
+      const zone = cfg.shipping.zones.find((z) =>
+        (z.cities && z.cities.some((x) => ZP.u.norm(x) === c)) || (z.ufs && z.ufs.includes(uf)));
+      return zone ? { price: zone.price, days: zone.days, name: zone.name } : null;
     },
 
     // shipping: null = ainda não calculado; payment: "pix" | "card" | "cash" | null
