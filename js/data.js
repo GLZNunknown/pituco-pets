@@ -51,7 +51,7 @@ ZP.products = [
     description: "Sem corantes e com fragrância leve, é ideal para pets com pele sensível, filhotes a partir de 3 meses e banhos mais frequentes.",
     benefits: ["Sem corantes", "Ideal para pele sensível", "Indicado para filhotes", "Não arde os olhos"],
     howTo: "Aplique na pelagem molhada, massageie suavemente e enxágue bem com água morna.",
-    art: { body: "#9be15d", cap: "#5b1fa8", sub: "Hipoalergênico" },
+    art: { body: "#8fd3ff", cap: "#2f80ed", sub: "Hipoalergênico" },
   },
   {
     id: 3, slug: "shampoo-pelos-brancos", name: "Shampoo Pelos Brancos e Claros", cat: "shampoo", pets: ["caes", "gatos"],
@@ -71,7 +71,7 @@ ZP.products = [
     description: "Limpa e perfuma com o frescor da citronela. Uso exclusivo para cães (óleos essenciais podem fazer mal a gatos).",
     benefits: ["Aroma refrescante de citronela", "Limpeza completa", "Pelagem perfumada por mais tempo"],
     howTo: "Aplique na pelagem molhada, massageie e enxágue bem. Uso exclusivo para cães.",
-    art: { body: "#c6e83a", cap: "#2e0b5c", sub: "Citronela" },
+    art: { body: "#ffd23f", cap: "#2e7d32", sub: "Citronela" },
   },
   {
     id: 5, slug: "shampoo-equinos-brilho", name: "Shampoo Equinos Brilho Intenso", cat: "shampoo", pets: ["cavalos"],
@@ -93,7 +93,7 @@ ZP.products = [
     description: "Complemento ideal do shampoo: repõe a hidratação, sela as cutículas e facilita a escovação, com perfume delicado.",
     benefits: ["Hidratação profunda", "Facilita a escovação", "Reduz o frizz", "Perfume delicado"],
     howTo: "Após o shampoo, aplique na pelagem úmida, deixe agir por 2 minutos e enxágue.",
-    art: { body: "#b6e61e", cap: "#5b1fa8", sub: "Maciez" },
+    art: { body: "#ff9cc7", cap: "#5b1fa8", sub: "Maciez" },
   },
   {
     id: 7, slug: "condicionador-pelos-longos", name: "Condicionador Pelos Longos Desembaraçante", cat: "condicionador", pets: ["caes", "gatos"],
@@ -103,7 +103,7 @@ ZP.products = [
     description: "Para Shih Tzu, Lhasa, Yorkshire, Persas e outras raças de pelo longo. Desfaz nós com facilidade e deixa o pelo solto.",
     benefits: ["Desfaz nós com facilidade", "Ideal para pelos longos", "Brilho e leveza"],
     howTo: "Aplique mecha a mecha após o shampoo, desembarace com pente e enxágue.",
-    art: { body: "#8cc63f", cap: "#2e0b5c", sub: "Pelos longos" },
+    art: { body: "#ffb26b", cap: "#5b1fa8", sub: "Pelos longos" },
   },
   {
     id: 8, slug: "condicionador-equinos-crina-cauda", name: "Condicionador Equinos Crina & Cauda", cat: "condicionador", pets: ["cavalos"],
@@ -125,7 +125,7 @@ ZP.products = [
     description: "Protege a pelagem do sol e da poeira, dá brilho e mantém o perfume do banho por mais tempo. Não deixa o pelo pesado.",
     benefits: ["Sem enxágue", "Protege do sol e da poeira", "Brilho instantâneo"],
     howTo: "Borrife a 20 cm da pelagem úmida ou seca e espalhe com escova. Evite olhos e focinho.",
-    art: { body: "#19a7a0", cap: "#b6e61e", sub: "Brilho" },
+    art: { body: "#20b8a8", cap: "#ffd23f", sub: "Brilho" },
   },
   {
     id: 10, slug: "leave-in-desembaracante-spray", name: "Leave-in Desembaraçante Spray", cat: "leave-in", pets: ["caes", "gatos"],
@@ -135,7 +135,7 @@ ZP.products = [
     description: "Spray que solta os nós e reduz a estática na hora de escovar. Ótimo para o dia a dia entre um banho e outro.",
     benefits: ["Solta os nós na hora", "Reduz a estática", "Uso diário"],
     howTo: "Borrife nas áreas com nós e escove delicadamente.",
-    art: { body: "#5b1fa8", cap: "#b6e61e", sub: "Desembaraça" },
+    art: { body: "#7b8cff", cap: "#ffd23f", sub: "Desembaraça" },
   },
   {
     id: 11, slug: "leave-in-crina-cauda", name: "Leave-in Crina e Cauda", cat: "leave-in", pets: ["cavalos"],
@@ -167,7 +167,7 @@ ZP.products = [
     description: "Perfume com fixação prolongada e notas florais delicadas, para o pet sair do banho cheiroso por dias.",
     benefits: ["Alta fixação", "Notas florais", "Frasco premium"],
     howTo: "Borrife a 20 cm do corpo, evitando olhos e focinho.",
-    art: { shape: "perfume", body: "#c18cff", cap: "#b6e61e", sub: "Floral" },
+    art: { shape: "perfume", body: "#c18cff", cap: "#ff6fae", sub: "Floral" },
   },
   {
     id: 14, slug: "colonia-fresh-lavanda", name: "Colônia Fresh Lavanda para Cães", cat: "perfumes", pets: ["caes"],
@@ -199,7 +199,7 @@ ZP.products = [
     description: "Lenços com aloe vera para limpar patas, rosto e pelagem no dia a dia. Sem álcool.",
     benefits: ["Sem álcool", "Com aloe vera", "Prático para levar"],
     howTo: "Passe delicadamente sobre a área a ser limpa. Não precisa enxaguar.",
-    art: { shape: "box", body: "#5b1fa8", cap: "#b6e61e", label: "Lenços", sub: "50 unidades" },
+    art: { shape: "box", body: "#20b8a8", cap: "#ffd23f", label: "Lenços", sub: "50 unidades" },
   },
   {
     id: 17, slug: "escova-removedora-de-pelos", name: "Escova Removedora de Pelos", cat: "higiene", pets: ["caes", "gatos", "coelhos"],
@@ -209,7 +209,7 @@ ZP.products = [
     description: "Cerdas macias de silicone que removem pelos soltos e estimulam a circulação. Fácil de lavar.",
     benefits: ["Cerdas macias", "Reduz a queda de pelos", "Fácil de lavar"],
     howTo: "Escove no sentido do pelo, com movimentos suaves.",
-    art: { shape: "brush", body: "#b6e61e", cap: "#5b1fa8" },
+    art: { shape: "brush", body: "#ff7a59", cap: "#ffd23f" },
   },
   {
     id: 18, slug: "limpador-de-orelhas", name: "Limpador de Orelhas", cat: "higiene", pets: ["caes", "gatos"],
@@ -231,7 +231,7 @@ ZP.products = [
     description: "Tudo para o banho perfeito em casa: Shampoo Limpeza Profunda 500 ml, Condicionador Maciez & Hidratação 500 ml e Colônia Cheirinho de Bebê 120 ml.",
     benefits: ["Economia em relação aos itens avulsos", "Banho completo do início ao fim", "Ótimo para presentear"],
     howTo: "Use o shampoo, depois o condicionador e finalize com a colônia.",
-    art: { shape: "kit", colors: ["#6a1fc2", "#b6e61e", "#ff8fc0"], label: "Banho completo" },
+    art: { shape: "kit", colors: ["#6a1fc2", "#ff9cc7", "#ff8fc0"], label: "Banho completo" },
   },
   {
     id: 20, slug: "kit-pelos-longos", name: "Kit Pelos Longos", cat: "kits", pets: ["caes", "gatos"],
@@ -241,7 +241,7 @@ ZP.products = [
     description: "A rotina completa para raças de pelo longo: Shampoo Neutro 500 ml, Condicionador Pelos Longos 500 ml e Leave-in Desembaraçante 240 ml.",
     benefits: ["Fim dos nós", "Pelagem solta e brilhante", "Economia no kit"],
     howTo: "Shampoo, condicionador mecha a mecha e leave-in na escovação.",
-    art: { shape: "kit", colors: ["#9be15d", "#8cc63f", "#5b1fa8"], label: "Pelos longos" },
+    art: { shape: "kit", colors: ["#8fd3ff", "#ffb26b", "#7b8cff"], label: "Pelos longos" },
   },
   {
     id: 21, slug: "kit-equinos-show", name: "Kit Equinos Show", cat: "kits", pets: ["cavalos"],
@@ -261,7 +261,7 @@ ZP.products = [
     description: "O kit de boas-vindas para o novo membro da família: Shampoo Neutro Hipoalergênico 500 ml, Colônia Cheirinho de Bebê 120 ml e Escova Removedora de Pelos.",
     benefits: ["Fórmulas suaves", "Perfeito para presentear", "Economia no kit"],
     howTo: "Banho com água morna, shampoo neutro, secagem completa e colônia para finalizar.",
-    art: { shape: "kit", colors: ["#9be15d", "#ff8fc0", "#b6e61e"], label: "Filhote" },
+    art: { shape: "kit", colors: ["#8fd3ff", "#ff8fc0", "#ffd23f"], label: "Filhote" },
   },
 ];
 
