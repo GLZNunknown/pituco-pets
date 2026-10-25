@@ -7,12 +7,12 @@
 window.ZP = window.ZP || {};
 
 ZP.categories = [
-  { id: "shampoo",       name: "Shampoo",             desc: "Limpeza profunda e pelagem saudável",      icon: "shampoo", tint: "#efe4ff" },
-  { id: "condicionador", name: "Condicionador",       desc: "Maciez, hidratação e desembaraço",          icon: "condicionador", tint: "#eefbc9" },
-  { id: "leave-in",      name: "Leave-in",            desc: "Proteção, brilho e perfumação",             icon: "leave-in", tint: "#dff6f4" },
-  { id: "perfumes",      name: "Perfumes e colônias", desc: "Aquele cheirinho delicioso por mais tempo", icon: "perfume", tint: "#ffe6f1" },
-  { id: "higiene",       name: "Higiene e cuidados",  desc: "Tudo para manter seu pet bem cuidado",      icon: "higiene", tint: "#e4efff" },
-  { id: "kits",          name: "Kits de banho",       desc: "Combinações completas com desconto",        icon: "kit", tint: "#fff3cf" },
+  { id: "shampoo",       name: "Shampoo",             desc: "Limpeza profunda e pelagem saudável",      icon: "shampoo", color: "#1d74c4", tint: "#efe4ff" },
+  { id: "condicionador", name: "Condicionador",       desc: "Maciez, hidratação e desembaraço",          icon: "condicionador", color: "#d6266b", tint: "#eefbc9" },
+  { id: "leave-in",      name: "Leave-in",            desc: "Proteção, brilho e perfumação",             icon: "leave-in", color: "#0f8f83", tint: "#dff6f4" },
+  { id: "perfumes",      name: "Perfumes e colônias", desc: "Aquele cheirinho delicioso por mais tempo", icon: "perfume", color: "#7b4ae0", tint: "#ffe6f1" },
+  { id: "higiene",       name: "Higiene e cuidados",  desc: "Tudo para manter seu pet bem cuidado",      icon: "higiene", color: "#2f80ed", tint: "#e4efff" },
+  { id: "kits",          name: "Kits de banho",       desc: "Combinações completas com desconto",        icon: "kit", color: "#d9542f", tint: "#fff3cf" },
 ];
 
 ZP.pets = [
@@ -27,6 +27,7 @@ ZP.pets = [
    rating?, reviews?  → SÓ preencha com avaliações reais (ex.: rating: 4.8, reviews: 12).
                         Sem esses campos, o site mostra "Novo na loja" no lugar das estrelas.
    tags[] ("destaque" | "novo" | "promo"), short, description, benefits[], howTo,
+   includes? → (kits) ids dos produtos que vêm no kit; o site calcula a economia sozinho
    art { shape?, body?, cap?, label?, sub? }  → ilustração automática do frasco
    FOTOS → o jeito fácil: salve a foto com o slug do produto (ex.: shampoo-limpeza-profunda.jpg) em
            fotos-originais/produtos/ e rode `python ferramentas/otimizar_imagens.py`. Ela aparece sozinha.
@@ -224,7 +225,7 @@ ZP.products = [
 
   // ---------- KITS ----------
   {
-    id: 19, slug: "kit-banho-completo", name: "Kit Banho Completo", cat: "kits", pets: ["caes", "gatos"],
+    id: 19, includes: [1, 6, 12], slug: "kit-banho-completo", name: "Kit Banho Completo", cat: "kits", pets: ["caes", "gatos"],
     variants: [{ label: "3 itens", price: 84.9, old: 92.7 }],
     tags: ["destaque", "promo"],
     short: "Shampoo + Condicionador + Colônia Cheirinho de Bebê.",
@@ -234,7 +235,7 @@ ZP.products = [
     art: { shape: "kit", colors: ["#6a1fc2", "#ff9cc7", "#ff8fc0"], label: "Banho completo" },
   },
   {
-    id: 20, slug: "kit-pelos-longos", name: "Kit Pelos Longos", cat: "kits", pets: ["caes", "gatos"],
+    id: 20, includes: [2, 7, 10], slug: "kit-pelos-longos", name: "Kit Pelos Longos", cat: "kits", pets: ["caes", "gatos"],
     variants: [{ label: "3 itens", price: 84.9, old: 96.7 }],
     tags: ["promo"],
     short: "Shampoo + Condicionador Desembaraçante + Leave-in Spray.",
@@ -244,7 +245,7 @@ ZP.products = [
     art: { shape: "kit", colors: ["#8fd3ff", "#ffb26b", "#7b8cff"], label: "Pelos longos" },
   },
   {
-    id: 21, slug: "kit-equinos-show", name: "Kit Equinos Show", cat: "kits", pets: ["cavalos"],
+    id: 21, includes: [5, 8, 11], slug: "kit-equinos-show", name: "Kit Equinos Show", cat: "kits", pets: ["cavalos"],
     variants: [{ label: "3 itens", price: 199.9, old: 224.7 }],
     tags: ["promo"],
     short: "Shampoo 1 L + Condicionador 1 L + Leave-in Crina e Cauda.",
@@ -254,7 +255,7 @@ ZP.products = [
     art: { shape: "kit", colors: ["#8a4b2a", "#a35c32", "#7a3e1d"], label: "Equinos" },
   },
   {
-    id: 22, slug: "kit-primeiro-banho-filhote", name: "Kit Primeiro Banho do Filhote", cat: "kits", pets: ["caes", "gatos"],
+    id: 22, includes: [2, 12, 17], slug: "kit-primeiro-banho-filhote", name: "Kit Primeiro Banho do Filhote", cat: "kits", pets: ["caes", "gatos"],
     variants: [{ label: "3 itens", price: 64.9, old: 77.7 }],
     tags: ["novo", "promo"],
     short: "Shampoo Neutro + Colônia Bebê + Escova macia.",
@@ -273,7 +274,7 @@ ZP.petById = (id) => ZP.pets.find((p) => p.id === id);
 /* ---------- DICAS (blog) ---------- */
 ZP.articles = [
   {
-    id: "frequencia-banho", emoji: "🛁", tag: "Cães e gatos", read: "3 min",
+    id: "frequencia-banho", icons: ["dog", "cat"], tag: "Cães e gatos", read: "3 min",
     title: "De quanto em quanto tempo dar banho no seu pet?",
     excerpt: "Banho demais resseca, de menos acumula sujeira. Veja a frequência ideal para cada caso.",
     body: [
@@ -285,7 +286,7 @@ ZP.articles = [
     ],
   },
   {
-    id: "banho-perfeito", emoji: "🧴", tag: "Passo a passo", read: "4 min",
+    id: "banho-perfeito", icons: ["shampoo", "condicionador"], tag: "Passo a passo", read: "4 min",
     title: "Passo a passo do banho perfeito em casa",
     excerpt: "Da escovação à secagem: o roteiro para um banho tranquilo e sem estresse.",
     body: [
@@ -299,7 +300,7 @@ ZP.articles = [
     ],
   },
   {
-    id: "coelho-banho", emoji: "🐰", tag: "Coelhos", read: "2 min",
+    id: "coelho-banho", icons: ["rabbit"], tag: "Coelhos", read: "2 min",
     title: "Coelho pode tomar banho?",
     excerpt: "Spoiler: banho molhado não é indicado. Saiba como manter seu coelho limpinho.",
     body: [
@@ -309,7 +310,7 @@ ZP.articles = [
     ],
   },
   {
-    id: "cavalo-crina", emoji: "🐴", tag: "Cavalos", read: "3 min",
+    id: "cavalo-crina", icons: ["horse"], tag: "Cavalos", read: "3 min",
     title: "Crina e cauda impecáveis: cuidados com o cavalo",
     excerpt: "Como lavar, desembaraçar e proteger os fios do seu cavalo.",
     body: [

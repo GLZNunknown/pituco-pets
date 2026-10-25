@@ -64,7 +64,7 @@
     $("#articleGrid").innerHTML = ZP.articles.map((a) => `
       <article class="article-card">
         <button class="article-card__btn" data-article="${a.id}">
-          <span class="article-card__cover">${a.emoji}</span>
+          <span class="article-card__cover">${a.icons.map((n) => ZP.u.brandIcon(n)).join("")}</span>
           <span class="article-card__meta"><span class="tag">${esc(a.tag)}</span> ${icon("clock")} ${a.read} de leitura</span>
           <b>${esc(a.title)}</b>
           <small>${esc(a.excerpt)}</small>
@@ -78,7 +78,7 @@
       const a = ZP.articles.find((x) => x.id === b.dataset.article);
       $("#articleContent").innerHTML = `
         <div class="article">
-          <span class="article__cover">${a.emoji}</span>
+          <span class="article__cover">${a.icons.map((n) => ZP.u.brandIcon(n)).join("")}</span>
           <p class="article__meta"><span class="tag">${esc(a.tag)}</span> ${icon("clock")} ${a.read} de leitura</p>
           <h2 id="articleTitle">${esc(a.title)}</h2>
           ${a.body.map((p) => `<p>${p}</p>`).join("")}
@@ -144,6 +144,31 @@
     });
   }
 
+  /* ---------- Revelação suave ao rolar ---------- */
+  function reveal() {
+    if (!("IntersectionObserver" in window) || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const alvos = $$(".section__head, .category-card, .pet-card, .bundle, .promo, .steps li, .article-card, .faq__list details, .contact__info, .contact__form, .perks__inner > div");
+    const io = new IntersectionObserver((entradas) => entradas.forEach((en) => {
+      if (!en.isIntersecting) return;
+      const el = en.target;
+      io.unobserve(el);
+      el.classList.add("is-visible");
+      // Depois da entrada, remove as classes para não atrapalhar o efeito de hover
+      setTimeout(() => el.classList.remove("reveal", "is-visible"), 900 + (parseInt(el.style.getPropertyValue("--d")) || 0));
+    }), { rootMargin: "0px 0px -6% 0px" });
+    // O que já aparece ao abrir a página não anima (evita "piscar");
+    // o estado escondido é aplicado sem transição e só depois a transição é liberada
+    const abaixo = alvos.filter((el) => el.getBoundingClientRect().top > innerHeight * 0.94);
+    abaixo.forEach((el) => {
+      const i = [...el.parentNode.children].indexOf(el);
+      el.style.setProperty("--d", `${Math.min(i, 6) * 70}ms`);
+      el.style.transition = "none";
+      el.classList.add("reveal");
+    });
+    void document.body.offsetHeight;
+    abaixo.forEach((el) => { el.style.transition = ""; io.observe(el); });
+  }
+
   /* ---------- Aviso de cookies (LGPD) ---------- */
   function cookies() {
     if (storage.get("cookies-ok", false)) return;
@@ -165,5 +190,6 @@
     customerGallery();
     forms();
     cookies();
+    reveal();
   });
 })(window.ZP);

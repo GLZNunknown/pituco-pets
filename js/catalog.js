@@ -84,7 +84,7 @@ window.ZP = window.ZP || {};
     $("#categoryGrid").innerHTML = ZP.categories.map((c) => {
       const n = ZP.products.filter((p) => p.cat === c.id).length;
       return `
-        <button class="category-card" data-go-cat="${c.id}" style="--tint:${c.tint}">
+        <button class="category-card" data-go-cat="${c.id}" style="--tint:${c.tint};--accent:${c.color}">
           <span class="category-card__icon">${ZP.u.brandIcon(c.icon)}</span>
           <b>${c.name}</b>
           <small>${c.desc}</small>
@@ -104,14 +104,43 @@ window.ZP = window.ZP || {};
     }).join("");
   }
 
+  const kitItems = (p) => (p.includes || []).map(ZP.byId).filter(Boolean);
+
+  function bundle(p) {
+    const items = kitItems(p);
+    const v = p.variants[0];
+    const separate = items.reduce((sum, x) => sum + x.variants[0].price, 0) || v.old || v.price;
+    const save = Math.max(0, separate - v.price);
+    return `
+      <article class="bundle">
+        <button class="bundle__art" data-open="${p.id}" style="--tint:${ZP.catById(p.cat).tint}" aria-label="Ver detalhes: ${esc(p.name)}">${badges(p)}${ZP.art.product(p)}</button>
+        <div class="bundle__body">
+          <div class="product-card__meta"><span>Kit com ${items.length || 3} itens</span><span class="pets">${petIcons(p)}</span></div>
+          <h3 class="bundle__title"><a href="#p/${p.slug}">${esc(p.name)}</a></h3>
+          ${items.length ? `<ul class="bundle__items">${items.map((x) => `
+            <li><span class="bundle__thumb" style="--tint:${ZP.catById(x.cat).tint}">${ZP.art.product(x, { sizes: "40px" })}</span>
+            <span>${esc(x.name)}<small>${x.variants[0].label}</small></span></li>`).join("")}</ul>` : `<p class="bundle__desc">${esc(p.short)}</p>`}
+          <div class="bundle__price">
+            ${save > 0 ? `<span class="bundle__sep">Comprando separado: <s>${brl(separate)}</s></span>` : ""}
+            <b>${brl(v.price)}</b>
+            ${save > 0 ? `<span class="bundle__save">Economize ${brl(save)}</span>` : ""}
+          </div>
+          <div class="bundle__actions">
+            <button class="btn btn--primary" data-quickadd="${p.id}">${icon("bag")} Adicionar kit</button>
+            <button class="link-btn" data-open="${p.id}">Ver detalhes</button>
+          </div>
+        </div>
+      </article>`;
+  }
+
   function renderKits() {
-    $("#kitGrid").innerHTML = ZP.products.filter((p) => p.cat === "kits").map(card).join("");
+    $("#kitGrid").innerHTML = ZP.products.filter((p) => p.cat === "kits").map(bundle).join("");
   }
 
   /* ---------- Filtros ---------- */
   function renderFilterControls() {
     $("#filterChips").innerHTML = [{ id: "all", name: "Todos" }, ...ZP.categories].map((c) => {
-      const n = c.id === "all" ? ZP.products.length : ZP.products.filter((p) => p.cat === c.id).length;
+      const n = c.id === "all" ? ZP.products.filter((p) => p.cat !== "kits").length : ZP.products.filter((p) => p.cat === c.id).length;
       const on = filters.cat === c.id;
       return `<button class="chip ${on ? "is-active" : ""}" data-filter-cat="${c.id}" aria-pressed="${on}">${c.name} <small>${n}</small></button>`;
     }).join("");
@@ -137,7 +166,7 @@ window.ZP = window.ZP || {};
   function filtered() {
     const tokens = norm(filters.q).split(/\s+/).filter(Boolean);
     const list = ZP.products.filter((p) =>
-      (filters.cat === "all" || p.cat === filters.cat) &&
+      (filters.cat === "all" ? (p.cat !== "kits" || tokens.length > 0) : p.cat === filters.cat) &&
       (filters.pet === "all" || p.pets.includes(filters.pet)) &&
       (!filters.promo || p.variants.some((v) => v.old)) &&
       minPrice(p) <= filters.max &&
@@ -271,7 +300,8 @@ window.ZP = window.ZP || {};
           </ul>
 
           <div class="pd__details">
-            <details open><summary>Descrição</summary><p>${esc(p.description)}</p></details>
+            ${kitItems(p).length ? `<details open><summary>O que vem no kit</summary><ul class="check-list">${kitItems(p).map((x) => `<li>${icon("check")} ${esc(x.name)} <small>(${x.variants[0].label})</small></li>`).join("")}</ul></details>` : ""}
+            <details ${kitItems(p).length ? "" : "open"}><summary>Descrição</summary><p>${esc(p.description)}</p></details>
             <details><summary>Benefícios</summary><ul class="check-list">${p.benefits.map((b) => `<li>${icon("check")} ${esc(b)}</li>`).join("")}</ul></details>
             <details><summary>Modo de uso</summary><p>${esc(p.howTo)}</p></details>
             <details><summary>Indicado para</summary><p>${pets}</p></details>

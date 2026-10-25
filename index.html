@@ -26,7 +26,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20261024f">
+  <link rel="stylesheet" href="css/styles.css?v=20261025d">
 
   <script type="application/ld+json">
   { "@context": "https://schema.org", "@type": "PetStore", "name": "Pituco Pets",
@@ -34,16 +34,16 @@
     "priceRange": "R$", "paymentAccepted": "Pix, Cartão de crédito, Dinheiro" }
   </script>
 
-  <script src="js/config.js?v=20261024f" defer></script>
-  <script src="js/data.js?v=20261024f" defer></script>
-  <script src="js/utils.js?v=20261024f" defer></script>
-  <script src="js/store.js?v=20261024f" defer></script>
-  <script src="js/fotos.js?v=20261024f" defer></script>
-  <script src="js/art.js?v=20261024f" defer></script>
-  <script src="js/catalog.js?v=20261024f" defer></script>
-  <script src="js/cart.js?v=20261024f" defer></script>
-  <script src="js/checkout.js?v=20261024f" defer></script>
-  <script src="js/main.js?v=20261024f" defer></script>
+  <script src="js/config.js?v=20261025d" defer></script>
+  <script src="js/data.js?v=20261025d" defer></script>
+  <script src="js/utils.js?v=20261025d" defer></script>
+  <script src="js/store.js?v=20261025d" defer></script>
+  <script src="js/fotos.js?v=20261025d" defer></script>
+  <script src="js/art.js?v=20261025d" defer></script>
+  <script src="js/catalog.js?v=20261025d" defer></script>
+  <script src="js/cart.js?v=20261025d" defer></script>
+  <script src="js/checkout.js?v=20261025d" defer></script>
+  <script src="js/main.js?v=20261025d" defer></script>
 </head>
 <body>
   <!-- ===== Ícones (SVG sprite) ===== -->
@@ -163,6 +163,7 @@
         <div class="hero__media">
           <img src="assets/img/hero-pets.webp" alt="Cachorro, gato, coelho e cavalo cheios de espuma depois do banho" width="651" height="453" fetchpriority="high">
           <div class="float-badge float-badge--a"><svg class="i"><use href="#i-truck"/></svg><span><b>Frete grátis</b><small>acima de <span data-info="freeFrom"></span></small></span></div>
+          <div class="mascot" aria-hidden="true"><span class="mascot__face"><svg class="bi"><use href="#ic-dog"/></svg></span><span class="mascot__bubble">Oi! Eu sou o <b>Pituco</b> 🐾</span></div>
           <div class="float-badge float-badge--b"><svg class="i"><use href="#i-pix"/></svg><span><b><span data-info="pix"></span> OFF</b><small>pagando no Pix</small></span></div>
         </div>
       </div>
@@ -180,11 +181,11 @@
     </section>
 
     <!-- ===== Categorias ===== -->
-    <section class="section" id="categorias">
+    <section class="section section--paws" id="categorias">
       <div class="container">
         <header class="section__head">
           <span class="eyebrow">Um mundo de cuidado</span>
-          <h2>Compre por categoria</h2>
+          <h2>Compre por <mark class="hl">categoria</mark></h2>
           <p>Da limpeza ao perfume: a rotina completa de banho do seu pet.</p>
         </header>
         <div class="category-grid" id="categoryGrid"></div>
@@ -197,12 +198,12 @@
     </section>
 
     <!-- ===== Produtos ===== -->
-    <section class="section section--soft" id="produtos">
+    <section class="section section--lilac section--wave" id="produtos">
       <div class="container">
         <header class="section__head section__head--row">
           <div>
             <span class="eyebrow">Escolhidos a patadas 🐾</span>
-            <h2>Nossos produtos</h2>
+            <h2>Nossos <mark class="hl">produtos</mark></h2>
           </div>
           <p class="result-count" id="resultCount" aria-live="polite"></p>
         </header>
@@ -250,7 +251,7 @@
     </section>
 
     <!-- ===== Kits ===== -->
-    <section class="section" id="kits">
+    <section class="section section--peach section--wave" id="kits">
       <div class="container">
         <div class="promo">
           <div class="promo__text">
@@ -264,16 +265,16 @@
             <button class="coupon-tag" data-copy="BEMVINDO10" aria-label="Copiar cupom BEMVINDO10">BEMVINDO10 <svg class="i"><use href="#i-copy"/></svg></button>
           </div>
         </div>
-        <div class="product-grid product-grid--4" id="kitGrid"></div>
+        <div class="bundle-grid" id="kitGrid"></div>
       </div>
     </section>
 
     <!-- ===== Como comprar ===== -->
-    <section class="section section--soft" id="como-comprar">
+    <section class="section section--sky section--wave" id="como-comprar">
       <div class="container">
         <header class="section__head">
           <span class="eyebrow">Simples assim</span>
-          <h2>Como comprar</h2>
+          <h2>Como <mark class="hl">comprar</mark></h2>
           <p>Sem cadastro e sem complicação: você monta o pedido aqui e finaliza com a gente no WhatsApp.</p>
         </header>
         <ol class="steps">
@@ -284,6 +285,9 @@
         </ol>
       </div>
     </section>
+
+    <!-- ===== Faixa animada ===== -->
+    <div class="marquee" aria-hidden="true"><div class="marquee__track"><span>Banho é cuidado, é bem-estar!</span><span><svg class="bi"><use href="#ic-dog"/></svg> Cães</span><span><svg class="bi"><use href="#ic-cat"/></svg> Gatos</span><span><svg class="bi"><use href="#ic-rabbit"/></svg> Coelhos</span><span><svg class="bi"><use href="#ic-horse"/></svg> Cavalos</span><span>Frete grátis acima de R$ 150</span><span><svg class="bi"><use href="#ic-shampoo"/></svg> Entregamos em todo o estado de SP</span><span>Banho é cuidado, é bem-estar!</span><span><svg class="bi"><use href="#ic-dog"/></svg> Cães</span><span><svg class="bi"><use href="#ic-cat"/></svg> Gatos</span><span><svg class="bi"><use href="#ic-rabbit"/></svg> Coelhos</span><span><svg class="bi"><use href="#ic-horse"/></svg> Cavalos</span><span>Frete grátis acima de R$ 150</span><span><svg class="bi"><use href="#ic-shampoo"/></svg> Entregamos em todo o estado de SP</span></div></div>
 
     <!-- ===== Depoimentos ===== -->
     <section class="section" id="depoimentos">
@@ -310,11 +314,11 @@
     </section>
 
     <!-- ===== Dicas ===== -->
-    <section class="section section--soft" id="dicas">
+    <section class="section section--paws" id="dicas">
       <div class="container">
         <header class="section__head">
           <span class="eyebrow">Blog da matilha</span>
-          <h2>Dicas de banho e cuidado</h2>
+          <h2>Dicas de <mark class="hl">banho</mark> e cuidado</h2>
           <p>Conteúdo para cuidar melhor de quem cuida da gente.</p>
         </header>
         <div class="article-grid" id="articleGrid"></div>
@@ -322,12 +326,13 @@
     </section>
 
     <!-- ===== Dúvidas ===== -->
-    <section class="section" id="duvidas">
+    <section class="section section--pink section--wave" id="duvidas">
       <div class="container faq">
         <header class="section__head section__head--left">
           <span class="eyebrow">Perguntas frequentes</span>
-          <h2>Ficou com alguma dúvida?</h2>
+          <h2>Ficou com alguma <mark class="hl">dúvida</mark>?</h2>
           <p>Se não encontrar sua resposta aqui, chama a gente no WhatsApp.</p>
+          <div class="mascot mascot--inline" aria-hidden="true"><span class="mascot__face"><svg class="bi"><use href="#ic-cat"/></svg></span><span class="mascot__bubble">Pode perguntar, a gente responde rapidinho! 💬</span></div>
           <a class="btn btn--primary" data-wa="Olá! Tenho uma dúvida sobre a Pituco Pets." href="#"><svg class="i"><use href="#i-whatsapp"/></svg> Falar com a equipe</a>
         </header>
         <div class="faq__list">
@@ -344,11 +349,11 @@
     </section>
 
     <!-- ===== Contato ===== -->
-    <section class="section section--soft" id="contato">
+    <section class="section section--mint section--wave" id="contato">
       <div class="container contact">
         <div class="contact__info">
           <span class="eyebrow">Fale com a gente</span>
-          <h2>Estamos aqui para ajudar</h2>
+          <h2>Estamos aqui para <mark class="hl">ajudar</mark></h2>
           <p>Dúvidas, indicação de produto ou pedido especial? É só chamar.</p>
           <ul class="contact__list">
             <li><svg class="i"><use href="#i-whatsapp"/></svg><div><small>WhatsApp</small><a data-wa="Olá! Vim pelo site da Pituco Pets 🐾" href="#" data-info="phone"></a></div></li>
