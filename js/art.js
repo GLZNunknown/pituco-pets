@@ -84,7 +84,7 @@ window.ZP = window.ZP || {};
   };
 
   /* ---------- Fotos reais ---------- */
-  const DIR = "assets/img/produtos/";
+  const DIR = `${ZP.root || ""}assets/img/produtos/`;
 
   const photoSrc = (base, w) => `${DIR}${base}-${w}.webp`;
 

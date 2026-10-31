@@ -89,7 +89,7 @@ window.ZP = window.ZP || {};
           <span class="empty__icon">🛁</span>
           <h3>Sua sacola está vazia</h3>
           <p>Que tal começar pelos queridinhos da casa?</p>
-          <a class="btn btn--primary" href="#produtos" data-close>Explorar produtos</a>
+          <a class="btn btn--primary" href="${ZP.u.home("#produtos")}" data-close>Explorar produtos</a>
         </div>${upsell()}`;
       $("#cartFoot").hidden = true;
       return;
@@ -132,7 +132,7 @@ window.ZP = window.ZP || {};
           <span class="empty__icon">💜</span>
           <h3>Nenhum favorito ainda</h3>
           <p>Toque no coração dos produtos para guardá-los aqui.</p>
-          <a class="btn btn--primary" href="#produtos" data-close>Ver produtos</a>
+          <a class="btn btn--primary" href="${ZP.u.home("#produtos")}" data-close>Ver produtos</a>
         </div>`;
   }
 

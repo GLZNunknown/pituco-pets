@@ -14,6 +14,10 @@ window.ZP = window.ZP || {};
   const HAS_RATINGS = ZP.products.some((p) => p.rating);
   const score = (p) => (p.tags.includes("destaque") ? 3 : 0) + (p.tags.includes("promo") ? 1 : 0) + (p.rating || 0);
 
+  const ROOT = ZP.root;
+  const pageUrl = (p) => `${ROOT}produtos/${p.slug}.html`;
+  let IS_STORE = false;           // true só na página principal (onde existe a grade de produtos)
+
   const filters = { cat: "all", pet: "all", q: "", sort: "relevance", promo: false, max: PRICE_CEIL, shown: cfg.pageSize };
 
   /* ---------- Pedaços reutilizáveis ---------- */
@@ -58,7 +62,7 @@ window.ZP = window.ZP || {};
         </div>
         <div class="product-card__body">
           <div class="product-card__meta"><span>${cat.name}</span><span class="pets">${petIcons(p)}</span></div>
-          <h3 class="product-card__title"><a href="#p/${p.slug}">${esc(p.name)}</a></h3>
+          <h3 class="product-card__title"><a href="${pageUrl(p)}" data-product="${p.id}">${esc(p.name)}</a></h3>
           <div class="product-card__rating">${p.rating ? `${stars(p.rating)}<small>(${p.reviews})</small>` : `<span class="new-pill">✨ Novo na loja</span>`}</div>
           ${priceBlock(p)}
           <button class="btn btn--primary btn--block" data-quickadd="${p.id}">${icon("bag")} Adicionar</button>
@@ -116,7 +120,7 @@ window.ZP = window.ZP || {};
         <button class="bundle__art" data-open="${p.id}" style="--tint:${ZP.catById(p.cat).tint}" aria-label="Ver detalhes: ${esc(p.name)}">${badges(p)}${ZP.art.product(p)}</button>
         <div class="bundle__body">
           <div class="product-card__meta"><span>Kit com ${items.length || 3} itens</span><span class="pets">${petIcons(p)}</span></div>
-          <h3 class="bundle__title"><a href="#p/${p.slug}">${esc(p.name)}</a></h3>
+          <h3 class="bundle__title"><a href="${pageUrl(p)}" data-product="${p.id}">${esc(p.name)}</a></h3>
           ${items.length ? `<ul class="bundle__items">${items.map((x) => `
             <li><span class="bundle__thumb" style="--tint:${ZP.catById(x.cat).tint}">${ZP.art.product(x, { sizes: "40px" })}</span>
             <span>${esc(x.name)}<small>${x.variants[0].label}</small></span></li>`).join("")}</ul>` : `<p class="bundle__desc">${esc(p.short)}</p>`}
@@ -299,6 +303,12 @@ window.ZP = window.ZP || {};
   }
 
   function update(changes, { scroll = false } = {}) {
+    if (!IS_STORE) {
+      const params = new URLSearchParams();
+      ["cat", "pet", "q"].forEach((k) => { if (changes[k] && changes[k] !== "all") params.set(k, changes[k]); });
+      location.href = `${ROOT}index.html${params.toString() ? "?" + params : ""}#produtos`;
+      return;
+    }
     Object.assign(filters, changes, { shown: cfg.pageSize });
     renderFilterControls();
     renderGrid();
@@ -350,7 +360,8 @@ window.ZP = window.ZP || {};
   function hideSuggestions() { $("#searchSuggest").hidden = true; }
 
   /* ---------- Detalhe do produto ---------- */
-  const detail = { id: null, v: 0, qty: 1, img: 0 };
+  const detail = { id: null, v: 0, qty: 1, img: 0, target: "#productContent" };
+  let inlineState = null;   // estado da ficha da página do produto enquanto o modal está aberto
 
   function related(p) {
     return ZP.products
@@ -366,7 +377,9 @@ window.ZP = window.ZP || {};
     const photos = ZP.art.photos(p);
     const pets = p.pets.map((id) => ZP.petById(id)).map((x) => `<span class="pet-tag">${ZP.u.brandIcon(x.icon)} ${x.name}</span>`).join(" ");
 
-    $("#productContent").innerHTML = `
+    const inline = detail.target !== "#productContent";
+    const H = inline ? "h1" : "h2";
+    $(detail.target).innerHTML = `
       <div class="pd">
         <div class="pd__gallery">
           <div class="pd__media${photos.length ? " has-photo" : ""}" style="--tint:${cat.tint}">${badges(p, v)}${favButton(p, "fav-btn--media")}${ZP.art.product(p, { sizes: "(max-width: 860px) 90vw, 480px", eager: true, alt: p.name, index: detail.img })}</div>
@@ -375,7 +388,7 @@ window.ZP = window.ZP || {};
         </div>
         <div class="pd__info">
           <p class="pd__crumbs"><button data-go-cat="${cat.id}">${cat.name}</button> <span>·</span> ${pets}</p>
-          <h2 class="pd__title" id="productTitle">${esc(p.name)}</h2>
+          <${H} class="pd__title" id="${inline ? "pageTitle" : "productTitle"}">${esc(p.name)}</${H}>
           <div class="pd__rating">${p.rating
             ? `${stars(p.rating)} <b>${p.rating.toFixed(1).replace(".", ",")}</b> <small>(${p.reviews} avaliações)</small>`
             : `<span class="new-pill">✨ Novo na loja</span> <a href="${waLink(`Olá! Comprei o ${p.name} e quero deixar minha avaliação.`)}" target="_blank" rel="noopener">Seja o primeiro a avaliar</a>`}</div>
@@ -419,13 +432,43 @@ window.ZP = window.ZP || {};
             <details><summary>Modo de uso</summary><p>${esc(p.howTo)}</p></details>
             <details><summary>Indicado para</summary><p>${pets}</p></details>
           </div>
-          <button class="link-btn" data-share="${p.id}">${icon("share")} Compartilhar produto</button>
+          <div class="pd__links">
+            <button class="link-btn" data-share="${p.id}">${icon("share")} Compartilhar produto</button>
+            ${inline ? "" : `<a class="link-btn" href="${pageUrl(p)}">Ver página completa ${icon("arrow-right")}</a>`}
+          </div>
         </div>
       </div>
       <div class="pd__related">
         <h3>Combina com</h3>
         <div class="mini-grid">${related(p).map(miniCard).join("")}</div>
       </div>`;
+  }
+
+  /* ---------- Barra de compra compacta (página do produto, celular) ---------- */
+  // Aparece quando a barra "quantidade + Adicionar" sai da tela, para o cliente comprar de qualquer ponto da página
+  function initBuybar() {
+    const p = ZP.byId(detail.id);
+    const bar = document.createElement("div");
+    bar.className = "buybar";
+    bar.innerHTML = `<div><b>${esc(p.name)}</b><span id="buybarPrice"></span></div>
+      <button class="btn btn--primary" id="buybarAdd">${icon("bag")} Adicionar</button>`;
+    document.body.appendChild(bar);
+    const atualizarPreco = () => {
+      const st = inlineState || detail;
+      $("#buybarPrice").textContent = brl(ZP.byId(st.id).variants[st.v].price * st.qty);
+    };
+    let pendente = false;
+    const checar = () => {
+      pendente = false;
+      const original = $("#pdInline .pd__buy");
+      const mostrar = !!original && original.getBoundingClientRect().bottom < 80 && !inlineState;
+      bar.classList.toggle("is-show", mostrar);
+      document.body.classList.toggle("has-buybar", mostrar);
+      if (mostrar) atualizarPreco();
+    };
+    addEventListener("scroll", () => { if (!pendente) { pendente = true; requestAnimationFrame(checar); } }, { passive: true });
+    $("#buybarAdd").addEventListener("click", () => addToCart(detail.id, detail.v, detail.qty));
+    checar();
   }
 
   /* ---------- Vistos recentemente (guardado só neste navegador) ---------- */
@@ -444,7 +487,8 @@ window.ZP = window.ZP || {};
     if (!p) return;
     lembrar(id);
     hideSuggestions();
-    Object.assign(detail, { id, v: 0, qty: 1, img: 0, ship: "" });
+    if (detail.target !== "#productContent") inlineState = { ...detail };
+    Object.assign(detail, { id, v: 0, qty: 1, img: 0, ship: "", target: "#productContent" });
     renderDetail();
     if (!fromHash) history.replaceState(null, "", `#p/${p.slug}`);
     document.title = `${p.name} — ${cfg.store.name}`;
@@ -459,7 +503,7 @@ window.ZP = window.ZP || {};
   }
 
   async function share(p) {
-    const url = `${location.href.split("#")[0]}#p/${p.slug}`;
+    const url = new URL(pageUrl(p), location.href).href;
     try {
       if (navigator.share) await navigator.share({ title: p.name, text: p.short, url });
       else { await navigator.clipboard.writeText(url); toast("Link copiado!"); }
@@ -522,15 +566,31 @@ window.ZP = window.ZP || {};
       else if (t.id === "loadMore") { filters.shown += cfg.pageSize; renderGrid(); }
     });
 
-    // Links “#p/slug” dentro dos cards
+    // Links para a página de cada produto: clique normal abre a ficha rápida; Ctrl/⌘+clique abre a página
     document.addEventListener("click", (e) => {
-      const a = e.target.closest('a[href^="#p/"]');
-      if (!a) return;
+      const a = e.target.closest("a[data-product]");
+      if (!a || e.ctrlKey || e.metaKey || e.shiftKey || e.button > 0) return;
       e.preventDefault();
-      const p = ZP.bySlug(a.getAttribute("href").slice(3));
-      if (p) openProduct(p.id);
+      openProduct(+a.dataset.product);
     });
 
+    if (IS_STORE) bindFilters();
+
+    const input = $("#searchInput");
+    input.addEventListener("input", debounce(renderSuggestions, 120));
+    input.addEventListener("focus", renderSuggestions);
+    $("#searchForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      hideSuggestions();
+      input.blur();
+      update({ q: input.value.trim() }, { scroll: true });
+    });
+    document.addEventListener("click", (e) => { if (!e.target.closest("#searchForm")) hideSuggestions(); });
+    input.addEventListener("keydown", (e) => { if (e.key === "Escape") hideSuggestions(); });
+    bindRest(input);
+  }
+
+  function bindFilters() {
     const toolbar = $("#toolbar");
     const setSheet = (open) => {
       toolbar.classList.toggle("is-open", open);
@@ -551,19 +611,10 @@ window.ZP = window.ZP || {};
       $("#priceMaxLabel").textContent = filters.max >= PRICE_CEIL ? "Qualquer preço" : `Até ${brl(filters.max)}`;
       renderGrid();
     });
+    $("#recentClear").addEventListener("click", () => { ZP.u.storage.set("recent", []); renderRecent(); });
+  }
 
-    const input = $("#searchInput");
-    input.addEventListener("input", debounce(renderSuggestions, 120));
-    input.addEventListener("focus", renderSuggestions);
-    $("#searchForm").addEventListener("submit", (e) => {
-      e.preventDefault();
-      hideSuggestions();
-      input.blur();
-      update({ q: input.value.trim() }, { scroll: true });
-    });
-    document.addEventListener("click", (e) => { if (!e.target.closest("#searchForm")) hideSuggestions(); });
-    input.addEventListener("keydown", (e) => { if (e.key === "Escape") hideSuggestions(); });
-
+  function bindRest(input) {
     // Buscas populares e "Você quis dizer"
     document.addEventListener("click", (e) => {
       const b = e.target.closest("[data-q]");
@@ -600,9 +651,10 @@ window.ZP = window.ZP || {};
       out.innerHTML = detail.ship;
     });
 
-    $("#recentClear").addEventListener("click", () => { ZP.u.storage.set("recent", []); renderRecent(); });
     $("#productLayer").addEventListener("layer:close", () => {
-      renderRecent();
+      if (IS_STORE) renderRecent();
+      // Na página do produto, ao fechar a ficha rápida, a ficha da página volta a ser a ativa
+      if (inlineState) { Object.assign(detail, inlineState); inlineState = null; }
       if (location.hash.startsWith("#p/")) history.replaceState(null, "", location.pathname + location.search);
       document.title = ZP.baseTitle;
     });
@@ -703,18 +755,41 @@ window.ZP = window.ZP || {};
     });
   }
 
+  // Na loja, aceita filtros pela URL (ex.: index.html?cat=shampoo#produtos) — vindos de outras páginas ou compartilhados
+  function aplicarParametros() {
+    const p = new URLSearchParams(location.search);
+    if (ZP.catById(p.get("cat") || "")) filters.cat = p.get("cat");
+    if (ZP.petById(p.get("pet") || "")) filters.pet = p.get("pet");
+    if (p.get("q")) { filters.q = p.get("q").slice(0, 60); $("#searchInput").value = filters.q; }
+  }
+
   ZP.catalog = {
     init() {
       ZP.baseTitle = document.title;
-      renderCategories();
-      renderPets();
-      renderKits();
+      IS_STORE = !!$("#productGrid");
       renderMenus();
-      renderQuiz();
-      bindQuiz();
-      renderRecent();
-      renderFilterControls();
-      renderGrid();
+      if (IS_STORE) {
+        aplicarParametros();
+        renderCategories();
+        renderPets();
+        renderKits();
+        renderQuiz();
+        bindQuiz();
+        renderRecent();
+        renderFilterControls();
+        renderGrid();
+      }
+      // Página de um produto: a ficha completa é desenhada na própria página
+      const inline = $("#pdInline");
+      if (inline) {
+        Object.assign(detail, { id: +inline.dataset.product, v: 0, qty: 1, img: 0, ship: "", target: "#pdInline" });
+        lembrar(detail.id);
+        renderDetail();
+        initBuybar();
+      }
+      // Página de categoria: cartões dos produtos da categoria
+      const catGrid = $("#catGrid");
+      if (catGrid) catGrid.innerHTML = ZP.products.filter((p) => p.cat === catGrid.dataset.cat).map(card).join("");
       bind();
       onHash();
     },

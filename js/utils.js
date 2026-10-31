@@ -5,6 +5,11 @@
 window.ZP = window.ZP || {};
 
 (function (ZP) {
+  // Caminho até a raiz do site a partir da página atual ("" na loja, "../" em produtos/, etc.)
+  ZP.root = document.documentElement.dataset.root || "";
+  // Link para uma seção da loja: na própria loja é só a âncora; nas outras páginas leva até ela
+  const home = (hash = "") => (document.getElementById("productGrid") ? hash : `${ZP.root}index.html${hash}`);
+
   const $ = (sel, el = document) => el.querySelector(sel);
   const $$ = (sel, el = document) => [...el.querySelectorAll(sel)];
 
@@ -98,5 +103,5 @@ window.ZP = window.ZP || {};
     }
   });
 
-  ZP.u = { $, $$, brl, esc, norm, icon, brandIcon, onlyDigits, debounce, storage, stars, waLink, toast, openLayer, closeLayer, topLayer };
+  ZP.u = { $, $$, home, brl, esc, norm, icon, brandIcon, onlyDigits, debounce, storage, stars, waLink, toast, openLayer, closeLayer, topLayer };
 })(window.ZP);

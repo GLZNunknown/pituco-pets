@@ -142,7 +142,7 @@ window.ZP = window.ZP || {};
         ${icon("whatsapp")}
         <p>Ao finalizar, abrimos o <b>WhatsApp da ${esc(cfg.store.name)}</b> com o seu pedido já escrito. É só tocar em <b>enviar</b> e a nossa equipe confirma o frete, o pagamento e o prazo com você por lá.</p>
       </div>
-      <label class="consent"><input type="checkbox" id="co-consent"> <span>Li e concordo com as <a href="politicas.html" target="_blank">políticas de troca, entrega e privacidade</a>.</span></label>
+      <label class="consent"><input type="checkbox" id="co-consent"> <span>Li e concordo com as <a href="${ZP.root}politicas.html" target="_blank">políticas de troca, entrega e privacidade</a>.</span></label>
       <small class="field__error" id="consentError" aria-live="polite"></small>`;
     },
   ];

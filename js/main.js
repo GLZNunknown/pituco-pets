@@ -70,25 +70,26 @@
         links.forEach((a) => a.classList.toggle("is-active", a.getAttribute("href") === "#" + en.target.id));
       });
     }, { rootMargin: "-45% 0px -50% 0px" });
-    links.forEach((a) => { const sec = $(a.getAttribute("href")); if (sec) io.observe(sec); });
+    links.forEach((a) => { const h = a.getAttribute("href"); const sec = h.startsWith("#") && $(h); if (sec) io.observe(sec); });
   }
 
   /* ---------- Dicas ---------- */
   function articles() {
-    $("#articleGrid").innerHTML = ZP.articles.map((a) => `
+    if ($("#articleGrid")) $("#articleGrid").innerHTML = ZP.articles.map((a) => `
       <article class="article-card">
-        <button class="article-card__btn" data-article="${a.id}">
+        <a class="article-card__btn" href="${ZP.root}dicas/${a.id}.html" data-article="${a.id}">
           <span class="article-card__cover">${a.icons.map((n) => ZP.u.brandIcon(n)).join("")}</span>
           <span class="article-card__meta"><span class="tag">${esc(a.tag)}</span> ${icon("clock")} ${a.read} de leitura</span>
           <b>${esc(a.title)}</b>
           <small>${esc(a.excerpt)}</small>
           <span class="article-card__more">Ler dica ${icon("arrow-right")}</span>
-        </button>
+        </a>
       </article>`).join("");
 
     document.addEventListener("click", (e) => {
       const b = e.target.closest("[data-article]");
-      if (!b) return;
+      if (!b || e.ctrlKey || e.metaKey || e.shiftKey || e.button > 0) return;
+      e.preventDefault();
       const a = ZP.articles.find((x) => x.id === b.dataset.article);
       $("#articleContent").innerHTML = `
         <div class="article">
@@ -108,6 +109,7 @@
 
   /* ---------- Depoimentos ---------- */
   function testimonials() {
+    if (!$("#depoimentos")) return;
     if (!ZP.testimonials.length) { $("#depoimentos").hidden = true; return; }
     $("#testimonialGrid").innerHTML = ZP.testimonials.map((t) => `
       <figure class="testimonial">
@@ -120,11 +122,11 @@
   /* ---------- Pituco no banho (fotos de clientes) ---------- */
   function customerGallery() {
     const fotos = ZP.customerPhotos || [];
-    if (!fotos.length) return;
+    if (!fotos.length || !$("#clientes")) return;
     $("#ugcGrid").innerHTML = fotos.map((base) => {
       const legenda = (ZP.customerCaptions || {})[base] || "";
       return `<figure class="ugc">
-        <img src="assets/img/clientes/${base}-600.webp" width="600" height="600" loading="lazy" decoding="async" alt="${esc(legenda || "Pet de cliente depois do banho")}">
+        <img src="${ZP.root}assets/img/clientes/${base}-600.webp" width="600" height="600" loading="lazy" decoding="async" alt="${esc(legenda || "Pet de cliente depois do banho")}">
         ${legenda ? `<figcaption>${esc(legenda)}</figcaption>` : ""}</figure>`;
     }).join("");
     $("#clientes").hidden = false;
@@ -139,7 +141,7 @@
       catch { toast(`Use o cupom ${b.dataset.copy} na sacola`); }
     });
 
-    $("#newsForm").addEventListener("submit", (e) => {
+    if ($("#newsForm")) $("#newsForm").addEventListener("submit", (e) => {
       e.preventDefault();
       const email = $("#newsEmail").value.trim();
       // Sem servidor: o e-mail fica guardado só neste navegador.
@@ -148,7 +150,7 @@
       e.target.innerHTML = `<p class="news__ok">${icon("check")} Prontinho! Use o cupom <b>BEMVINDO10</b> na sua primeira compra 💜</p>`;
     });
 
-    $("#contactForm").addEventListener("submit", (e) => {
+    if ($("#contactForm")) $("#contactForm").addEventListener("submit", (e) => {
       e.preventDefault();
       const f = new FormData(e.target);
       const msg = `Olá, ${cfg.store.name}! Sou ${f.get("name")}.\n*Assunto:* ${f.get("subject")}\n\n${f.get("message")}`;
