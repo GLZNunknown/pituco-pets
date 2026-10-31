@@ -133,6 +133,25 @@ window.ZP = window.ZP || {};
       </article>`;
   }
 
+  function renderMenus() {
+    const cats = ZP.categories.map((c) => `
+      <button class="mega__item" data-go-cat="${c.id}" style="--tint:${c.tint}">
+        <span class="mega__icon">${ZP.u.brandIcon(c.icon)}</span><span><b>${c.name}</b><small>${c.desc}</small></span>
+      </button>`).join("");
+    const pets = ZP.pets.map((p) => `
+      <button class="mega__pet" data-go-pet="${p.id}">${ZP.u.brandIcon(p.icon)}<span>${p.name}</span></button>`).join("");
+    $("#megaMenu").innerHTML = `
+      <div class="mega__cats"><p class="mega__label">Categorias</p><div class="mega__grid">${cats}</div></div>
+      <div class="mega__side">
+        <p class="mega__label">Por pet</p><div class="mega__pets">${pets}</div>
+        <a class="mega__promo" href="#kits"><span>Kits de banho</span><b>Economize até 16%</b><small>Ver combos ${icon("arrow-right")}</small></a>
+      </div>`;
+    $("#drawerCats").innerHTML = ZP.categories.map((c) => `
+      <button class="drawer__cat" data-go-cat="${c.id}" style="--tint:${c.tint}">${ZP.u.brandIcon(c.icon)}<span>${c.name}</span></button>`).join("");
+    $("#drawerPets").innerHTML = ZP.pets.map((p) => `
+      <button class="drawer__pet" data-go-pet="${p.id}">${ZP.u.brandIcon(p.icon)}<span>${p.name}</span></button>`).join("");
+  }
+
   function renderKits() {
     $("#kitGrid").innerHTML = ZP.products.filter((p) => p.cat === "kits").map(bundle).join("");
   }
@@ -190,6 +209,9 @@ window.ZP = window.ZP || {};
     if (filters.pet !== "all") pills.push(["pet", ZP.petById(filters.pet).name]);
     if (filters.promo) pills.push(["promo", "Em oferta"]);
     if (filters.max < PRICE_CEIL) pills.push(["max", `Até ${brl(filters.max)}`]);
+    const count = pills.length;
+    $("#filterCount").textContent = count;
+    $("#filterCount").hidden = count === 0;
     $("#activeFilters").innerHTML = pills.map(([k, label]) =>
       `<button class="pill" data-clear="${k}" aria-label="Remover filtro ${label}">${label} ${icon("x")}</button>`).join("") +
       (pills.length > 1 ? `<button class="pill pill--ghost" data-clear="all">Limpar tudo</button>` : "");
@@ -201,6 +223,7 @@ window.ZP = window.ZP || {};
     $("#resultCount").textContent = `${list.length} ${list.length === 1 ? "produto" : "produtos"}`;
     $("#productGrid").innerHTML = visible.map(card).join("");
     $("#emptyState").hidden = list.length > 0;
+    $("#filterApply").textContent = list.length ? `Ver ${list.length} ${list.length === 1 ? "produto" : "produtos"}` : "Nenhum produto — ajuste os filtros";
     const more = $("#loadMore");
     more.hidden = list.length <= filters.shown;
     more.textContent = `Carregar mais (${list.length - visible.length})`;
@@ -367,8 +390,18 @@ window.ZP = window.ZP || {};
         const on = ZP.store.toggleFav(+d.fav);
         toast(on ? "Adicionado aos favoritos 💜" : "Removido dos favoritos");
       }
-      else if (d.goCat) { closeLayer("#productLayer"); update({ cat: d.goCat }, { scroll: true }); }
-      else if (d.goPet) update({ pet: d.goPet }, { scroll: true });
+      else if (d.goCat || d.goPet) {
+        closeLayer("#productLayer");
+        closeLayer("#menuLayer");
+        const drop = $("#navDrop");
+        drop.classList.add("is-closed");
+        // Reabre normalmente quando o mouse sai ou quando o foco do teclado volta ao botão
+        const reabrir = () => drop.classList.remove("is-closed");
+        drop.addEventListener("mouseleave", reabrir, { once: true });
+        $(".nav__drop-btn").addEventListener("focus", reabrir, { once: true });
+        document.activeElement.blur();
+        update(d.goCat ? { cat: d.goCat } : { pet: d.goPet }, { scroll: true });
+      }
       else if (d.filterCat) update({ cat: d.filterCat });
       else if (d.clear) update(clearers[d.clear]());
       else if (d.thumb) {
@@ -395,6 +428,17 @@ window.ZP = window.ZP || {};
       const p = ZP.bySlug(a.getAttribute("href").slice(3));
       if (p) openProduct(p.id);
     });
+
+    const toolbar = $("#toolbar");
+    const setSheet = (open) => {
+      toolbar.classList.toggle("is-open", open);
+      document.body.classList.toggle("filters-open", open);
+      $("#filterOpen").setAttribute("aria-expanded", open);
+      if (open) setTimeout(() => $("#filterSheet .select select").focus({ preventScroll: true }), 250);
+    };
+    $("#filterOpen").addEventListener("click", () => setSheet(true));
+    toolbar.addEventListener("click", (e) => { if (e.target.closest("[data-filter-close]")) { setSheet(false); $("#filterOpen").focus({ preventScroll: true }); } });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && toolbar.classList.contains("is-open")) setSheet(false); });
 
     $("#petFilter").addEventListener("change", (e) => update({ pet: e.target.value }));
     $("#sortSelect").addEventListener("change", (e) => update({ sort: e.target.value }));
@@ -440,6 +484,7 @@ window.ZP = window.ZP || {};
       renderCategories();
       renderPets();
       renderKits();
+      renderMenus();
       renderFilterControls();
       renderGrid();
       bind();

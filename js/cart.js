@@ -16,6 +16,10 @@ window.ZP = window.ZP || {};
     $("#cartCount").hidden = n === 0;
     $("#favCount").textContent = f;
     $("#favCount").hidden = f === 0;
+    $("#tabCartCount").textContent = n;
+    $("#tabCartCount").hidden = n === 0;
+    $("#tabFavCount").textContent = f;
+    $("#tabFavCount").hidden = f === 0;
     $("#cartBtn").setAttribute("aria-label", `Abrir sacola (${n} ${n === 1 ? "item" : "itens"})`);
   }
 
@@ -136,6 +140,8 @@ window.ZP = window.ZP || {};
   function bind() {
     $("#cartBtn").addEventListener("click", () => openLayer("#cartLayer"));
     $("#favBtn").addEventListener("click", () => openLayer("#favLayer"));
+    $("#tabCart").addEventListener("click", () => openLayer("#cartLayer"));
+    $("#tabFav").addEventListener("click", () => openLayer("#favLayer"));
 
     document.addEventListener("click", (e) => {
       const t = e.target.closest("[data-line-qty],[data-line-remove],[data-coupon-remove],#goCheckout,#favAddAll");

@@ -37,19 +37,33 @@
   function header() {
     const head = $("#header");
     const toTop = $("#toTop");
+    // No celular, o cabeçalho se esconde ao rolar para baixo e volta ao rolar para cima
+    let lastY = scrollY;
+    const mobile = matchMedia("(max-width: 860px)");
     const onScroll = () => {
-      head.classList.toggle("is-scrolled", scrollY > 10);
-      toTop.classList.toggle("is-show", scrollY > 900);
+      const y = scrollY;
+      head.classList.toggle("is-scrolled", y > 10);
+      toTop.classList.toggle("is-show", y > 900);
+      const travado = document.body.classList.contains("no-scroll") || document.body.classList.contains("filters-open") || !$("#searchSuggest").hidden;
+      if (mobile.matches && !travado && Math.abs(y - lastY) > 6) head.classList.toggle("is-hidden", y > lastY && y > 220);
+      if (!mobile.matches) head.classList.remove("is-hidden");
+      lastY = y;
     };
     addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     toTop.addEventListener("click", () => scrollTo({ top: 0, behavior: "smooth" }));
 
     $("#menuBtn").addEventListener("click", () => openLayer("#menuLayer"));
+    $("#tabCats").addEventListener("click", () => openLayer("#menuLayer"));
+    $("#tabSearch").addEventListener("click", () => {
+      head.classList.remove("is-hidden");
+      scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+      setTimeout(() => $("#searchInput").focus(), 250);
+    });
     $("#menuLayer").addEventListener("click", (e) => { if (e.target.closest("a")) ZP.u.closeLayer("#menuLayer"); });
 
     // Destaca no menu a seção visível
-    const links = $$("#mainNav a[href^='#']");
+    const links = $$("#mainNav > a[href^='#'], #mainNav .nav__drop-btn");
     const io = new IntersectionObserver((entries) => {
       entries.forEach((en) => {
         if (!en.isIntersecting) return;
