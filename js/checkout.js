@@ -22,7 +22,7 @@ window.ZP = window.ZP || {};
   // Dados do cliente ficam salvos só neste navegador, para agilizar a próxima compra
   const data = Object.assign({
     name: "", phone: "", email: "",
-    mode: "delivery", cep: "", street: "", number: "", complement: "", district: "", city: "", uf: "",
+    mode: "delivery", cep: (() => { const c = storage.get("cep", ""); return c.length === 8 ? `${c.slice(0, 5)}-${c.slice(5)}` : ""; })(), street: "", number: "", complement: "", district: "", city: "", uf: "",
     payment: "pix", change: "", notes: "",
   }, storage.get("customer", {}));
 

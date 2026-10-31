@@ -177,10 +177,74 @@ window.ZP = window.ZP || {};
     $("#sortSelect").value = filters.sort;
   }
 
-  function matches(p, tokens) {
-    const hay = norm([p.name, p.short, ZP.catById(p.cat).name, ...p.pets.map((id) => ZP.petById(id).name)].join(" "));
-    return tokens.every((t) => hay.includes(t));
+  /* ---------- Busca inteligente: sinônimos, plural e correção de digitação ---------- */
+  const SINONIMOS = {
+    cheiroso: ["perfume", "colonia"], cheirosa: ["perfume", "colonia"], cheiro: ["perfume", "colonia"], perfumado: ["perfume", "colonia"],
+    colonia: ["perfume"], perfume: ["colonia"], fragrancia: ["perfume", "colonia"],
+    no: ["desembaraca", "pelos longos"], nos: ["desembaraca", "pelos longos"], embaracado: ["desembaraca"], desembaracar: ["desembaraca"],
+    coceira: ["hipoalergenico", "neutro", "sensive"], alergia: ["hipoalergenico", "neutro"], sensivel: ["hipoalergenico", "neutro", "sensive"],
+    filhote: ["filhote", "neutro"], bebe: ["bebe", "filhote"],
+    cachorro: ["caes"], cachorra: ["caes"], cao: ["caes"], dog: ["caes"], gato: ["gatos"], gata: ["gatos"], felino: ["gatos"],
+    coelho: ["coelhos"], cavalo: ["cavalos", "equinos"], egua: ["cavalos", "equinos"], equino: ["equinos"],
+    seco: ["banho a seco"], agua: ["banho a seco"], macio: ["maciez", "hidrata"], hidratar: ["hidrata"], ressecado: ["hidrata", "maciez"],
+    pulga: ["citronela"], mosquito: ["citronela"], branco: ["pelos brancos", "claros"], amarelado: ["pelos brancos"],
+    orelha: ["orelhas"], ouvido: ["orelhas"], lenco: ["lenco umedecido"], queda: ["removedora de pelos"], presente: ["kit"], combo: ["kit"],
+  };
+  const haystack = new Map();
+  const hayOf = (p) => {
+    if (!haystack.has(p.id)) haystack.set(p.id, norm([p.name, p.short, p.description, ...p.benefits, ZP.catById(p.cat).name,
+      ...p.pets.map((id) => ZP.petById(id).name)].join(" ")));
+    return haystack.get(p.id);
+  };
+  function alternativas(t) {
+    const alts = new Set([t]);
+    if (t.length > 3 && t.endsWith("s")) alts.add(t.slice(0, -1));
+    [...alts].forEach((a) => (SINONIMOS[a] || []).forEach((x) => alts.add(x)));
+    if (t.length >= 4) Object.keys(SINONIMOS).filter((k) => k.startsWith(t)).forEach((k) => SINONIMOS[k].forEach((x) => alts.add(x)));
+    return [...alts];
   }
+  function tokenOk(hay, t) {
+    return alternativas(t).some((a) => (a.length <= 2 ? new RegExp(`\\b${a}`).test(hay) : hay.includes(a)));
+  }
+  function matches(p, tokens) {
+    const hay = hayOf(p);
+    return tokens.every((t) => tokenOk(hay, t));
+  }
+
+  // Relevância: termo no nome ou na categoria vale mais que na descrição
+  function textScore(p, tokens) {
+    const nome = norm(p.name), cat = norm(ZP.catById(p.cat).name), curto = norm(p.short);
+    return tokens.reduce((total, t) => {
+      const alts = alternativas(t);
+      const em = (txt) => alts.some((a) => txt.includes(a));
+      return total + (em(nome) ? 4 : 0) + (em(cat) ? 3 : 0) + (em(curto) ? 1.5 : 0) + 0.5;
+    }, 0);
+  }
+
+  // "Você quis dizer...?" — procura a palavra conhecida mais parecida (distância de edição)
+  const VOCAB = [...new Set([...ZP.products.flatMap((p) => norm(p.name).split(/[^a-z0-9]+/)),
+    ...ZP.categories.flatMap((c) => norm(c.name).split(/\s+/)), ...ZP.pets.map((p) => norm(p.name)), ...Object.keys(SINONIMOS)])]
+    .filter((w) => w.length >= 4);
+  function distancia(a, b) {
+    const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+    for (let j = 1; j <= b.length; j++) d[0][j] = j;
+    for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    return d[a.length][b.length];
+  }
+  function sugestao(q) {
+    let mudou = false;
+    const palavras = norm(q).split(/\s+/).filter(Boolean).map((t) => {
+      if (ZP.products.some((p) => tokenOk(hayOf(p), t))) return t;
+      let melhor = null, dist = t.length <= 5 ? 2 : 3;
+      VOCAB.forEach((w) => { const x = distancia(t, w); if (x < dist) { dist = x; melhor = w; } });
+      if (melhor) { mudou = true; return melhor; }
+      return t;
+    });
+    return mudou ? palavras.join(" ") : null;
+  }
+
+  const POPULARES = ["Shampoo neutro", "Cheirinho de bebê", "Pelos longos", "Banho a seco", "Cavalos", "Kits"];
 
   function filtered() {
     const tokens = norm(filters.q).split(/\s+/).filter(Boolean);
@@ -199,6 +263,7 @@ window.ZP = window.ZP || {};
       newest: (a, b) => (b.tags.includes("novo") - a.tags.includes("novo")) || b.id - a.id,
       discount: (a, b) => discountPct(b.variants[0]) - discountPct(a.variants[0]),
     };
+    if (tokens.length && filters.sort === "relevance") return list.sort((a, b) => textScore(b, tokens) - textScore(a, tokens) || score(b) - score(a));
     return list.sort(sorters[filters.sort]);
   }
 
@@ -223,6 +288,9 @@ window.ZP = window.ZP || {};
     $("#resultCount").textContent = `${list.length} ${list.length === 1 ? "produto" : "produtos"}`;
     $("#productGrid").innerHTML = visible.map(card).join("");
     $("#emptyState").hidden = list.length > 0;
+    const dica = !list.length && filters.q ? sugestao(filters.q) : null;
+    $("#didYouMean").hidden = !dica;
+    if (dica) $("#didYouMean").innerHTML = `Você quis dizer <button class="link-btn" data-q="${esc(dica)}">${esc(dica)}</button>?`;
     $("#filterApply").textContent = list.length ? `Ver ${list.length} ${list.length === 1 ? "produto" : "produtos"}` : "Nenhum produto — ajuste os filtros";
     const more = $("#loadMore");
     more.hidden = list.length <= filters.shown;
@@ -250,9 +318,21 @@ window.ZP = window.ZP || {};
   function renderSuggestions() {
     const q = $("#searchInput").value.trim();
     const box = $("#searchSuggest");
-    if (q.length < 2) { box.hidden = true; return; }
+    if (q.length < 2) {
+      // Campo vazio: buscas populares e o que o cliente viu por último
+      const vistos = recentes().slice(0, 3);
+      box.innerHTML = `<li class="suggest-head">Buscas populares</li>
+        <li class="suggest-chips">${POPULARES.map((t) => `<button type="button" class="chip" data-q="${esc(t)}">${esc(t)}</button>`).join("")}</li>
+        ${vistos.length ? `<li class="suggest-head">Vistos recentemente</li>${vistos.map((p) => `
+          <li><button type="button" class="suggest" data-open="${p.id}">
+            <span class="suggest__img" style="--tint:${ZP.catById(p.cat).tint}">${ZP.art.product(p, { sizes: "48px" })}</span>
+            <span class="suggest__name">${esc(p.name)}<small>${ZP.catById(p.cat).name}</small></span>
+            <b>${brl(minPrice(p))}</b></button></li>`).join("")}` : ""}`;
+      box.hidden = false;
+      return;
+    }
     const tokens = norm(q).split(/\s+/).filter(Boolean);
-    const found = ZP.products.filter((p) => matches(p, tokens));
+    const found = ZP.products.filter((p) => matches(p, tokens)).sort((a, b) => textScore(b, tokens) - textScore(a, tokens) || score(b) - score(a));
     box.innerHTML = (found.length
       ? found.slice(0, 5).map((p) => `
           <li><button type="button" class="suggest" data-open="${p.id}">
@@ -261,7 +341,9 @@ window.ZP = window.ZP || {};
             <b>${brl(minPrice(p))}</b>
           </button></li>`).join("") +
         `<li><button type="submit" class="suggest suggest--all">Ver todos os ${found.length} resultados ${icon("arrow-right")}</button></li>`
-      : `<li class="suggest suggest--none">Nada encontrado para “${esc(q)}”. Tente “shampoo” ou “gatos”.</li>`);
+      : (sugestao(q)
+          ? `<li class="suggest suggest--none">Nada encontrado para “${esc(q)}”. Você quis dizer <button type="button" class="link-btn" data-q="${esc(sugestao(q))}">${esc(sugestao(q))}</button>?</li>`
+          : `<li class="suggest suggest--none">Nada encontrado para “${esc(q)}”. Tente “shampoo”, “cheiroso” ou “gatos”.</li>`));
     box.hidden = false;
   }
 
@@ -317,7 +399,15 @@ window.ZP = window.ZP || {};
           </div>
 
           <ul class="pd__perks">
-            <li>${icon("truck")} Frete grátis acima de ${brl(cfg.shipping.freeFrom)}</li>
+            <li class="ship-calc-li">
+              <form class="ship-calc" data-ship-calc>
+                ${icon("truck")}
+                <label class="sr-only" for="pdCep">Seu CEP</label>
+                <input id="pdCep" inputmode="numeric" autocomplete="postal-code" placeholder="Calcule o frete: seu CEP" maxlength="9" value="${esc(((c) => (c.length === 8 ? `${c.slice(0, 5)}-${c.slice(5)}` : c))(ZP.u.storage.get("cep", "")))}">
+                <button class="btn btn--outline btn--sm">Calcular</button>
+              </form>
+              <output class="ship-calc__out" aria-live="polite">${detail.ship || `Frete grátis em compras acima de ${brl(cfg.shipping.freeFrom)} · entregamos em todo o estado de SP`}</output>
+            </li>
             <li>${icon("shield")} Compra segura e troca garantida</li>
             <li>${icon("chat")} <a href="${waLink(`Olá! Tenho uma dúvida sobre o produto ${p.name}.`)}" target="_blank" rel="noopener">Tirar dúvida no WhatsApp</a></li>
           </ul>
@@ -338,11 +428,23 @@ window.ZP = window.ZP || {};
       </div>`;
   }
 
+  /* ---------- Vistos recentemente (guardado só neste navegador) ---------- */
+  const recentes = () => ZP.u.storage.get("recent", []).map(ZP.byId).filter(Boolean);
+  function lembrar(id) {
+    ZP.u.storage.set("recent", [id, ...ZP.u.storage.get("recent", []).filter((x) => x !== id)].slice(0, 8));
+  }
+  function renderRecent() {
+    const lista = recentes();
+    $("#recentBox").hidden = lista.length < 2;
+    $("#recentList").innerHTML = lista.map(miniCard).join("");
+  }
+
   function openProduct(id, { fromHash = false } = {}) {
     const p = ZP.byId(id);
     if (!p) return;
+    lembrar(id);
     hideSuggestions();
-    Object.assign(detail, { id, v: 0, qty: 1, img: 0 });
+    Object.assign(detail, { id, v: 0, qty: 1, img: 0, ship: "" });
     renderDetail();
     if (!fromHash) history.replaceState(null, "", `#p/${p.slug}`);
     document.title = `${p.name} — ${cfg.store.name}`;
@@ -462,7 +564,45 @@ window.ZP = window.ZP || {};
     document.addEventListener("click", (e) => { if (!e.target.closest("#searchForm")) hideSuggestions(); });
     input.addEventListener("keydown", (e) => { if (e.key === "Escape") hideSuggestions(); });
 
+    // Buscas populares e "Você quis dizer"
+    document.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-q]");
+      if (!b) return;
+      input.value = b.dataset.q;
+      hideSuggestions();
+      update({ q: b.dataset.q, cat: "all" }, { scroll: true });
+    });
+
+    // Calculadora de frete na página do produto
+    document.addEventListener("input", (e) => {
+      if (e.target.id !== "pdCep") return;
+      const d = ZP.u.onlyDigits(e.target.value).slice(0, 8);
+      e.target.value = d.length > 5 ? `${d.slice(0, 5)}-${d.slice(5)}` : d;
+    });
+    document.addEventListener("submit", async (e) => {
+      if (!e.target.matches("[data-ship-calc]")) return;
+      e.preventDefault();
+      const out = $(".ship-calc__out");
+      const cep = ZP.u.onlyDigits($("#pdCep").value);
+      if (cep.length !== 8) { out.textContent = "Digite os 8 números do CEP."; return; }
+      out.textContent = "Calculando...";
+      try {
+        const r = await (await fetch(`https://viacep.com.br/ws/${cep}/json/`)).json();
+        if (r.erro) throw new Error();
+        ZP.u.storage.set("cep", cep);
+        const z = ZP.pricing.shippingFor(r.uf, r.localidade);
+        detail.ship = z
+          ? `<b>${esc(r.localidade)}/${r.uf}</b> · ${esc(z.name)}: <b>${brl(z.price)}</b> · chega em ${esc(z.days)}. <span class="ok">Grátis acima de ${brl(cfg.shipping.freeFrom)}</span>`
+          : `<b>${esc(r.localidade)}/${r.uf}:</b> ainda não entregamos aqui. Por enquanto atendemos o ${esc(cfg.shipping.serviceArea.label)}.`;
+      } catch {
+        detail.ship = "Não encontramos esse CEP. Confira os números.";
+      }
+      out.innerHTML = detail.ship;
+    });
+
+    $("#recentClear").addEventListener("click", () => { ZP.u.storage.set("recent", []); renderRecent(); });
     $("#productLayer").addEventListener("layer:close", () => {
+      renderRecent();
       if (location.hash.startsWith("#p/")) history.replaceState(null, "", location.pathname + location.search);
       document.title = ZP.baseTitle;
     });
@@ -478,6 +618,91 @@ window.ZP = window.ZP || {};
     });
   }
 
+  /* ---------- Assistente: O Pituco te ajuda a escolher ---------- */
+  const quiz = { pet: null, need: null };
+
+  function quizPicks() {
+    const doPet = ZP.products.filter((p) => p.pets.includes(quiz.pet));
+    const comNecessidade = doPet.filter((p) => (p.needs || []).includes(quiz.need));
+    const avulsos = comNecessidade.filter((p) => p.cat !== "kits").sort((a, b) => score(b) - score(a)).slice(0, 3);
+    const kit = comNecessidade.find((p) => p.cat === "kits");
+    return { avulsos, kit };
+  }
+
+  function renderQuiz() {
+    const box = $("#quiz");
+    const pet = quiz.pet && ZP.petById(quiz.pet);
+    const passo = !quiz.pet ? 1 : !quiz.need ? 2 : 3;
+    const progresso = `<ol class="quiz__steps" aria-label="Etapas">${["Pet", "Necessidade", "Indicação"].map((t, i) =>
+      `<li class="${i + 1 < passo ? "is-done" : ""} ${i + 1 === passo ? "is-current" : ""}">${t}</li>`).join("")}</ol>`;
+    const mascote = `<div class="quiz__mascot" aria-hidden="true"><span class="mascot__face">${ZP.u.brandIcon(pet ? pet.icon : "dog")}</span></div>`;
+
+    let corpo;
+    if (passo === 1) {
+      corpo = `
+        <h3 class="quiz__q">Para quem é o banho?</h3>
+        <div class="quiz__pets">${ZP.pets.map((p) => `
+          <button class="quiz__pet" data-quiz-pet="${p.id}">${ZP.u.brandIcon(p.icon)}<span>${p.name}</span></button>`).join("")}</div>`;
+    } else if (passo === 2) {
+      const disponiveis = ZP.needs.filter((n) => ZP.products.some((p) => p.pets.includes(quiz.pet) && (p.needs || []).includes(n.id)));
+      corpo = `
+        <h3 class="quiz__q">Do que ${quiz.pet === "caes" ? "o seu cão" : quiz.pet === "gatos" ? "o seu gato" : quiz.pet === "coelhos" ? "o seu coelho" : "o seu cavalo"} precisa?</h3>
+        ${quiz.pet === "coelhos" ? `<p class="quiz__note">${icon("shield")} Coelhos não devem tomar banho com água: indicamos só limpeza a seco e escovação.</p>` : ""}
+        <div class="quiz__needs">${disponiveis.map((n) => `
+          <button class="quiz__need" data-quiz-need="${n.id}" style="--c:${n.color};--t:${n.tint}"><b>${n.label}</b><small>${n.hint}</small></button>`).join("")}</div>
+        <button class="link-btn" data-quiz-back>${icon("arrow-left")} Voltar</button>`;
+    } else {
+      const { avulsos, kit } = quizPicks();
+      const need = ZP.needs.find((n) => n.id === quiz.need);
+      corpo = `
+        <h3 class="quiz__q">O Pituco indica para ${pet.name.toLowerCase()} · <span style="color:${need.color}">${need.label.toLowerCase()}</span></h3>
+        <div class="quiz__picks">${avulsos.map((p) => `
+          <article class="quiz__pick">
+            <button class="quiz__pick-img" data-open="${p.id}" style="--tint:${ZP.catById(p.cat).tint}" aria-label="Ver ${esc(p.name)}">${ZP.art.product(p, { sizes: "160px" })}</button>
+            <b>${esc(p.name)}</b><small>${esc(p.short)}</small>
+            <span class="quiz__price">${brl(minPrice(p))}</span>
+            <button class="btn btn--primary btn--sm" data-quickadd="${p.id}">${icon("bag")} Adicionar</button>
+          </article>`).join("")}</div>
+        ${kit ? `<button class="quiz__kit" data-open="${kit.id}">${icon("gift")}<span>Prefere tudo junto? <b>${esc(kit.name)}</b> por ${brl(kit.variants[0].price)}</span>${icon("arrow-right")}</button>` : ""}
+        <div class="quiz__actions">
+          ${avulsos.length > 1 ? `<button class="btn btn--primary" data-quiz-all>${icon("bag")} Adicionar os ${avulsos.length} à sacola</button>` : ""}
+          <button class="btn btn--ghost" data-quiz-reset>${icon("refresh")} Recomeçar</button>
+        </div>`;
+    }
+
+    box.innerHTML = `
+      <div class="quiz__intro">
+        ${mascote}
+        <span class="eyebrow">Assistente Pituco</span>
+        <h2 id="quizTitle">Não sabe por onde <mark class="hl">começar</mark>?</h2>
+        <p>Responda 2 perguntinhas e o Pituco indica os produtos certos para o seu pet.</p>
+        ${progresso}
+      </div>
+      <div class="quiz__body">${corpo}</div>`;
+  }
+
+  function bindQuiz() {
+    $("#quiz").addEventListener("click", (e) => {
+      const t = e.target.closest("[data-quiz-pet],[data-quiz-need],[data-quiz-back],[data-quiz-reset],[data-quiz-all]");
+      if (!t) return;
+      const d = t.dataset;
+      if (d.quizPet) quiz.pet = d.quizPet;
+      else if (d.quizNeed) quiz.need = d.quizNeed;
+      else if ("quizBack" in d) quiz.pet = null;
+      else if ("quizReset" in d) { quiz.pet = null; quiz.need = null; }
+      else if ("quizAll" in d) {
+        const { avulsos } = quizPicks();
+        avulsos.forEach((p) => ZP.store.add(p.id));
+        bump();
+        toast(`${avulsos.length} produtos na sacola! 🐾`);
+        return;
+      }
+      renderQuiz();
+      const foco = $("#quiz .quiz__body button");
+      if (foco) foco.focus({ preventScroll: true });
+    });
+  }
+
   ZP.catalog = {
     init() {
       ZP.baseTitle = document.title;
@@ -485,6 +710,9 @@ window.ZP = window.ZP || {};
       renderPets();
       renderKits();
       renderMenus();
+      renderQuiz();
+      bindQuiz();
+      renderRecent();
       renderFilterControls();
       renderGrid();
       bind();
