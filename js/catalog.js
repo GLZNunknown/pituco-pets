@@ -369,7 +369,7 @@ window.ZP = window.ZP || {};
     $("#productContent").innerHTML = `
       <div class="pd">
         <div class="pd__gallery">
-          <div class="pd__media${photos.length ? " has-photo" : ""}" style="--tint:${cat.tint}">${badges(p, v)}${ZP.art.product(p, { sizes: "(max-width: 860px) 90vw, 480px", eager: true, alt: p.name, index: detail.img })}</div>
+          <div class="pd__media${photos.length ? " has-photo" : ""}" style="--tint:${cat.tint}">${badges(p, v)}${favButton(p, "fav-btn--media")}${ZP.art.product(p, { sizes: "(max-width: 860px) 90vw, 480px", eager: true, alt: p.name, index: detail.img })}</div>
           ${photos.length > 1 ? `<div class="pd__thumbs" role="group" aria-label="Fotos do produto">${photos.map((b, i) => `
             <button class="pd__thumb ${i === detail.img ? "is-active" : ""}" data-thumb="${i}" aria-pressed="${i === detail.img}" aria-label="Foto ${i + 1} de ${photos.length}">${ZP.art.photo(b, { sizes: "72px" })}</button>`).join("")}</div>` : ""}
         </div>
