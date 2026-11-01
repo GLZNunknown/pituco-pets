@@ -27,7 +27,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20261031r">
+  <link rel="stylesheet" href="css/styles.css?v=44c5182451">
 
   <script type="application/ld+json">
   { "@context": "https://schema.org", "@type": "PetStore", "name": "Pituco Pets",
@@ -35,16 +35,16 @@
     "priceRange": "R$", "paymentAccepted": "Pix, Cartão de crédito, Dinheiro" }
   </script>
 
-  <script src="js/config.js?v=20261031r" defer></script>
-  <script src="js/data.js?v=20261031r" defer></script>
-  <script src="js/utils.js?v=20261031r" defer></script>
-  <script src="js/store.js?v=20261031r" defer></script>
-  <script src="js/fotos.js?v=20261031r" defer></script>
-  <script src="js/art.js?v=20261031r" defer></script>
-  <script src="js/catalog.js?v=20261031r" defer></script>
-  <script src="js/cart.js?v=20261031r" defer></script>
-  <script src="js/checkout.js?v=20261031r" defer></script>
-  <script src="js/main.js?v=20261031r" defer></script>
+  <script src="js/config.js?v=44c5182451" defer></script>
+  <script src="js/data.js?v=44c5182451" defer></script>
+  <script src="js/utils.js?v=44c5182451" defer></script>
+  <script src="js/store.js?v=44c5182451" defer></script>
+  <script src="js/fotos.js?v=44c5182451" defer></script>
+  <script src="js/art.js?v=44c5182451" defer></script>
+  <script src="js/catalog.js?v=44c5182451" defer></script>
+  <script src="js/cart.js?v=44c5182451" defer></script>
+  <script src="js/checkout.js?v=44c5182451" defer></script>
+  <script src="js/main.js?v=44c5182451" defer></script>
 </head>
 <body>
   <!-- ===== Ícones (SVG sprite) ===== -->
@@ -124,7 +124,6 @@
       </form>
 
       <div class="header__actions">
-        <a class="icon-btn hide-sm" data-wa="Olá! Vim pelo site da Pituco Pets 🐾" href="#" aria-label="Falar no WhatsApp"><svg class="i"><use href="#i-whatsapp"/></svg></a>
         <button class="icon-btn" id="favBtn" aria-label="Abrir favoritos">
           <svg class="i"><use href="#i-heart"/></svg><span class="count" id="favCount" hidden>0</span>
         </button>
@@ -143,7 +142,6 @@
         <a href="#produtos">Produtos</a>
         <a href="#ajuda">Me ajude a escolher</a>
         <a href="#kits">Kits <span class="nav__tag">Oferta</span></a>
-        <a href="#como-comprar">Como comprar</a>
         <a href="#dicas">Dicas</a>
         <a href="#duvidas">Dúvidas</a>
         <a href="#contato">Contato</a>
@@ -164,15 +162,10 @@
             <a class="btn btn--primary btn--lg" href="#produtos">Comprar agora <svg class="i"><use href="#i-arrow-right"/></svg></a>
             <a class="btn btn--light btn--lg" href="#kits"><svg class="i"><use href="#i-gift"/></svg> Ver kits</a>
           </div>
-          <ul class="hero__pets" aria-label="Pets atendidos">
-            <li><svg class="bi" aria-hidden="true"><use href="#ic-dog"/></svg> Cães</li><li><svg class="bi" aria-hidden="true"><use href="#ic-cat"/></svg> Gatos</li><li><svg class="bi" aria-hidden="true"><use href="#ic-rabbit"/></svg> Coelhos</li><li><svg class="bi" aria-hidden="true"><use href="#ic-horse"/></svg> Cavalos</li>
-          </ul>
         </div>
         <div class="hero__media">
-          <img src="assets/img/hero-pets.webp" alt="Cachorro, gato, coelho e cavalo cheios de espuma depois do banho" width="651" height="453" fetchpriority="high">
-          <div class="float-badge float-badge--a"><svg class="i"><use href="#i-truck"/></svg><span><b>Frete grátis</b><small>acima de <span data-info="freeFrom"></span></small></span></div>
+          <img src="assets/img/hero-banho.webp" alt="Cachorro, gato, coelho e cavalo cheios de espuma depois do banho" width="651" height="311" fetchpriority="high">
           <div class="mascot" aria-hidden="true"><span class="mascot__face"><svg class="bi"><use href="#ic-dog"/></svg></span><span class="mascot__bubble">Oi! Eu sou o <b>Pituco</b> 🐾</span></div>
-          <div class="float-badge float-badge--b"><svg class="i"><use href="#i-pix"/></svg><span><b><span data-info="pix"></span> OFF</b><small>pagando no Pix</small></span></div>
         </div>
       </div>
     </section>
@@ -283,13 +276,13 @@
         <div class="promo">
           <div class="promo__text">
             <span class="eyebrow eyebrow--light"><svg class="i"><use href="#i-gift"/></svg> Kits de banho</span>
-            <h2>Monte a rotina completa e <mark>economize até 16%</mark></h2>
+            <h2>Monte a rotina completa <mark>pagando menos</mark></h2>
             <p>Combinações pensadas para cada tipo de pelagem: mais praticidade para você, mais carinho para ele.</p>
           </div>
           <div class="promo__coupon">
-            <small>Primeira compra?</small>
-            <b>10% OFF</b>
-            <button class="coupon-tag" data-copy="BEMVINDO10" aria-label="Copiar cupom BEMVINDO10">BEMVINDO10 <svg class="i"><use href="#i-copy"/></svg></button>
+            <small>Nos kits você economiza até</small>
+            <b id="kitMaxSave">—</b>
+            <a class="coupon-tag" href="#kitGrid">Ver os kits <svg class="i"><use href="#i-arrow-right"/></svg></a>
           </div>
         </div>
         <div class="bundle-grid" id="kitGrid"></div>
@@ -314,7 +307,7 @@
     </section>
 
     <!-- ===== Faixa animada ===== -->
-    <div class="marquee" aria-hidden="true"><div class="marquee__track"><span>Banho é cuidado, é bem-estar!</span><span><svg class="bi"><use href="#ic-dog"/></svg> Cães</span><span><svg class="bi"><use href="#ic-cat"/></svg> Gatos</span><span><svg class="bi"><use href="#ic-rabbit"/></svg> Coelhos</span><span><svg class="bi"><use href="#ic-horse"/></svg> Cavalos</span><span>Frete grátis acima de R$ 150</span><span><svg class="bi"><use href="#ic-shampoo"/></svg> Entregamos em todo o estado de SP</span><span>Banho é cuidado, é bem-estar!</span><span><svg class="bi"><use href="#ic-dog"/></svg> Cães</span><span><svg class="bi"><use href="#ic-cat"/></svg> Gatos</span><span><svg class="bi"><use href="#ic-rabbit"/></svg> Coelhos</span><span><svg class="bi"><use href="#ic-horse"/></svg> Cavalos</span><span>Frete grátis acima de R$ 150</span><span><svg class="bi"><use href="#ic-shampoo"/></svg> Entregamos em todo o estado de SP</span></div></div>
+    <div class="marquee" aria-hidden="true"><div class="marquee__track"><span>Banho é cuidado, é bem-estar!</span><span><svg class="bi"><use href="#ic-dog"/></svg> Cães</span><span><svg class="bi"><use href="#ic-cat"/></svg> Gatos</span><span>Cheirinho de banho tomado</span><span><svg class="bi"><use href="#ic-rabbit"/></svg> Coelhos</span><span><svg class="bi"><use href="#ic-horse"/></svg> Cavalos</span><span>Carinho em cada patinha</span><span>Banho é cuidado, é bem-estar!</span><span><svg class="bi"><use href="#ic-dog"/></svg> Cães</span><span><svg class="bi"><use href="#ic-cat"/></svg> Gatos</span><span>Cheirinho de banho tomado</span><span><svg class="bi"><use href="#ic-rabbit"/></svg> Coelhos</span><span><svg class="bi"><use href="#ic-horse"/></svg> Cavalos</span><span>Carinho em cada patinha</span></div></div>
 
     <!-- ===== Depoimentos ===== -->
     <section class="section" id="depoimentos">
@@ -363,8 +356,7 @@
           <a class="btn btn--primary" data-wa="Olá! Tenho uma dúvida sobre a Pituco Pets." href="#"><svg class="i"><use href="#i-whatsapp"/></svg> Falar com a equipe</a>
         </header>
         <div class="faq__list">
-          <details open><summary>Como faço meu pedido?</summary><p>Adicione os produtos à sacola, clique em <b>Finalizar compra</b> e preencha seus dados e o endereço. Ao finalizar, você vai <b>direto para o nosso WhatsApp</b> com o pedido completo já escrito: é só tocar em enviar. Nossa equipe confirma o frete, o pagamento e o prazo com você por lá.</p></details>
-          <details><summary>Quais são as formas de pagamento?</summary><p>O pagamento é combinado no WhatsApp, depois que confirmamos o pedido: Pix com <b><span data-info="pix"></span> de desconto</b>, cartão de crédito em até <b><span data-info="installments"></span> sem juros</b> (por link de pagamento seguro) ou dinheiro na entrega ou retirada. Nenhum dado de cartão é digitado no site.</p></details>
+          <details open><summary>Quais são as formas de pagamento?</summary><p>O pagamento é combinado no WhatsApp, depois que confirmamos o pedido: Pix com <b><span data-info="pix"></span> de desconto</b>, cartão de crédito em até <b><span data-info="installments"></span> sem juros</b> (por link de pagamento seguro) ou dinheiro na entrega ou retirada. Nenhum dado de cartão é digitado no site.</p></details>
           <details><summary>Vocês entregam na minha cidade?</summary><p>Por enquanto entregamos em <b>todo o estado de São Paulo</b>: capital, Grande São Paulo, interior e litoral. Estamos crescendo e logo chegaremos a outras regiões. Se você mora fora de SP, <a data-wa="Olá! Moro fora de SP e queria saber quando a Pituco Pets vai entregar na minha cidade." href="#">avise a gente</a>!</p></details>
           <details><summary>Qual o prazo e o valor do frete?</summary><p>O frete é calculado pelo CEP no checkout e o prazo aparece antes de você finalizar. Na capital a entrega leva de 1 a 2 dias úteis. Compras acima de <b><span data-info="freeFrom"></span></b> têm <b>frete grátis</b>.</p></details>
           <details><summary>Posso retirar na loja?</summary><p>Pode! Escolha <b>Retirar na loja</b> no checkout. A retirada é gratuita e o pedido fica pronto em até 2 horas no horário de funcionamento.</p></details>

@@ -62,13 +62,11 @@ ZP.config = {
     FRETEGRATIS: { type: "shipping", min: 80, label: "Frete grátis acima de R$ 80" },
   },
 
+  // Barra de avisos do topo: poucas mensagens, as mais importantes (as vantagens fixas ficam na faixa abaixo do topo)
   announcements: [
     "📍 Entregamos em todo o estado de São Paulo",
     "🚚 Frete grátis em compras acima de R$ 150",
     "💜 10% OFF na primeira compra com o cupom BEMVINDO10",
-    "💬 Finalize seu pedido direto no nosso WhatsApp",
-    "⚡ 5% de desconto pagando no Pix",
-    "💳 Parcele em até 3x sem juros",
   ],
 
   pageSize: 8,                           // produtos exibidos antes do "Carregar mais"

@@ -22,7 +22,7 @@ window.ZP = window.ZP || {};
   // Dados do cliente ficam salvos só neste navegador, para agilizar a próxima compra
   const data = Object.assign({
     name: "", phone: "", email: "",
-    mode: "delivery", cep: (() => { const c = storage.get("cep", ""); return c.length === 8 ? `${c.slice(0, 5)}-${c.slice(5)}` : ""; })(), street: "", number: "", complement: "", district: "", city: "", uf: "",
+    mode: "delivery", cep: ZP.u.maskCep(storage.get("cep", "")), street: "", number: "", complement: "", district: "", city: "", uf: "",
     payment: "pix", change: "", notes: "",
   }, storage.get("customer", {}));
 
@@ -37,7 +37,6 @@ window.ZP = window.ZP || {};
     if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
     return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
   };
-  const maskCep = (v) => { const d = onlyDigits(v).slice(0, 8); return d.length > 5 ? `${d.slice(0, 5)}-${d.slice(5)}` : d; };
 
   /* ---------- Frete e área de entrega ---------- */
   // null = falta informação | { outside: true } = região ainda não atendida | { price, days, name }
@@ -246,9 +245,7 @@ window.ZP = window.ZP || {};
     const status = (msg) => { cepStatus = msg; const el = $("#cepStatus"); if (el) el.textContent = msg; };
     status("Buscando endereço...");
     try {
-      const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-      const r = await res.json();
-      if (r.erro) throw new Error();
+      const r = await ZP.u.buscarCep(cep);
       Object.assign(data, { street: r.logradouro || data.street, district: r.bairro || data.district, city: r.localidade, uf: r.uf });
       cepStatus = area.ufs.includes(r.uf) ? "Endereço encontrado ✓" : "";
       render();
@@ -327,7 +324,7 @@ window.ZP = window.ZP || {};
       const el = e.target;
       if (!el.name || el.type === "radio" || el.type === "checkbox") return;
       if (el.name === "phone") el.value = maskPhone(el.value);
-      if (el.name === "cep") el.value = maskCep(el.value);
+      if (el.name === "cep") el.value = ZP.u.maskCep(el.value);
       data[el.name] = el.value;
       if (el.closest(".field")?.classList.contains("is-error")) setError(el.name, "");
       if (el.name === "cep" && onlyDigits(el.value).length === 8) lookupCep();
@@ -364,6 +361,7 @@ window.ZP = window.ZP || {};
     open() {
       if (!ZP.store.state.cart.length) { toast("Sua sacola está vazia.", "error"); return; }
       step = 0;
+      if (!data.cep) data.cep = ZP.u.maskCep(storage.get("cep", ""));   // CEP calculado na ficha do produto
       render();
       closeLayer("#cartLayer");
       openLayer("#checkoutLayer");

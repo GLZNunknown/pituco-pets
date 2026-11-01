@@ -6,6 +6,7 @@ Gera as páginas estáticas do site a partir dos dados da loja:
   dicas/index.html         lista de dicas
   dicas/<id>.html          uma página por dica
   sobre.html               quem somos, como funciona e onde entregamos
+  politicas.html           a partir de ferramentas/conteudo/politicas.html
   404.html                 página de "não encontrado" (usada pelo GitHub Pages)
   sitemap.xml, robots.txt  para o Google encontrar tudo
 
@@ -13,9 +14,11 @@ Todas as páginas reaproveitam o cabeçalho, o rodapé, a sacola e o checkout do
 então continuam com a mesma cara e as mesmas funções.
 
 Uso:  python ferramentas/gerar_paginas.py
-Rode de novo sempre que mudar produtos, categorias, dicas, config.js ou o cabeçalho/rodapé do index.html.
+Rode de novo sempre que mudar produtos, categorias, dicas, config.js, o cabeçalho/rodapé do index.html ou o CSS/JS.
+Ele também atualiza sozinho a versão (?v=...) dos arquivos CSS/JS, para o navegador dos clientes baixar a versão nova.
 Sem dependências: só Python 3.
 """
+import hashlib
 import html
 import json
 import re
@@ -373,6 +376,32 @@ def pagina_sobre(d, ctx):
            jsonld=[{"@context": "https://schema.org", "@type": "AboutPage", "name": "Sobre a Pituco Pets", "url": ctx["site"] + "sobre.html"}])
 
 
+def pagina_politicas(d, ctx):
+    miolo = (RAIZ / "ferramentas" / "conteudo" / "politicas.html").read_text(encoding="utf-8")
+    miolo = "\n".join(l for l in miolo.splitlines() if not l.strip().startswith("<!--"))
+    conteudo = f"""    <div class="container">
+      {migalhas([("Políticas", None)], "")}
+      <div class="policy">
+{miolo}
+      </div>
+    </div>"""
+    montar("politicas.html", "", ctx, titulo="Políticas de entrega, trocas, pagamentos e privacidade — Pituco Pets",
+           descricao="Como funcionam as entregas no estado de SP, trocas e devoluções, formas de pagamento e privacidade (LGPD) na Pituco Pets.",
+           caminho="politicas.html", conteudo=conteudo)
+
+
+def carimbar_versao():
+    """Calcula uma versão a partir do conteúdo do CSS/JS e grava no index.html (as outras páginas herdam)."""
+    arquivos = sorted((RAIZ / "css").glob("*.css")) + sorted((RAIZ / "js").glob("*.js"))
+    versao = hashlib.sha1(b"".join(a.read_bytes() for a in arquivos)).hexdigest()[:10]
+    index = RAIZ / "index.html"
+    bruto = index.read_bytes().decode("utf-8")
+    novo = re.sub(r'((?:href|src)="(?:css|js)/[\w-]+\.(?:css|js))\?v=\w+"', lambda m: f'{m.group(1)}?v={versao}"', bruto)
+    if novo != bruto:
+        index.write_bytes(novo.encode("utf-8"))
+    return versao
+
+
 def pagina_404(d, ctx):
     raiz = urlparse(ctx["site"]).path or "/"    # caminho absoluto: o 404 é servido em qualquer profundidade
     conteudo = f"""    <div class="container err-page">
@@ -393,7 +422,8 @@ def pagina_404(d, ctx):
 # ============================================================================
 def sitemap(ctx):
     hoje = date.today().isoformat()
-    urls = [("", 1.0)] + [(c, 0.8 if c.startswith(("produtos/", "categoria/")) else 0.6) for c, noindex in ctx["paginas"] if not noindex] + [("politicas.html", 0.3)]
+    prioridade = lambda c: 0.8 if c.startswith(("produtos/", "categoria/")) else 0.3 if c == "politicas.html" else 0.6
+    urls = [("", 1.0)] + [(c, prioridade(c)) for c, noindex in ctx["paginas"] if not noindex]
     corpo = "\n".join(f"  <url><loc>{e(ctx['site'] + c)}</loc><lastmod>{hoje}</lastmod><priority>{p}</priority></url>" for c, p in urls)
     (RAIZ / "sitemap.xml").write_text(f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{corpo}\n</urlset>\n', encoding="utf-8")
     (RAIZ / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {ctx['site']}sitemap.xml\n", encoding="utf-8")
@@ -402,6 +432,7 @@ def sitemap(ctx):
 
 if __name__ == "__main__":
     d = carregar_dados()
+    versao = carimbar_versao()
     site = d["config"]["siteUrl"].rstrip("/") + "/"
     ctx = {"site": site, "casca": casca((RAIZ / "index.html").read_text(encoding="utf-8")), "paginas": []}
     for p in d["products"]:
@@ -412,7 +443,9 @@ if __name__ == "__main__":
     for a in d["articles"]:
         pagina_dica(a, d, ctx)
     pagina_sobre(d, ctx)
+    pagina_politicas(d, ctx)
     pagina_404(d, ctx)
     n = sitemap(ctx)
     print(f"✓ {len(d['products'])} produtos, {len(d['categories'])} categorias, {len(d['articles'])} dicas, sobre e 404")
     print(f"✓ sitemap.xml com {n} endereços e robots.txt")
+    print(f"✓ versão dos arquivos CSS/JS: {versao}")

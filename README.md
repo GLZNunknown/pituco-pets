@@ -76,7 +76,22 @@ Requer `pip install pillow fonttools`. As fontes da marca (Baloo 2 e Nunito, lic
 
 ## 🔄 Atualizando o site
 
-Ao alterar CSS ou JS, troque o número `?v=...` nos `<script>`/`<link>` do `index.html` e do `politicas.html` (ex.: a data do dia). Isso força o navegador dos clientes a baixar a versão nova.
+Depois de mudar produtos, textos, CSS ou JS, rode:
+
+```bash
+python ferramentas/gerar_paginas.py
+```
+
+Ele recria as páginas de produtos, categorias, dicas, "Sobre nós", políticas e 404, além do `sitemap.xml`. Também atualiza sozinho a versão (`?v=...`) dos arquivos, para o navegador dos clientes baixar a versão nova.
+
+| O que mudar | Onde |
+|---|---|
+| Produtos, categorias, dicas | `js/data.js` |
+| Contato, frete, cupons, avisos | `js/config.js` |
+| Texto das políticas | `ferramentas/conteudo/politicas.html` |
+| Cabeçalho, rodapé e página inicial | `index.html` (as outras páginas copiam o cabeçalho e o rodapé dele) |
+
+> As pastas `produtos/`, `categoria/` e `dicas/`, além de `sobre.html`, `politicas.html`, `404.html` e `sitemap.xml`, são **geradas**. Não edite esses arquivos à mão: a próxima geração sobrescreve.
 
 ## 📸 Fotos dos produtos
 

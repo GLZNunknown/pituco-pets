@@ -148,7 +148,7 @@ window.ZP = window.ZP || {};
       <div class="mega__cats"><p class="mega__label">Categorias</p><div class="mega__grid">${cats}</div></div>
       <div class="mega__side">
         <p class="mega__label">Por pet</p><div class="mega__pets">${pets}</div>
-        <a class="mega__promo" href="#kits"><span>Kits de banho</span><b>Economize até 16%</b><small>Ver combos ${icon("arrow-right")}</small></a>
+        <a class="mega__promo" href="${ZP.u.home("#kits")}"><span>Kits de banho</span><b>Combos com desconto</b><small>Ver combos ${icon("arrow-right")}</small></a>
       </div>`;
     $("#drawerCats").innerHTML = ZP.categories.map((c) => `
       <button class="drawer__cat" data-go-cat="${c.id}" style="--tint:${c.tint}">${ZP.u.brandIcon(c.icon)}<span>${c.name}</span></button>`).join("");
@@ -156,8 +156,12 @@ window.ZP = window.ZP || {};
       <button class="drawer__pet" data-go-pet="${p.id}">${ZP.u.brandIcon(p.icon)}<span>${p.name}</span></button>`).join("");
   }
 
+  const kitSave = (p) => Math.max(0, kitItems(p).reduce((sum, x) => sum + x.variants[0].price, 0) - p.variants[0].price);
+
   function renderKits() {
-    $("#kitGrid").innerHTML = ZP.products.filter((p) => p.cat === "kits").map(bundle).join("");
+    const kits = ZP.products.filter((p) => p.cat === "kits");
+    $("#kitGrid").innerHTML = kits.map(bundle).join("");
+    $("#kitMaxSave").textContent = brl(Math.max(...kits.map(kitSave)));
   }
 
   /* ---------- Filtros ---------- */
@@ -416,7 +420,7 @@ window.ZP = window.ZP || {};
               <form class="ship-calc" data-ship-calc>
                 ${icon("truck")}
                 <label class="sr-only" for="pdCep">Seu CEP</label>
-                <input id="pdCep" inputmode="numeric" autocomplete="postal-code" placeholder="Calcule o frete: seu CEP" maxlength="9" value="${esc(((c) => (c.length === 8 ? `${c.slice(0, 5)}-${c.slice(5)}` : c))(ZP.u.storage.get("cep", "")))}">
+                <input id="pdCep" inputmode="numeric" autocomplete="postal-code" placeholder="Calcule o frete: seu CEP" maxlength="9" value="${esc(ZP.u.maskCep(ZP.u.storage.get("cep", "")))}">
                 <button class="btn btn--outline btn--sm">Calcular</button>
               </form>
               <output class="ship-calc__out" aria-live="polite">${detail.ship || `Frete grátis em compras acima de ${brl(cfg.shipping.freeFrom)} · entregamos em todo o estado de SP`}</output>
@@ -627,8 +631,7 @@ window.ZP = window.ZP || {};
     // Calculadora de frete na página do produto
     document.addEventListener("input", (e) => {
       if (e.target.id !== "pdCep") return;
-      const d = ZP.u.onlyDigits(e.target.value).slice(0, 8);
-      e.target.value = d.length > 5 ? `${d.slice(0, 5)}-${d.slice(5)}` : d;
+      e.target.value = ZP.u.maskCep(e.target.value);
     });
     document.addEventListener("submit", async (e) => {
       if (!e.target.matches("[data-ship-calc]")) return;
@@ -638,8 +641,7 @@ window.ZP = window.ZP || {};
       if (cep.length !== 8) { out.textContent = "Digite os 8 números do CEP."; return; }
       out.textContent = "Calculando...";
       try {
-        const r = await (await fetch(`https://viacep.com.br/ws/${cep}/json/`)).json();
-        if (r.erro) throw new Error();
+        const r = await ZP.u.buscarCep(cep);
         ZP.u.storage.set("cep", cep);
         const z = ZP.pricing.shippingFor(r.uf, r.localidade);
         detail.ship = z

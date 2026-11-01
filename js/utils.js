@@ -20,6 +20,14 @@ window.ZP = window.ZP || {};
   const brandIcon = (name, cls = "") => `<svg class="bi ${cls}" aria-hidden="true"><use href="#ic-${name}"/></svg>`;
   const onlyDigits = (s) => String(s).replace(/\D/g, "");
 
+  // CEP: máscara 00000-000 e consulta no ViaCEP (usados na ficha do produto e no checkout)
+  const maskCep = (v) => { const d = onlyDigits(v).slice(0, 8); return d.length > 5 ? `${d.slice(0, 5)}-${d.slice(5)}` : d; };
+  async function buscarCep(cep) {
+    const r = await (await fetch(`https://viacep.com.br/ws/${onlyDigits(cep)}/json/`)).json();
+    if (r.erro) throw new Error("CEP não encontrado");
+    return r;
+  }
+
   const debounce = (fn, ms = 200) => {
     let t;
     return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
@@ -103,5 +111,5 @@ window.ZP = window.ZP || {};
     }
   });
 
-  ZP.u = { $, $$, home, brl, esc, norm, icon, brandIcon, onlyDigits, debounce, storage, stars, waLink, toast, openLayer, closeLayer, topLayer };
+  ZP.u = { $, $$, home, brl, esc, norm, icon, brandIcon, onlyDigits, maskCep, buscarCep, debounce, storage, stars, waLink, toast, openLayer, closeLayer, topLayer };
 })(window.ZP);
