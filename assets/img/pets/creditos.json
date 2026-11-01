@@ -1,0 +1,34 @@
+{
+  "caes": {
+    "autor": "Dominic Nelson",
+    "licenca": "CC BY-SA 4.0",
+    "licenca_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "fonte": "https://commons.wikimedia.org/wiki/File:West_Highland_White_Terrier_face_portrait_May_2023.jpg",
+    "arquivo": "West Highland White Terrier face portrait May 2023.jpg",
+    "alteracoes": "recortada e redimensionada"
+  },
+  "gatos": {
+    "autor": "Stephanemartin",
+    "licenca": "CC BY-SA 3.0",
+    "licenca_url": "https://creativecommons.org/licenses/by-sa/3.0",
+    "fonte": "https://commons.wikimedia.org/wiki/File:Chartreux-cat-edouard-marie.jpg",
+    "arquivo": "Chartreux-cat-edouard-marie.jpg",
+    "alteracoes": "recortada e redimensionada"
+  },
+  "coelhos": {
+    "autor": "Friedrich Haag",
+    "licenca": "CC BY-SA 4.0",
+    "licenca_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "fonte": "https://commons.wikimedia.org/wiki/File:Heimtier_004_2023_08_26.jpg",
+    "arquivo": "Heimtier 004 2023 08 26.jpg",
+    "alteracoes": "recortada e redimensionada"
+  },
+  "cavalos": {
+    "autor": "Amélie Tsaag Valren",
+    "licenca": "CC BY-SA 4.0",
+    "licenca_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "fonte": "https://commons.wikimedia.org/wiki/File:Chestnut_French_Trotter_horse_head,_Guillac.jpg",
+    "arquivo": "Chestnut French Trotter horse head, Guillac.jpg",
+    "alteracoes": "recortada e redimensionada"
+  }
+}

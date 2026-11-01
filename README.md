@@ -110,3 +110,8 @@ O script recorta em quadrado, gera versões leves (400 e 800 px, WebP) e atualiz
 **Fotos de clientes ("Pituco no banho")**: coloque em `fotos-originais/clientes/` (**só com autorização do tutor**) e rode o mesmo script. A seção aparece automaticamente. As legendas são opcionais e ficam em `ZP.customerCaptions`, no `data.js`.
 
 As pastas `fotos-originais/` não vão para o GitHub. Só as versões otimizadas são publicadas.
+
+## 🐩 A Pituca e as fotos dos pets
+
+- **Logo e mascote:** a Pituca, poodle branquinha com uma mancha marrom clarinha na orelha direita, é desenhada em [ferramentas/gerar_marca.py](ferramentas/gerar_marca.py) (lista `PITUCA`). Ao rodar o script, o logo, o favicon, os ícones, a imagem de compartilhamento e o símbolo usado no site são atualizados.
+- **Fotos dos pets** (`assets/img/pets/`): vêm do Wikimedia Commons, sob licenças CC BY-SA, que **exigem crédito**. Os créditos estão em `assets/img/pets/creditos.json` e aparecem em *Sobre nós → Créditos das fotos* (link no rodapé). Se trocar uma foto, atualize o JSON e rode `python ferramentas/gerar_paginas.py`.

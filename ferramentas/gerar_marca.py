@@ -88,10 +88,60 @@ def pata_svg(cx, cy, tamanho, cor):
             f'{dedos}<path d="{PATA_ALMOFADA}"/></g>')
 
 
+# ---------- Pituca: a poodle que inspirou a marca ----------
+# Poodle pequena e branquinha, com uma mancha marrom bem clarinha na orelha DIREITA dela
+# (que aparece do lado esquerdo para quem olha de frente). Feita só de círculos e elipses
+# numa caixa 100x100, para sair igual no SVG (logo, site) e no PNG (ícones).
+PELO, MANCHA, FOCINHO = "#ffffff", "#ecd0ae", "#fff7ef"
+CONTORNO, ESCURO, LINGUA, BOCHECHA = "#4a3a35", "#2b1d16", "#ff8fab", "#ffc6d6"
+PITUCA = [
+    # orelha direita dela: longa e cacheada, caindo rente ao rosto, com a mancha marrom clarinha embaixo
+    ("c", 30, 44, 8.5, PELO, True), ("c", 26, 54, 9, PELO, True), ("c", 25, 65, 9, MANCHA, True), ("c", 28, 76, 8.5, MANCHA, True),
+    # orelha esquerda dela
+    ("c", 70, 44, 8.5, PELO, True), ("c", 74, 54, 9, PELO, True), ("c", 75, 65, 9, PELO, True), ("c", 72, 76, 8.5, PELO, True),
+    # rosto (mais estreito, de poodle)
+    ("e", 50, 52, 17, 20, PELO, True),
+    # topete alto e fofo
+    ("c", 39, 24, 10.5, PELO, True), ("c", 61, 24, 10.5, PELO, True), ("c", 50, 15, 12, PELO, True),
+    ("c", 44, 31, 9, PELO, True), ("c", 56, 31, 9, PELO, True), ("c", 50, 27, 9, PELO, True),
+    # focinho comprido
+    ("e", 50, 66, 9.5, 10.5, FOCINHO, True),
+    # bochechas
+    ("c", 37.5, 58, 3.2, BOCHECHA, False), ("c", 62.5, 58, 3.2, BOCHECHA, False),
+    # olhos com brilho
+    ("c", 43, 49.5, 3.1, ESCURO, False), ("c", 57, 49.5, 3.1, ESCURO, False),
+    ("c", 44, 48.4, 1.05, PELO, False), ("c", 58, 48.4, 1.05, PELO, False),
+    # nariz
+    ("e", 50, 61, 4.3, 3.3, ESCURO, False),
+]
+BOCA = [((46, 68.5), (48, 71), (50, 68.5)), ((50, 68.5), (52, 71), (54, 68.5))]
+
+
+def pituca_elementos(contorno=CONTORNO):
+    """Elementos SVG da Pituca na caixa 0..100."""
+    partes = []
+    for f in PITUCA:
+        if f[0] == "c":
+            _, cx, cy, r, cor, traco = f
+            el = f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="{cor}"'
+        else:
+            _, cx, cy, rx, ry, cor, traco = f
+            el = f'<ellipse cx="{cx}" cy="{cy}" rx="{rx}" ry="{ry}" fill="{cor}"'
+        partes.append(el + (f' stroke="{contorno}" stroke-width="2"' if traco else "") + "/>")
+    boca = "".join(f"M{a[0]} {a[1]}Q{c[0]} {c[1]} {b[0]} {b[1]}" for a, c, b in BOCA)
+    partes.append(f'<path d="{boca}" fill="none" stroke="{ESCURO}" stroke-width="1.6" stroke-linecap="round"/>')
+    return "".join(partes)
+
+
+def pituca_svg(x, y, tamanho):
+    return f'<g transform="translate({x:.2f} {y:.2f}) scale({tamanho / 100:.4f})">{pituca_elementos()}</g>'
+
+
 def selo_svg(cor_fundo, cor_pata, cor_bolha):
-    """Selo redondo com patinha e bolhas de espuma (64x64)."""
+    """Selo redondo com a Pituca e bolhas de espuma (64x64)."""
+    t = 58
     return (f'<circle cx="32" cy="34" r="28" fill="{cor_fundo}"/>'
-            f'{pata_svg(32, 35, 34, cor_pata)}'
+            f'{pituca_svg(32 - 50 * t / 100, 35 - 45 * t / 100, t)}'
             f'<circle cx="53" cy="12" r="7" fill="{BRANCO}" stroke="{cor_bolha}" stroke-width="2.2"/>'
             f'<circle cx="51" cy="10" r="2" fill="{cor_bolha}" opacity=".35"/>'
             f'<circle cx="62" cy="23" r="3.6" fill="{BRANCO}" stroke="{cor_bolha}" stroke-width="1.8"/>')
@@ -127,8 +177,7 @@ def gerar_logo(destino, cor_texto, cor_selo, cor_pata, cor_bolha, cor_pilula, co
 def gerar_favicon(destino):
     svg = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">'
            f'<rect width="64" height="64" rx="16" fill="{ROXO}"/>'
-           f'{pata_svg(32, 34, 40, LIMAO)}'
-           f'<circle cx="52" cy="12" r="6" fill="{BRANCO}" opacity=".95"/>'
+           f'{pituca_svg(32 - 31, 33 - 45 * .62, 62)}'
            '</svg>\n')
     destino.write_text(svg, encoding="utf-8")
 
@@ -175,14 +224,32 @@ def desenhar_pata(draw, cx, cy, tamanho, cor):
     draw.polygon([(ox + x * s, oy + y * s) for x, y in _pontos_almofada()], fill=cor)
 
 
+def desenhar_pituca(draw, x, y, tamanho):
+    """Desenha a Pituca com o canto superior esquerdo da caixa 100x100 em (x, y)."""
+    s = tamanho / 100
+    w = max(1, round(2 * s))
+    for f in PITUCA:
+        if f[0] == "c":
+            _, cx, cy, rx, cor, traco = f
+            ry = rx
+        else:
+            _, cx, cy, rx, ry, cor, traco = f
+        caixa = [x + (cx - rx) * s, y + (cy - ry) * s, x + (cx + rx) * s, y + (cy + ry) * s]
+        draw.ellipse(caixa, fill=cor, outline=CONTORNO if traco else None, width=w if traco else 0)
+    pontos = []
+    for (x0, y0), (cx1, cy1), (x1, y1) in BOCA:
+        pontos += [((1 - t) ** 2 * x0 + 2 * (1 - t) * t * cx1 + t * t * x1, (1 - t) ** 2 * y0 + 2 * (1 - t) * t * cy1 + t * t * y1)
+                   for t in (i / 12 for i in range(13))]
+    draw.line([(x + px * s, y + py * s) for px, py in pontos], fill=ESCURO, width=max(1, round(1.6 * s)), joint="curve")
+
+
 def gerar_icone(destino, px):
     k = 4  # desenha em 4x e reduz, para bordas suaves
     S = px * k
     im = Image.new("RGBA", (S, S), ROXO)
     d = ImageDraw.Draw(im)
-    desenhar_pata(d, S / 2, S * .54, S * .62, LIMAO)
-    r = S * .085
-    d.ellipse([S * .80 - r, S * .2 - r, S * .80 + r, S * .2 + r], fill=BRANCO)
+    t = S * .9
+    desenhar_pituca(d, S / 2 - t / 2, S * .53 - t * .45, t)
     im.resize((px, px), Image.LANCZOS).convert("RGB").save(destino, optimize=True)
 
 
@@ -231,7 +298,8 @@ def gerar_og(destino, foto):
 
     # selo + nome
     d.ellipse([x0, 58 * k, x0 + 76 * k, 134 * k], fill=LIMAO)
-    desenhar_pata(d, x0 + 38 * k, 97 * k, 46 * k, ROXO)
+    t = 70 * k
+    desenhar_pituca(d, x0 + 38 * k - t / 2, 97 * k - t * .45, t)
     d.text((x0 + 92 * k, 50 * k), "PITUCO", font=baloo(60), fill=BRANCO)
     larg = d.textlength("PITUCO", font=baloo(60))
     d.rounded_rectangle([x0 + 92 * k, 118 * k, x0 + 92 * k + larg, 142 * k], radius=12 * k, fill=LIMAO)
@@ -261,8 +329,17 @@ def gerar_og(destino, foto):
 if __name__ == "__main__":
     IMG.mkdir(parents=True, exist_ok=True)
     print("logo.svg", gerar_logo(IMG / "logo.svg", ROXO, ROXO, LIMAO, ROXO, LIMAO, ROXO_ESCURO, "Pituco Pets"))
-    print("logo-branco.svg", gerar_logo(IMG / "logo-branco.svg", BRANCO, LIMAO, ROXO, LIMAO, LIMAO, ROXO_ESCURO, "Pituco Pets"))
+    print("logo-branco.svg", gerar_logo(IMG / "logo-branco.svg", BRANCO, ROXO, ROXO, LIMAO, LIMAO, ROXO_ESCURO, "Pituco Pets"))
     gerar_favicon(IMG / "favicon.svg")
+    # A Pituca sozinha: arquivo de referência e símbolo para o "sprite" de ícones do index.html
+    (IMG / "pituca.svg").write_text(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Pituca">{pituca_elementos()}</svg>\n', encoding="utf-8")
+    # Atualiza o símbolo da Pituca no index.html (as outras páginas copiam dele ao rodar gerar_paginas.py)
+    index = RAIZ / "index.html"
+    bruto = index.read_bytes().decode("utf-8")
+    simbolo = f'<symbol id="ic-pituca" viewBox="0 0 100 100">{pituca_elementos()}</symbol>'
+    novo = re.sub(r'<symbol id="ic-pituca".*?</symbol>', lambda m: simbolo, bruto, count=1, flags=re.S)
+    if novo != bruto:
+        index.write_bytes(novo.encode("utf-8"))
     for px, nome in [(180, "icon-180.png"), (192, "icon-192.png"), (512, "icon-512.png")]:
         gerar_icone(IMG / nome, px)
     gerar_og(IMG / "og-image.jpg", IMG / "hero-pets.webp")

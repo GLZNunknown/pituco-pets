@@ -160,7 +160,7 @@ def montar(pagina, raiz, ctx, *, titulo, descricao, caminho, conteudo, jsonld=No
   <meta name="description" content="{e(descricao)}">
   {'<meta name="robots" content="noindex">' if noindex else f'<link rel="canonical" href="{e(url)}">'}
   <meta name="theme-color" content="#5b1fa8">
-  <link rel="icon" href="{raiz}assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="{raiz}assets/img/favicon.svg?v={versao}" type="image/svg+xml">
   <link rel="apple-touch-icon" href="{raiz}assets/img/icon-180.png">
   <link rel="manifest" href="{raiz}manifest.webmanifest">
   <meta property="og:type" content="{og_tipo}">
@@ -277,8 +277,14 @@ def pagina_categoria(c, d, ctx):
            descricao=f"{TEXTOS_CATEGORIA.get(c['id'], c['desc'])[:150]}", caminho=caminho, conteudo=conteudo, jsonld=jsonld)
 
 
-def capa_dica(a):
-    return "".join(f'<svg class="bi" aria-hidden="true"><use href="#ic-{n}"/></svg>' for n in a["icons"])
+def foto_pet(nome, raiz, tamanho=400):
+    return (f'<img class="pet-photo" src="{raiz}assets/img/pets/{nome}-{tamanho}.webp" width="{tamanho}" height="{tamanho}" '
+            f'alt="" loading="lazy" decoding="async">')
+
+
+def capa_dica(a, raiz):
+    return (f'<img class="cover-photo" src="{raiz}assets/img/pets/{a["photo"]}-capa.webp" width="800" height="450" '
+            f'alt="" loading="lazy" decoding="async">')
 
 
 def pagina_dica(a, d, ctx):
@@ -288,7 +294,7 @@ def pagina_dica(a, d, ctx):
     conteudo = f"""    <div class="container container--narrow">
       {migalhas([("Dicas", f"{raiz}dicas/index.html"), (a['title'], None)], raiz)}
       <article class="article article--page">
-        <span class="article__cover">{capa_dica(a)}</span>
+        <span class="article__cover article__cover--photo">{capa_dica(a, raiz)}</span>
         <p class="article__meta"><span class="tag">{e(a['tag'])}</span> · {e(a['read'])} de leitura</p>
         <h1>{e(a['title'])}</h1>
         {corpo}
@@ -313,7 +319,7 @@ def pagina_dicas(d, ctx):
     cards = "".join(f"""
         <article class="article-card">
           <a class="article-card__btn" href="{a['id']}.html">
-            <span class="article-card__cover">{capa_dica(a)}</span>
+            <span class="article-card__cover article-card__cover--photo">{capa_dica(a, raiz)}</span>
             <span class="article-card__meta"><span class="tag">{e(a['tag'])}</span> {e(a['read'])} de leitura</span>
             <b>{e(a['title'])}</b><small>{e(a['excerpt'])}</small>
             <span class="article-card__more">Ler dica →</span>
@@ -331,6 +337,16 @@ def pagina_dicas(d, ctx):
     montar("dicas/index.html", raiz, ctx, titulo="Dicas de banho e cuidado — Pituco Pets",
            descricao="Dicas de banho e cuidado para cães, gatos, coelhos e cavalos: frequência de banho, passo a passo, crina e cauda e mais.",
            caminho="dicas/index.html", conteudo=conteudo)
+
+
+def creditos_html():
+    """Créditos exigidos pela licença das fotos (autor, fonte, licença e alterações)."""
+    nomes = {"caes": "Cães", "gatos": "Gatos", "coelhos": "Coelhos", "cavalos": "Cavalos"}
+    cred = json.loads((RAIZ / "assets" / "img" / "pets" / "creditos.json").read_text(encoding="utf-8"))
+    return "".join(
+        f'<li><b>{nomes.get(k, k)}:</b> foto de {e(c["autor"])} (<a href="{e(c["fonte"])}" target="_blank" rel="noopener">fonte</a>), '
+        f'licença <a href="{e(c["licenca_url"])}" target="_blank" rel="noopener">{e(c["licenca"])}</a> — {e(c["alteracoes"])}.</li>'
+        for k, c in cred.items())
 
 
 def pagina_sobre(d, ctx):
@@ -352,10 +368,18 @@ def pagina_sobre(d, ctx):
           <a class="btn btn--primary btn--lg" href="index.html#produtos">Ver produtos</a>
         </div>
         <div class="about-hero__pets" aria-hidden="true">
-          <svg class="bi"><use href="#ic-dog"/></svg><svg class="bi"><use href="#ic-cat"/></svg>
-          <svg class="bi"><use href="#ic-rabbit"/></svg><svg class="bi"><use href="#ic-horse"/></svg>
+          {foto_pet("caes", "", 160)}{foto_pet("gatos", "", 160)}{foto_pet("coelhos", "", 160)}{foto_pet("cavalos", "", 160)}
         </div>
       </header>
+
+      <section class="pituca-card" aria-labelledby="pitucaTitle">
+        <svg class="bi" aria-hidden="true"><use href="#ic-pituca"/></svg>
+        <div>
+          <span class="eyebrow">A inspiração da marca</span>
+          <h2 id="pitucaTitle">Quem é a Pituca?</h2>
+          <p>A Pituca é uma poodle pequena e branquinha, com uma mancha marrom bem clarinha na orelha direita — e é a inspiração da Pituco Pets. Foi pensando no cuidado com ela que nasceu a vontade de oferecer produtos de banho com carinho para todos os pets. É ela que aparece no nosso logo e ajuda você a escolher os produtos aqui no site. 🐾</p>
+        </div>
+      </section>
 
       <section class="about-grid" aria-label="Nossos compromissos">
         <article><b>Cada espécie com o seu cuidado</b><p>Indicamos claramente para quais pets cada produto serve — e avisamos quando algo não é indicado, como óleos essenciais para gatos e banho com água para coelhos.</p></article>
@@ -368,6 +392,12 @@ def pagina_sobre(d, ctx):
         <h2 id="ondeTitle">Onde entregamos</h2>
         <p>Por enquanto atendemos o <b>{e(cfg['shipping']['serviceArea']['label'])}</b>. Compras acima de <b>{brl(cfg['shipping']['freeFrom'])}</b> têm frete grátis.</p>
         <ul class="zones">{''.join(linhas)}</ul>
+      </section>
+
+      <section class="credits" id="creditos" aria-labelledby="creditosTitle">
+        <h2 id="creditosTitle">Créditos das fotos</h2>
+        <p>Fotos dos pets do Wikimedia Commons, recortadas e redimensionadas para o site:</p>
+        <ul>{creditos_html()}</ul>
       </section>
     </div>"""
     montar("sobre.html", "", ctx, titulo="Sobre a Pituco Pets — Banho é cuidado, é bem-estar!",
@@ -391,12 +421,15 @@ def pagina_politicas(d, ctx):
 
 
 def carimbar_versao():
-    """Calcula uma versão a partir do conteúdo do CSS/JS e grava no index.html (as outras páginas herdam)."""
-    arquivos = sorted((RAIZ / "css").glob("*.css")) + sorted((RAIZ / "js").glob("*.js"))
+    """Calcula uma versão a partir do conteúdo do CSS/JS e do logo/favicon e grava no index.html (as outras páginas herdam)."""
+    arquivos = (sorted((RAIZ / "css").glob("*.css")) + sorted((RAIZ / "js").glob("*.js"))
+                + sorted((RAIZ / "assets" / "img").glob("*.svg")))
     versao = hashlib.sha1(b"".join(a.read_bytes() for a in arquivos)).hexdigest()[:10]
     index = RAIZ / "index.html"
     bruto = index.read_bytes().decode("utf-8")
-    novo = re.sub(r'((?:href|src)="(?:css|js)/[\w-]+\.(?:css|js))\?v=\w+"', lambda m: f'{m.group(1)}?v={versao}"', bruto)
+    # CSS/JS já com ?v= e também logo/favicon (com ou sem ?v=)
+    padrao = r'((?:href|src)="(?:css/[\w-]+\.css|js/[\w-]+\.js|assets/img/(?:logo|logo-branco|favicon)\.svg))(?:\?v=\w+)?"'
+    novo = re.sub(padrao, lambda m: f'{m.group(1)}?v={versao}"', bruto)
     if novo != bruto:
         index.write_bytes(novo.encode("utf-8"))
     return versao
@@ -405,7 +438,7 @@ def carimbar_versao():
 def pagina_404(d, ctx):
     raiz = urlparse(ctx["site"]).path or "/"    # caminho absoluto: o 404 é servido em qualquer profundidade
     conteudo = f"""    <div class="container err-page">
-      <span class="mascot__face" aria-hidden="true"><svg class="bi"><use href="#ic-dog"/></svg></span>
+      <span class="mascot__face" aria-hidden="true"><svg class="bi"><use href="#ic-pituca"/></svg></span>
       <h1>Ops! Essa página foi tomar banho 🛁</h1>
       <p>Não encontramos o que você procurou. Que tal voltar para a loja ou buscar um produto?</p>
       <div class="err-page__actions">

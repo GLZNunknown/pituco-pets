@@ -999,6 +999,31 @@ details[open] > summary::after { content: "−"; background: var(--purple); colo
 .policy .lead { color: var(--muted); font-size: 1.05rem; margin-bottom: 36px; }
 @media (max-width: 760px) { .policy { grid-template-columns: 1fr; gap: 24px; } .policy__nav { position: static; display: flex; flex-wrap: wrap; } }
 
+/* ---------- 26. Fotos dos pets e a Pituca ---------- */
+.pet-photo { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.pet-card__icon { overflow: hidden; padding: 0; }
+.mega__pet .pet-photo, .drawer__pet .pet-photo { width: 34px; height: 34px; flex: none; }
+.drawer__pet .pet-photo { width: 42px; height: 42px; }
+.quiz__pet .pet-photo { width: 84px; height: 84px; border: 3px solid #fff; box-shadow: var(--shadow-sm); transition: transform .25s var(--ease); }
+.quiz__pet:hover .pet-photo { transform: scale(1.06); }
+.mascot__face .pet-photo { width: 100%; height: 100%; }
+.mascot__face { overflow: hidden; }
+.article-card__cover--photo, .article__cover--photo { padding: 0; overflow: hidden; }
+.article-card__btn { color: inherit; text-decoration: none; }
+.article-card__cover--photo { height: 190px; }
+.article__cover--photo { height: 240px; }
+.cover-photo { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .4s var(--ease); }
+.article-card__btn:hover .cover-photo { transform: scale(1.05); }
+.article-card__cover--photo .pet-photo, .article__cover--photo .pet-photo { border-radius: 0; transition: transform .4s var(--ease); }
+.article-card__btn:hover .pet-photo { transform: scale(1.05); }
+.about-hero__pets .pet-photo { width: 120px; height: 120px; border: 4px solid #fff; box-shadow: var(--shadow-sm); }
+.pituca-card { display: grid; grid-template-columns: auto 1fr; gap: 24px; align-items: center; padding: 28px; margin-bottom: 28px; border-radius: var(--r-lg); background: var(--peach-100); }
+.pituca-card .bi { width: 120px; height: 120px; padding: 8px; border-radius: 50%; background: #fff; box-shadow: var(--shadow-sm); }
+.pituca-card h2 { font-size: 1.6rem; margin-bottom: 6px; }
+.credits { margin-top: 28px; padding: 22px; border-radius: var(--r-lg); background: var(--bg-soft); font-size: .86rem; }
+.credits h2 { font-size: 1.2rem; margin-bottom: 8px; }
+.credits ul { display: grid; gap: 6px; }
+
 /* Revelação ao rolar */
 .reveal { opacity: 0; transform: translateY(22px); transition: opacity .6s var(--ease), transform .6s var(--ease); transition-delay: var(--d, 0s); }
 .reveal.is-visible { opacity: 1; transform: none; }
@@ -1091,7 +1116,8 @@ details[open] > summary::after { content: "−"; background: var(--purple); colo
   .buybar span { font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; color: var(--purple-900); }
   body.has-buybar .wa-float { bottom: calc(146px + env(safe-area-inset-bottom)); }
   .about-hero__pets { grid-template-columns: repeat(4, 1fr); }
-  .about-hero__pets .bi { width: 64px; height: 64px; }
+  .about-hero__pets .bi, .about-hero__pets .pet-photo { width: 72px; height: 72px; }
+  .pituca-card { grid-template-columns: 1fr; justify-items: start; }
   .quiz { padding: 24px 20px; gap: 18px; }
   .bundle { grid-template-columns: 200px 1fr; }
   .bundle__art { height: auto; }

@@ -78,7 +78,7 @@
     if ($("#articleGrid")) $("#articleGrid").innerHTML = ZP.articles.map((a) => `
       <article class="article-card">
         <a class="article-card__btn" href="${ZP.root}dicas/${a.id}.html" data-article="${a.id}">
-          <span class="article-card__cover">${a.icons.map((n) => ZP.u.brandIcon(n)).join("")}</span>
+          <span class="article-card__cover article-card__cover--photo"><img class="cover-photo" src="${ZP.root}assets/img/pets/${a.photo}-capa.webp" width="800" height="450" alt="" loading="lazy" decoding="async"></span>
           <span class="article-card__meta"><span class="tag">${esc(a.tag)}</span> ${icon("clock")} ${a.read} de leitura</span>
           <b>${esc(a.title)}</b>
           <small>${esc(a.excerpt)}</small>
@@ -93,7 +93,7 @@
       const a = ZP.articles.find((x) => x.id === b.dataset.article);
       $("#articleContent").innerHTML = `
         <div class="article">
-          <span class="article__cover">${a.icons.map((n) => ZP.u.brandIcon(n)).join("")}</span>
+          <span class="article__cover article__cover--photo"><img class="cover-photo" src="${ZP.root}assets/img/pets/${a.photo}-capa.webp" width="800" height="450" alt="" loading="lazy" decoding="async"></span>
           <p class="article__meta"><span class="tag">${esc(a.tag)}</span> ${icon("clock")} ${a.read} de leitura</p>
           <h2 id="articleTitle">${esc(a.title)}</h2>
           ${a.body.map((p) => `<p>${p}</p>`).join("")}

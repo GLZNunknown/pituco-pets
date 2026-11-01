@@ -102,7 +102,7 @@ window.ZP = window.ZP || {};
       const n = ZP.products.filter((p) => p.pets.includes(pet.id)).length;
       return `
         <button class="pet-card" data-go-pet="${pet.id}">
-          <span class="pet-card__icon">${ZP.u.brandIcon(pet.icon)}</span>
+          <span class="pet-card__icon">${ZP.u.petPhoto(pet, { pequena: true })}</span>
           <b>${pet.name}</b><small>${n} produtos</small>
         </button>`;
     }).join("");
@@ -143,7 +143,7 @@ window.ZP = window.ZP || {};
         <span class="mega__icon">${ZP.u.brandIcon(c.icon)}</span><span><b>${c.name}</b><small>${c.desc}</small></span>
       </button>`).join("");
     const pets = ZP.pets.map((p) => `
-      <button class="mega__pet" data-go-pet="${p.id}">${ZP.u.brandIcon(p.icon)}<span>${p.name}</span></button>`).join("");
+      <button class="mega__pet" data-go-pet="${p.id}">${ZP.u.petPhoto(p, { pequena: true })}<span>${p.name}</span></button>`).join("");
     $("#megaMenu").innerHTML = `
       <div class="mega__cats"><p class="mega__label">Categorias</p><div class="mega__grid">${cats}</div></div>
       <div class="mega__side">
@@ -153,7 +153,7 @@ window.ZP = window.ZP || {};
     $("#drawerCats").innerHTML = ZP.categories.map((c) => `
       <button class="drawer__cat" data-go-cat="${c.id}" style="--tint:${c.tint}">${ZP.u.brandIcon(c.icon)}<span>${c.name}</span></button>`).join("");
     $("#drawerPets").innerHTML = ZP.pets.map((p) => `
-      <button class="drawer__pet" data-go-pet="${p.id}">${ZP.u.brandIcon(p.icon)}<span>${p.name}</span></button>`).join("");
+      <button class="drawer__pet" data-go-pet="${p.id}">${ZP.u.petPhoto(p, { pequena: true })}<span>${p.name}</span></button>`).join("");
   }
 
   const kitSave = (p) => Math.max(0, kitItems(p).reduce((sum, x) => sum + x.variants[0].price, 0) - p.variants[0].price);
@@ -689,14 +689,14 @@ window.ZP = window.ZP || {};
     const passo = !quiz.pet ? 1 : !quiz.need ? 2 : 3;
     const progresso = `<ol class="quiz__steps" aria-label="Etapas">${["Pet", "Necessidade", "Indicação"].map((t, i) =>
       `<li class="${i + 1 < passo ? "is-done" : ""} ${i + 1 === passo ? "is-current" : ""}">${t}</li>`).join("")}</ol>`;
-    const mascote = `<div class="quiz__mascot" aria-hidden="true"><span class="mascot__face">${ZP.u.brandIcon(pet ? pet.icon : "dog")}</span></div>`;
+    const mascote = `<div class="quiz__mascot" aria-hidden="true"><span class="mascot__face">${pet ? ZP.u.petPhoto(pet, { pequena: true }) : ZP.u.brandIcon("pituca")}</span></div>`;
 
     let corpo;
     if (passo === 1) {
       corpo = `
         <h3 class="quiz__q">Para quem é o banho?</h3>
         <div class="quiz__pets">${ZP.pets.map((p) => `
-          <button class="quiz__pet" data-quiz-pet="${p.id}">${ZP.u.brandIcon(p.icon)}<span>${p.name}</span></button>`).join("")}</div>`;
+          <button class="quiz__pet" data-quiz-pet="${p.id}">${ZP.u.petPhoto(p)}<span>${p.name}</span></button>`).join("")}</div>`;
     } else if (passo === 2) {
       const disponiveis = ZP.needs.filter((n) => ZP.products.some((p) => p.pets.includes(quiz.pet) && (p.needs || []).includes(n.id)));
       corpo = `
@@ -709,7 +709,7 @@ window.ZP = window.ZP || {};
       const { avulsos, kit } = quizPicks();
       const need = ZP.needs.find((n) => n.id === quiz.need);
       corpo = `
-        <h3 class="quiz__q">O Pituco indica para ${pet.name.toLowerCase()} · <span style="color:${need.color}">${need.label.toLowerCase()}</span></h3>
+        <h3 class="quiz__q">A Pituca indica para ${pet.name.toLowerCase()} · <span style="color:${need.color}">${need.label.toLowerCase()}</span></h3>
         <div class="quiz__picks">${avulsos.map((p) => `
           <article class="quiz__pick">
             <button class="quiz__pick-img" data-open="${p.id}" style="--tint:${ZP.catById(p.cat).tint}" aria-label="Ver ${esc(p.name)}">${ZP.art.product(p, { sizes: "160px" })}</button>
@@ -727,9 +727,9 @@ window.ZP = window.ZP || {};
     box.innerHTML = `
       <div class="quiz__intro">
         ${mascote}
-        <span class="eyebrow">Assistente Pituco</span>
+        <span class="eyebrow">Assistente Pituca</span>
         <h2 id="quizTitle">Não sabe por onde <mark class="hl">começar</mark>?</h2>
-        <p>Responda 2 perguntinhas e o Pituco indica os produtos certos para o seu pet.</p>
+        <p>Responda 2 perguntinhas e a Pituca indica os produtos certos para o seu pet.</p>
         ${progresso}
       </div>
       <div class="quiz__body">${corpo}</div>`;

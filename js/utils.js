@@ -17,6 +17,9 @@ window.ZP = window.ZP || {};
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const norm = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
   const icon = (name, cls = "") => `<svg class="i ${cls}" aria-hidden="true"><use href="#i-${name}"/></svg>`;
+  // Foto real do pet (assets/img/pets/*.webp); "pequena" usa a versão de 160 px
+  const petPhoto = (pet, { pequena = false, cls = "" } = {}) =>
+    `<img class="pet-photo ${cls}" src="${ZP.root}assets/img/pets/${pet.photo}-${pequena ? 160 : 400}.webp" width="${pequena ? 160 : 400}" height="${pequena ? 160 : 400}" alt="" loading="lazy" decoding="async">`;
   const brandIcon = (name, cls = "") => `<svg class="bi ${cls}" aria-hidden="true"><use href="#ic-${name}"/></svg>`;
   const onlyDigits = (s) => String(s).replace(/\D/g, "");
 
@@ -111,5 +114,5 @@ window.ZP = window.ZP || {};
     }
   });
 
-  ZP.u = { $, $$, home, brl, esc, norm, icon, brandIcon, onlyDigits, maskCep, buscarCep, debounce, storage, stars, waLink, toast, openLayer, closeLayer, topLayer };
+  ZP.u = { $, $$, home, brl, esc, norm, icon, brandIcon, petPhoto, onlyDigits, maskCep, buscarCep, debounce, storage, stars, waLink, toast, openLayer, closeLayer, topLayer };
 })(window.ZP);
