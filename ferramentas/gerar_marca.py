@@ -93,39 +93,79 @@ def pata_svg(cx, cy, tamanho, cor):
 # mancha marrom bem clarinha na orelha direita, bandana verde-limão, bolhas de sabão no topete,
 # piscadinha e linguinha de fora. Feito só de formas simples numa caixa 100x100, para sair igual
 # no SVG (logo e site) e no PNG (ícones).
-PELO, MANCHA, FOCINHO = "#ffffff", "#efd5b5", "#fff8f1"
-CONTORNO, ESCURO, LINGUA, BOCHECHA = "#3b2433", "#2b1d16", "#ff7fa3", "#ffc2d4"
-BANDANA, PINTA, BOLHA = "#b6e61e", "#5b1fa8", "#cdeeff"
+PELO, MANCHA, FOCINHO = "#ffffff", "#efd2ae", "#fff8f1"
+SOMBRA = "#e9defb"            # sombra lilás clarinha nos cachos (dá volume ao pelo branco)
+CONTORNO, ESCURO, LINGUA, BOCHECHA = "#3b2433", "#2b1d16", "#ff7fa3", "#ffaec7"
+BANDANA, BANDANA_SOMBRA, PINTA = "#b6e61e", "#8fc10a", "#5b1fa8"
+BOLHA, BOLHA_REFLEXO, BRILHO = "#cdeeff", "#ffd3ec", "#ffd23f"
 TRACO = 3.2   # espessura do contorno (na caixa 100x100)
+
+
+def _estrela(cx, cy, R, r, pontas=4):
+    """Brilho em forma de estrela de 4 pontas."""
+    pts = []
+    for i in range(pontas * 2):
+        ang = math.pi / pontas * i - math.pi / 2
+        raio = R if i % 2 == 0 else r
+        pts.append((round(cx + raio * math.cos(ang), 2), round(cy + raio * math.sin(ang), 2)))
+    return ("p", pts)
+
+
+def _luz(formas, dx=-1.3, dy=-1.7, encolhe=2.4):
+    """Para cada cacho, um círculo de luz um pouco menor e deslocado para cima/esquerda (a sombra fica embaixo/direita)."""
+    out = []
+    for f in formas:
+        if f[0] == "c":
+            out.append(("c", f[1] + dx, f[2] + dy, f[3] - encolhe))
+        elif f[0] == "e":
+            out.append(("e", f[1] + dx, f[2] + dy, f[3] - encolhe, f[4] - encolhe))
+    return out
+
+
+ORELHAS = [("c", 29, 50, 10), ("c", 25, 61, 10.5), ("c", 27, 72, 10), ("c", 71, 50, 10), ("c", 75, 61, 10.5), ("c", 73, 72, 10)]
+TOPETE = [("c", 39, 27, 11), ("c", 61, 27, 11), ("c", 50, 19, 12.5), ("c", 50, 31, 11)]
+ROSTO = [("e", 50, 53, 18.5, 20)]
+
+
+def _bolha(cx, cy, r, traco):
+    return [
+        {"cor": BOLHA, "contorno": True, "traco": traco, "formas": [("c", cx, cy, r)]},
+        {"cor": BOLHA_REFLEXO, "contorno": False, "formas": [("c", cx + r * .25, cy + r * .25, r * .62)]},
+        {"cor": BOLHA, "contorno": False, "formas": [("c", cx + r * .05, cy + r * .05, r * .5)]},
+        {"cor": PELO, "contorno": False, "formas": [("c", cx - r * .38, cy - r * .38, r * .3)]},
+    ]
+
 
 # Cada grupo recebe UM contorno em volta do conjunto (sem riscos entre as bolinhas).
 # Formas: ("c", cx, cy, r) círculo | ("e", cx, cy, rx, ry) elipse | ("p", [(x, y), ...]) polígono
 PITUCO_GRUPOS = [
-    # orelhas longas e cacheadas
-    {"cor": PELO, "contorno": True, "formas": [
-        ("c", 29, 50, 10), ("c", 25, 61, 10.5), ("c", 27, 72, 10),
-        ("c", 71, 50, 10), ("c", 75, 61, 10.5), ("c", 73, 72, 10)]},
-    # mancha marrom clarinha na orelha direita dele (lado esquerdo para quem olha) — homenagem à Pituca
-    {"cor": MANCHA, "contorno": False, "formas": [("c", 24.5, 62, 7.2), ("c", 27, 71.5, 6.6)]},
-    # cabeça + topete fofo numa silhueta só
-    {"cor": PELO, "contorno": True, "formas": [
-        ("e", 50, 53, 18.5, 20), ("c", 39, 27, 11), ("c", 61, 27, 11), ("c", 50, 19, 12.5), ("c", 50, 31, 11)]},
-    # bandana verde-limão com bolinhas roxas
+    # orelhas: base em sombra + luz em cada cacho
+    {"cor": SOMBRA, "contorno": True, "formas": ORELHAS},
+    {"cor": PELO, "contorno": False, "formas": _luz(ORELHAS)},
+    # mancha marrom clarinha na orelha direita dele (homenagem à Pituca)
+    {"cor": MANCHA, "contorno": False, "formas": [("c", 23.8, 61.2, 6.8), ("c", 26.3, 70.8, 6.2)]},
+    # cabeça + topete numa silhueta só, com volume em cada cacho e rosto bem branquinho
+    {"cor": SOMBRA, "contorno": True, "formas": ROSTO + TOPETE},
+    {"cor": PELO, "contorno": False, "formas": _luz(TOPETE)},
+    {"cor": PELO, "contorno": False, "formas": _luz(ROSTO, dx=-1, dy=-1.4, encolhe=2)},
+    # bandana verde-limão com sombra e bolinhas roxas
     {"cor": BANDANA, "contorno": True, "formas": [("p", [(32, 70.5), (68, 70.5), (50, 91)])]},
-    {"cor": PINTA, "contorno": False, "formas": [("c", 42.5, 75.5, 1.8), ("c", 57.5, 75.5, 1.8), ("c", 50, 83, 1.8)]},
-    # bolhas de sabão saindo do topete
-    {"cor": BOLHA, "contorno": True, "traco": 2.2, "formas": [("c", 75, 15, 6.2)]},
-    {"cor": BOLHA, "contorno": True, "traco": 2.0, "formas": [("c", 84.5, 26, 3.8)]},
-    {"cor": BOLHA, "contorno": True, "traco": 1.8, "formas": [("c", 66, 6.5, 3)]},
-    {"cor": PELO, "contorno": False, "formas": [("c", 72.6, 12.6, 1.8), ("c", 83.4, 24.8, 1)]},
+    {"cor": BANDANA_SOMBRA, "contorno": False, "formas": [("p", [(41.5, 81.5), (58.5, 81.5), (50, 91)])]},
+    {"cor": PINTA, "contorno": False, "formas": [("c", 42.5, 75.5, 1.9), ("c", 57.5, 75.5, 1.9), ("c", 50, 82.5, 1.9)]},
+    # bolhas de sabão furta-cor saindo do topete
+    *_bolha(75, 15, 6.4, 2.2), *_bolha(84.5, 26.5, 3.9, 2.0), *_bolha(66, 6.5, 3.1, 1.8),
+    # brilhinho amarelo do outro lado do topete
+    {"cor": BRILHO, "contorno": True, "traco": 1.6, "formas": [_estrela(19, 21, 6.2, 2.1)]},
+    {"cor": BRILHO, "contorno": True, "traco": 1.3, "formas": [_estrela(11, 33, 3.4, 1.2)]},
     # focinho
     {"cor": FOCINHO, "contorno": True, "traco": 2.2, "formas": [("e", 50, 64.5, 10, 8.5)]},
     # linguinha de fora
     {"cor": LINGUA, "contorno": True, "traco": 1.8, "formas": [("e", 52.5, 71, 3.4, 3.8)]},
-    # bochechas, olho aberto (o outro está piscando), brilho e nariz
-    {"cor": BOCHECHA, "contorno": False, "formas": [("c", 36.5, 58.5, 3.6), ("c", 63.5, 58.5, 3.6)]},
-    {"cor": ESCURO, "contorno": False, "formas": [("c", 42.5, 50.5, 4.1), ("e", 50, 59.8, 5, 3.7)]},
-    {"cor": PELO, "contorno": False, "formas": [("c", 43.9, 49, 1.5), ("e", 48.6, 58.7, 1.4, .9)]},
+    {"cor": "#ff5f8c", "contorno": False, "formas": [("e", 52.6, 72.2, .7, 1.8)]},
+    # bochechas, olho aberto (o outro pisca), dois reflexos no olho e nariz brilhante
+    {"cor": BOCHECHA, "contorno": False, "formas": [("e", 36.5, 58.8, 4, 3.2), ("e", 63.5, 58.8, 4, 3.2)]},
+    {"cor": ESCURO, "contorno": False, "formas": [("c", 42.5, 50.5, 4.3), ("e", 50, 59.8, 5.1, 3.8)]},
+    {"cor": PELO, "contorno": False, "formas": [("c", 43.9, 48.9, 1.6), ("c", 41.4, 52.1, .7), ("e", 48.5, 58.6, 1.5, .95)]},
 ]
 # Traços (curvas): (lista de curvas quadráticas (início, controle, fim), espessura)
 PITUCO_TRACOS = [
@@ -163,11 +203,17 @@ def pituco_svg(x, y, tamanho):
     return f'<g transform="translate({x:.2f} {y:.2f}) scale({tamanho / 100:.4f})">{pituco_elementos()}</g>'
 
 
-def selo_svg(cor_fundo, cor_pata, cor_bolha):
-    """Selo redondo com o Pituco (64x64): fundo roxo e anel verde-limão."""
+def selo_svg(cor_fundo, cor_pata, cor_bolha, gid="g"):
+    """Selo redondo com o Pituco (64x64): degradê roxo, anel verde-limão e pontinhos de brilho."""
     t = 62
-    return (f'<circle cx="32" cy="34" r="29" fill="{cor_fundo}"/>'
-            f'<circle cx="32" cy="34" r="26.5" fill="none" stroke="{LIMAO}" stroke-width="1.6" opacity=".9"/>'
+    brilhos = "".join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="#ffffff" opacity="{o}"/>'
+                      for x, y, r, o in [(9, 20, 1.1, .9), (56, 48, 1, .8), (12, 50, .8, .7)])
+    return (f'<defs><radialGradient id="{gid}" cx="40%" cy="35%" r="70%">'
+            f'<stop offset="0" stop-color="#8a4ff0"/><stop offset=".6" stop-color="{cor_fundo}"/><stop offset="1" stop-color="#3f1478"/>'
+            f'</radialGradient></defs>'
+            f'<circle cx="32" cy="34" r="29" fill="url(#{gid})"/>'
+            f'<circle cx="32" cy="34" r="26.6" fill="none" stroke="{LIMAO}" stroke-width="1.7" stroke-dasharray="3.5 2.2" opacity=".95"/>'
+            f'{brilhos}'
             f'{pituco_svg(32 - 50 * t / 100, 35 - 48 * t / 100, t)}')
 
 
@@ -189,7 +235,7 @@ def gerar_logo(destino, cor_texto, cor_selo, cor_pata, cor_bolha, cor_pilula, co
     altura = math.ceil(pil_y + pil_h + 4)
     svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {largura} {altura}" width="{largura}" height="{altura}" role="img" aria-label="{titulo}">'
            f'<title>{titulo}</title>'
-           f'<g transform="translate(0 {(altura - 64) / 2:.1f})">{selo_svg(cor_selo, cor_pata, cor_bolha)}</g>'
+           f'<g transform="translate(0 {(altura - 64) / 2:.1f})">{selo_svg(cor_selo, cor_pata, cor_bolha, gid='selo-' + destino.stem)}</g>'
            f'<path fill="{cor_texto}" d="{d_nome}"/>'
            f'<rect x="74" y="{pil_y:.1f}" width="{larg_nome:.1f}" height="{pil_h}" rx="{pil_h / 2}" fill="{cor_pilula}"/>'
            f'<path fill="{cor_texto_pilula}" d="{d_pets}"/>'
@@ -200,8 +246,9 @@ def gerar_logo(destino, cor_texto, cor_selo, cor_pata, cor_bolha, cor_pilula, co
 
 def gerar_favicon(destino):
     svg = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">'
-           f'<rect width="64" height="64" rx="16" fill="{ROXO}"/>'
-           f'<circle cx="32" cy="33" r="27" fill="#6d2cc4"/>'
+           '<defs><radialGradient id="f" cx="40%" cy="35%" r="75%"><stop offset="0" stop-color="#8a4ff0"/>'
+           f'<stop offset=".6" stop-color="{ROXO}"/><stop offset="1" stop-color="#3f1478"/></radialGradient></defs>'
+           '<rect width="64" height="64" rx="16" fill="url(#f)"/>'
            f'{pituco_svg(32 - 33, 33 - 48 * .66, 66)}'
            '</svg>\n')
     destino.write_text(svg, encoding="utf-8")
@@ -282,16 +329,34 @@ def desenhar_pituco(draw, x, y, tamanho):
         draw.line(pontos, fill=ESCURO, width=max(1, round(largura * s)), joint="curve")
 
 
+def _degrade_radial(S, centro, cores):
+    """Fundo em degradê radial (lista de (posição 0..1, cor RGB)) desenhado em anéis concêntricos."""
+    im = Image.new("RGB", (S, S), cores[-1][1])
+    d = ImageDraw.Draw(im)
+    raio_max = S * 0.95
+    passos = 90
+    for i in range(passos, 0, -1):
+        t = i / passos
+        for (p0, c0), (p1, c1) in zip(cores, cores[1:]):
+            if p0 <= t <= p1:
+                u = (t - p0) / (p1 - p0)
+                cor = tuple(round(a + (b - a) * u) for a, b in zip(c0, c1))
+                break
+        r = raio_max * t
+        d.ellipse([centro[0] - r, centro[1] - r, centro[0] + r, centro[1] + r], fill=cor)
+    return im
+
+
 def gerar_icone(destino, px):
     k = 4  # desenha em 4x e reduz, para bordas suaves
     S = px * k
-    im = Image.new("RGBA", (S, S), ROXO)
+    im = _degrade_radial(S, (S * .42, S * .36), [(0, (138, 79, 240)), (.6, (91, 31, 168)), (1, (63, 20, 120))])
     d = ImageDraw.Draw(im)
-    r = S * .42
-    d.ellipse([S / 2 - r, S * .52 - r, S / 2 + r, S * .52 + r], fill="#6d2cc4")
+    for fx, fy, fr in [(.12, .18, .012), (.86, .74, .01), (.15, .8, .008)]:
+        d.ellipse([S * (fx - fr), S * (fy - fr), S * (fx + fr), S * (fy + fr)], fill="#ffffff")
     t = S * .98
     desenhar_pituco(d, S / 2 - t / 2, S * .52 - t * .48, t)
-    im.resize((px, px), Image.LANCZOS).convert("RGB").save(destino, optimize=True)
+    im.resize((px, px), Image.LANCZOS).save(destino, optimize=True)
 
 
 def gerar_og(destino, foto):
