@@ -88,23 +88,12 @@ window.ZP = window.ZP || {};
     $("#categoryGrid").innerHTML = ZP.categories.map((c) => {
       const n = ZP.products.filter((p) => p.cat === c.id).length;
       return `
-        <button class="category-card" data-go-cat="${c.id}" style="--tint:${c.tint};--accent:${c.color}">
+        <${c.id === "kits" ? `a href="#kits"` : `button data-go-cat="${c.id}"`} class="category-card" style="--tint:${c.tint};--accent:${c.color}">
           <span class="category-card__icon">${ZP.u.brandIcon(c.icon)}</span>
           <b>${c.name}</b>
           <small>${c.desc}</small>
-          <span class="category-card__count">${n} produtos ${icon("arrow-right")}</span>
-        </button>`;
-    }).join("");
-  }
-
-  function renderPets() {
-    $("#petGrid").innerHTML = ZP.pets.map((pet) => {
-      const n = ZP.products.filter((p) => p.pets.includes(pet.id)).length;
-      return `
-        <button class="pet-card" data-go-pet="${pet.id}">
-          <span class="pet-card__icon">${ZP.u.brandIcon(pet.icon)}</span>
-          <b>${pet.name}</b><small>${n} produtos</small>
-        </button>`;
+          <span class="category-card__count">${n} ${c.id === "kits" ? "combos" : "produtos"} ${icon("arrow-right")}</span>
+        </${c.id === "kits" ? "a" : "button"}>`;
     }).join("");
   }
 
@@ -139,19 +128,19 @@ window.ZP = window.ZP || {};
 
   function renderMenus() {
     const cats = ZP.categories.map((c) => `
-      <button class="mega__item" data-go-cat="${c.id}" style="--tint:${c.tint}">
+      <${c.id === "kits" ? `a href="${ZP.u.home("#kits")}"` : `button data-go-cat="${c.id}"`} class="mega__item" style="--tint:${c.tint}">
         <span class="mega__icon">${ZP.u.brandIcon(c.icon)}</span><span><b>${c.name}</b><small>${c.desc}</small></span>
-      </button>`).join("");
+      </${c.id === "kits" ? "a" : "button"}>`).join("");
     const pets = ZP.pets.map((p) => `
       <button class="mega__pet" data-go-pet="${p.id}">${ZP.u.brandIcon(p.icon)}<span>${p.name}</span></button>`).join("");
     $("#megaMenu").innerHTML = `
       <div class="mega__cats"><p class="mega__label">Categorias</p><div class="mega__grid">${cats}</div></div>
       <div class="mega__side">
         <p class="mega__label">Por pet</p><div class="mega__pets">${pets}</div>
-        <a class="mega__promo" href="${ZP.u.home("#kits")}"><span>Kits de banho</span><b>Combos com desconto</b><small>Ver combos ${icon("arrow-right")}</small></a>
+        <a class="mega__promo" href="${ZP.u.home("#ajuda")}"><span>Na dúvida?</span><b>O Pituco te ajuda a escolher</b><small>Responder 2 perguntas ${icon("arrow-right")}</small></a>
       </div>`;
     $("#drawerCats").innerHTML = ZP.categories.map((c) => `
-      <button class="drawer__cat" data-go-cat="${c.id}" style="--tint:${c.tint}">${ZP.u.brandIcon(c.icon)}<span>${c.name}</span></button>`).join("");
+      <${c.id === "kits" ? `a href="${ZP.u.home("#kits")}"` : `button data-go-cat="${c.id}"`} class="drawer__cat" style="--tint:${c.tint}">${ZP.u.brandIcon(c.icon)}<span>${c.name}</span></${c.id === "kits" ? "a" : "button"}>`).join("");
     $("#drawerPets").innerHTML = ZP.pets.map((p) => `
       <button class="drawer__pet" data-go-pet="${p.id}">${ZP.u.brandIcon(p.icon)}<span>${p.name}</span></button>`).join("");
   }
@@ -166,7 +155,7 @@ window.ZP = window.ZP || {};
 
   /* ---------- Filtros ---------- */
   function renderFilterControls() {
-    $("#filterChips").innerHTML = [{ id: "all", name: "Todos" }, ...ZP.categories].map((c) => {
+    $("#filterChips").innerHTML = [{ id: "all", name: "Todos" }, ...ZP.categories.filter((c) => c.id !== "kits")].map((c) => {
       const n = c.id === "all" ? ZP.products.filter((p) => p.cat !== "kits").length : ZP.products.filter((p) => p.cat === c.id).length;
       const on = filters.cat === c.id;
       return `<button class="chip ${on ? "is-active" : ""}" data-filter-cat="${c.id}" aria-pressed="${on}">${c.name} <small>${n}</small></button>`;
@@ -689,7 +678,7 @@ window.ZP = window.ZP || {};
     const passo = !quiz.pet ? 1 : !quiz.need ? 2 : 3;
     const progresso = `<ol class="quiz__steps" aria-label="Etapas">${["Pet", "Necessidade", "Indicação"].map((t, i) =>
       `<li class="${i + 1 < passo ? "is-done" : ""} ${i + 1 === passo ? "is-current" : ""}">${t}</li>`).join("")}</ol>`;
-    const mascote = `<div class="quiz__mascot" aria-hidden="true"><span class="mascot__face">${pet ? ZP.u.petPhoto(pet, { pequena: true }) : ZP.u.brandIcon("pituca")}</span></div>`;
+    const mascote = pet ? `<div class="quiz__mascot" aria-hidden="true"><span class="mascot__face">${ZP.u.petPhoto(pet, { pequena: true })}</span></div>` : "";
 
     let corpo;
     if (passo === 1) {
@@ -709,7 +698,7 @@ window.ZP = window.ZP || {};
       const { avulsos, kit } = quizPicks();
       const need = ZP.needs.find((n) => n.id === quiz.need);
       corpo = `
-        <h3 class="quiz__q">A Pituca indica para ${pet.name.toLowerCase()} · <span style="color:${need.color}">${need.label.toLowerCase()}</span></h3>
+        <h3 class="quiz__q">O Pituco indica para ${pet.name.toLowerCase()} · <span style="color:${need.color}">${need.label.toLowerCase()}</span></h3>
         <div class="quiz__picks">${avulsos.map((p) => `
           <article class="quiz__pick">
             <button class="quiz__pick-img" data-open="${p.id}" style="--tint:${ZP.catById(p.cat).tint}" aria-label="Ver ${esc(p.name)}">${ZP.art.product(p, { sizes: "160px" })}</button>
@@ -727,9 +716,9 @@ window.ZP = window.ZP || {};
     box.innerHTML = `
       <div class="quiz__intro">
         ${mascote}
-        <span class="eyebrow">Assistente Pituca</span>
+        <span class="eyebrow">Assistente Pituco</span>
         <h2 id="quizTitle">Não sabe por onde <mark class="hl">começar</mark>?</h2>
-        <p>Responda 2 perguntinhas e a Pituca indica os produtos certos para o seu pet.</p>
+        <p>Responda 2 perguntinhas e o Pituco indica os produtos certos para o seu pet.</p>
         ${progresso}
       </div>
       <div class="quiz__body">${corpo}</div>`;
@@ -773,7 +762,6 @@ window.ZP = window.ZP || {};
       if (IS_STORE) {
         aplicarParametros();
         renderCategories();
-        renderPets();
         renderKits();
         renderQuiz();
         bindQuiz();

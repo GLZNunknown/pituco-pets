@@ -64,9 +64,7 @@ ZP.config = {
 
   // Barra de avisos do topo: poucas mensagens, as mais importantes (as vantagens fixas ficam na faixa abaixo do topo)
   announcements: [
-    "📍 Entregamos em todo o estado de São Paulo",
-    "🚚 Frete grátis em compras acima de R$ 150",
-    "💜 10% OFF na primeira compra com o cupom BEMVINDO10",
+    "🚚 Entregamos em todo SP · Frete grátis acima de R$ 150",
   ],
 
   pageSize: 8,                           // produtos exibidos antes do "Carregar mais"

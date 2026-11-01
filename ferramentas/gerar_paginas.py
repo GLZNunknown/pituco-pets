@@ -373,12 +373,12 @@ def pagina_sobre(d, ctx):
         </div>
       </header>
 
-      <section class="pituca-card" aria-labelledby="pitucaTitle">
-        <svg class="bi" aria-hidden="true"><use href="#ic-pituca"/></svg>
+      <section class="mascote-card" aria-labelledby="mascoteTitle">
+        <svg class="bi" aria-hidden="true"><use href="#ic-pituco"/></svg>
         <div>
-          <span class="eyebrow">A inspiração da marca</span>
-          <h2 id="pitucaTitle">Quem é a Pituca?</h2>
-          <p>A Pituca é uma poodle pequena e branquinha, com uma mancha marrom bem clarinha na orelha direita — e é a inspiração da Pituco Pets. Foi pensando no cuidado com ela que nasceu a vontade de oferecer produtos de banho com carinho para todos os pets. É ela que aparece no nosso logo e ajuda você a escolher os produtos aqui no site. 🐾</p>
+          <span class="eyebrow">Nosso mascote</span>
+          <h2 id="mascoteTitle">Quem é o Pituco?</h2>
+          <p>O Pituco é o mascote da marca: um poodle branquinho, sempre de bandana e cheio de espuma, que adora um banho e ajuda você a escolher os produtos aqui no site. Ele foi inspirado na <b>Pituca</b>, uma poodle pequena da família, branquinha com uma mancha marrom bem clarinha na orelha direita — por isso o Pituco também tem essa manchinha, como homenagem. 🐾</p>
         </div>
       </section>
 
@@ -439,7 +439,7 @@ def carimbar_versao():
 def pagina_404(d, ctx):
     raiz = urlparse(ctx["site"]).path or "/"    # caminho absoluto: o 404 é servido em qualquer profundidade
     conteudo = f"""    <div class="container err-page">
-      <span class="mascot__face" aria-hidden="true"><svg class="bi"><use href="#ic-pituca"/></svg></span>
+      <span class="mascot__face" aria-hidden="true"><svg class="bi"><use href="#ic-pituco"/></svg></span>
       <h1>Ops! Essa página foi tomar banho 🛁</h1>
       <p>Não encontramos o que você procurou. Que tal voltar para a loja ou buscar um produto?</p>
       <div class="err-page__actions">
