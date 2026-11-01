@@ -102,7 +102,7 @@ window.ZP = window.ZP || {};
       const n = ZP.products.filter((p) => p.pets.includes(pet.id)).length;
       return `
         <button class="pet-card" data-go-pet="${pet.id}">
-          <span class="pet-card__icon">${ZP.u.petPhoto(pet, { pequena: true })}</span>
+          <span class="pet-card__icon">${ZP.u.brandIcon(pet.icon)}</span>
           <b>${pet.name}</b><small>${n} produtos</small>
         </button>`;
     }).join("");
@@ -143,7 +143,7 @@ window.ZP = window.ZP || {};
         <span class="mega__icon">${ZP.u.brandIcon(c.icon)}</span><span><b>${c.name}</b><small>${c.desc}</small></span>
       </button>`).join("");
     const pets = ZP.pets.map((p) => `
-      <button class="mega__pet" data-go-pet="${p.id}">${ZP.u.petPhoto(p, { pequena: true })}<span>${p.name}</span></button>`).join("");
+      <button class="mega__pet" data-go-pet="${p.id}">${ZP.u.brandIcon(p.icon)}<span>${p.name}</span></button>`).join("");
     $("#megaMenu").innerHTML = `
       <div class="mega__cats"><p class="mega__label">Categorias</p><div class="mega__grid">${cats}</div></div>
       <div class="mega__side">
@@ -153,7 +153,7 @@ window.ZP = window.ZP || {};
     $("#drawerCats").innerHTML = ZP.categories.map((c) => `
       <button class="drawer__cat" data-go-cat="${c.id}" style="--tint:${c.tint}">${ZP.u.brandIcon(c.icon)}<span>${c.name}</span></button>`).join("");
     $("#drawerPets").innerHTML = ZP.pets.map((p) => `
-      <button class="drawer__pet" data-go-pet="${p.id}">${ZP.u.petPhoto(p, { pequena: true })}<span>${p.name}</span></button>`).join("");
+      <button class="drawer__pet" data-go-pet="${p.id}">${ZP.u.brandIcon(p.icon)}<span>${p.name}</span></button>`).join("");
   }
 
   const kitSave = (p) => Math.max(0, kitItems(p).reduce((sum, x) => sum + x.variants[0].price, 0) - p.variants[0].price);

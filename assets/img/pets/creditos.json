@@ -30,5 +30,37 @@
     "fonte": "https://commons.wikimedia.org/wiki/File:Chestnut_French_Trotter_horse_head,_Guillac.jpg",
     "arquivo": "Chestnut French Trotter horse head, Guillac.jpg",
     "alteracoes": "recortada e redimensionada"
+  },
+  "caes-2": {
+    "autor": "Dietmar Rabich",
+    "licenca": "CC BY-SA 4.0",
+    "licenca_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "fonte": "https://commons.wikimedia.org/wiki/File:D%C3%BClmen,_Hausd%C3%BClmen,_Golden_Retriever_--_2022_--_5945.jpg",
+    "arquivo": "Dülmen, Hausdülmen, Golden Retriever -- 2022 -- 5945.jpg",
+    "alteracoes": "recortada e redimensionada"
+  },
+  "gatos-2": {
+    "autor": "Jakub Hałun",
+    "licenca": "CC BY 4.0",
+    "licenca_url": "https://creativecommons.org/licenses/by/4.0",
+    "fonte": "https://commons.wikimedia.org/wiki/File:Cat_in_Piran,_Slovenia,_20240504_1600_8594.jpg",
+    "arquivo": "Cat in Piran, Slovenia, 20240504 1600 8594.jpg",
+    "alteracoes": "recortada e redimensionada"
+  },
+  "coelhos-2": {
+    "autor": "Горбунова М.С.",
+    "licenca": "CC BY-SA 4.0",
+    "licenca_url": "https://creativecommons.org/licenses/by-sa/4.0",
+    "fonte": "https://commons.wikimedia.org/wiki/File:Bunny_in_a_small_zoo.jpg",
+    "arquivo": "Bunny in a small zoo.jpg",
+    "alteracoes": "recortada e redimensionada"
+  },
+  "cavalos-2": {
+    "autor": "Böhringer Friedrich",
+    "licenca": "CC BY-SA 2.5",
+    "licenca_url": "https://creativecommons.org/licenses/by-sa/2.5",
+    "fonte": "https://commons.wikimedia.org/wiki/File:Haflinger_Hengstfohlen_1.JPG",
+    "arquivo": "Haflinger Hengstfohlen 1.JPG",
+    "alteracoes": "recortada e redimensionada"
   }
 }

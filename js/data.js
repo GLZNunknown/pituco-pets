@@ -307,7 +307,7 @@ ZP.petById = (id) => ZP.pets.find((p) => p.id === id);
 /* ---------- DICAS (blog) ---------- */
 ZP.articles = [
   {
-    id: "frequencia-banho", photo: "gatos", icons: ["dog", "cat"], tag: "Cães e gatos", read: "3 min",
+    id: "frequencia-banho", photo: "gatos-2", icons: ["dog", "cat"], tag: "Cães e gatos", read: "3 min",
     title: "De quanto em quanto tempo dar banho no seu pet?",
     excerpt: "Banho demais resseca, de menos acumula sujeira. Veja a frequência ideal para cada caso.",
     body: [
@@ -319,7 +319,7 @@ ZP.articles = [
     ],
   },
   {
-    id: "banho-perfeito", photo: "caes", icons: ["shampoo", "condicionador"], tag: "Passo a passo", read: "4 min",
+    id: "banho-perfeito", photo: "caes-2", icons: ["shampoo", "condicionador"], tag: "Passo a passo", read: "4 min",
     title: "Passo a passo do banho perfeito em casa",
     excerpt: "Da escovação à secagem: o roteiro para um banho tranquilo e sem estresse.",
     body: [
@@ -333,7 +333,7 @@ ZP.articles = [
     ],
   },
   {
-    id: "coelho-banho", photo: "coelhos", icons: ["rabbit"], tag: "Coelhos", read: "2 min",
+    id: "coelho-banho", photo: "coelhos-2", icons: ["rabbit"], tag: "Coelhos", read: "2 min",
     title: "Coelho pode tomar banho?",
     excerpt: "Spoiler: banho molhado não é indicado. Saiba como manter seu coelho limpinho.",
     body: [
@@ -343,7 +343,7 @@ ZP.articles = [
     ],
   },
   {
-    id: "cavalo-crina", photo: "cavalos", icons: ["horse"], tag: "Cavalos", read: "3 min",
+    id: "cavalo-crina", photo: "cavalos-2", icons: ["horse"], tag: "Cavalos", read: "3 min",
     title: "Crina e cauda impecáveis: cuidados com o cavalo",
     excerpt: "Como lavar, desembaraçar e proteger os fios do seu cavalo.",
     body: [

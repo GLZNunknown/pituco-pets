@@ -341,7 +341,8 @@ def pagina_dicas(d, ctx):
 
 def creditos_html():
     """Créditos exigidos pela licença das fotos (autor, fonte, licença e alterações)."""
-    nomes = {"caes": "Cães", "gatos": "Gatos", "coelhos": "Coelhos", "cavalos": "Cavalos"}
+    nomes = {"caes": "Cão (West Highland)", "gatos": "Gato (Chartreux)", "coelhos": "Coelho (malhado)", "cavalos": "Cavalo (alazão)",
+             "caes-2": "Cão (Golden Retriever)", "gatos-2": "Gato", "coelhos-2": "Coelho (branco)", "cavalos-2": "Potro (Haflinger)"}
     cred = json.loads((RAIZ / "assets" / "img" / "pets" / "creditos.json").read_text(encoding="utf-8"))
     return "".join(
         f'<li><b>{nomes.get(k, k)}:</b> foto de {e(c["autor"])} (<a href="{e(c["fonte"])}" target="_blank" rel="noopener">fonte</a>), '
@@ -368,7 +369,7 @@ def pagina_sobre(d, ctx):
           <a class="btn btn--primary btn--lg" href="index.html#produtos">Ver produtos</a>
         </div>
         <div class="about-hero__pets" aria-hidden="true">
-          {foto_pet("caes", "", 160)}{foto_pet("gatos", "", 160)}{foto_pet("coelhos", "", 160)}{foto_pet("cavalos", "", 160)}
+          {foto_pet("caes-2", "", 160)}{foto_pet("gatos-2", "", 160)}{foto_pet("coelhos-2", "", 160)}{foto_pet("cavalos-2", "", 160)}
         </div>
       </header>
 

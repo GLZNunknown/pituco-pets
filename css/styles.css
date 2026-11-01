@@ -1001,7 +1001,6 @@ details[open] > summary::after { content: "−"; background: var(--purple); colo
 
 /* ---------- 26. Fotos dos pets e a Pituca ---------- */
 .pet-photo { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-.pet-card__icon { overflow: hidden; padding: 0; }
 .mega__pet .pet-photo, .drawer__pet .pet-photo { width: 34px; height: 34px; flex: none; }
 .drawer__pet .pet-photo { width: 42px; height: 42px; }
 .quiz__pet .pet-photo { width: 84px; height: 84px; border: 3px solid #fff; box-shadow: var(--shadow-sm); transition: transform .25s var(--ease); }

@@ -92,44 +92,53 @@ def pata_svg(cx, cy, tamanho, cor):
 # Poodle pequena e branquinha, com uma mancha marrom bem clarinha na orelha DIREITA dela
 # (que aparece do lado esquerdo para quem olha de frente). Feita só de círculos e elipses
 # numa caixa 100x100, para sair igual no SVG (logo, site) e no PNG (ícones).
-PELO, MANCHA, FOCINHO = "#ffffff", "#ecd0ae", "#fff7ef"
-CONTORNO, ESCURO, LINGUA, BOCHECHA = "#4a3a35", "#2b1d16", "#ff8fab", "#ffc6d6"
-PITUCA = [
-    # orelha direita dela: longa e cacheada, caindo rente ao rosto, com a mancha marrom clarinha embaixo
-    ("c", 30, 44, 8.5, PELO, True), ("c", 26, 54, 9, PELO, True), ("c", 25, 65, 9, MANCHA, True), ("c", 28, 76, 8.5, MANCHA, True),
-    # orelha esquerda dela
-    ("c", 70, 44, 8.5, PELO, True), ("c", 74, 54, 9, PELO, True), ("c", 75, 65, 9, PELO, True), ("c", 72, 76, 8.5, PELO, True),
-    # rosto (mais estreito, de poodle)
-    ("e", 50, 52, 17, 20, PELO, True),
-    # topete alto e fofo
-    ("c", 39, 24, 10.5, PELO, True), ("c", 61, 24, 10.5, PELO, True), ("c", 50, 15, 12, PELO, True),
-    ("c", 44, 31, 9, PELO, True), ("c", 56, 31, 9, PELO, True), ("c", 50, 27, 9, PELO, True),
-    # focinho comprido
-    ("e", 50, 66, 9.5, 10.5, FOCINHO, True),
-    # bochechas
-    ("c", 37.5, 58, 3.2, BOCHECHA, False), ("c", 62.5, 58, 3.2, BOCHECHA, False),
-    # olhos com brilho
-    ("c", 43, 49.5, 3.1, ESCURO, False), ("c", 57, 49.5, 3.1, ESCURO, False),
-    ("c", 44, 48.4, 1.05, PELO, False), ("c", 58, 48.4, 1.05, PELO, False),
-    # nariz
-    ("e", 50, 61, 4.3, 3.3, ESCURO, False),
+PELO, MANCHA, FOCINHO = "#ffffff", "#efd5b5", "#fff8f1"
+CONTORNO, ESCURO, LINGUA, BOCHECHA, LACO = "#3d2c27", "#2b1d16", "#ff8fab", "#ffc6d6", "#ff5c9a"
+TRACO = 3.2   # espessura do contorno (na caixa 100x100)
+
+# Cada grupo recebe UM contorno em volta do conjunto (técnica de adesivo: sem riscos entre as bolinhas).
+# Formas: ("c", cx, cy, r) círculo | ("e", cx, cy, rx, ry) elipse.
+PITUCA_GRUPOS = [
+    # orelhas longas e cacheadas, caindo rente ao rosto
+    {"cor": PELO, "contorno": True, "formas": [
+        ("c", 29, 50, 10), ("c", 25, 61, 10.5), ("c", 27, 73, 10),
+        ("c", 71, 50, 10), ("c", 75, 61, 10.5), ("c", 73, 73, 10)]},
+    # mancha marrom bem clarinha na orelha DIREITA dela (lado esquerdo para quem olha)
+    {"cor": MANCHA, "contorno": False, "formas": [("c", 24.5, 63, 7.2), ("c", 27, 72.5, 6.6)]},
+    # cabeça + topete fofo como uma silhueta só
+    {"cor": PELO, "contorno": True, "formas": [
+        ("e", 50, 53, 18.5, 20), ("c", 39, 27, 11), ("c", 61, 27, 11), ("c", 50, 19, 12.5), ("c", 50, 31, 11)]},
+    # lacinho rosa no topete
+    {"cor": LACO, "contorno": True, "formas": [("c", 63.5, 15.5, 4.6), ("c", 72.5, 15.5, 4.6)]},
+    {"cor": LACO, "contorno": True, "formas": [("c", 68, 15.5, 2.8)]},
+    # focinho
+    {"cor": FOCINHO, "contorno": True, "traco": 2.2, "formas": [("e", 50, 64.5, 10, 8.5)]},
+    # bochechas, olhos, brilho e nariz (sem contorno)
+    {"cor": BOCHECHA, "contorno": False, "formas": [("c", 36.5, 58.5, 3.6), ("c", 63.5, 58.5, 3.6)]},
+    {"cor": ESCURO, "contorno": False, "formas": [("c", 42.5, 50.5, 4), ("c", 57.5, 50.5, 4), ("e", 50, 59.8, 5, 3.7)]},
+    {"cor": PELO, "contorno": False, "formas": [("c", 43.9, 49, 1.4), ("c", 58.9, 49, 1.4), ("e", 48.6, 58.7, 1.4, .9)]},
 ]
-BOCA = [((46, 68.5), (48, 71), (50, 68.5)), ((50, 68.5), (52, 71), (54, 68.5))]
+BOCA = [((45.6, 66.6), (47.8, 69.4), (50, 66.6)), ((50, 66.6), (52.2, 69.4), (54.4, 66.6))]
+
+
+def _forma_svg(f, extra=0, cor="#000", contorno=None, traco=0):
+    if f[0] == "c":
+        el = f'<circle cx="{f[1]}" cy="{f[2]}" r="{f[3] + extra}"'
+    else:
+        el = f'<ellipse cx="{f[1]}" cy="{f[2]}" rx="{f[3] + extra}" ry="{f[4] + extra}"'
+    return el + f' fill="{cor}"/>'
 
 
 def pituca_elementos(contorno=CONTORNO):
     """Elementos SVG da Pituca na caixa 0..100."""
     partes = []
-    for f in PITUCA:
-        if f[0] == "c":
-            _, cx, cy, r, cor, traco = f
-            el = f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="{cor}"'
-        else:
-            _, cx, cy, rx, ry, cor, traco = f
-            el = f'<ellipse cx="{cx}" cy="{cy}" rx="{rx}" ry="{ry}" fill="{cor}"'
-        partes.append(el + (f' stroke="{contorno}" stroke-width="2"' if traco else "") + "/>")
+    for g in PITUCA_GRUPOS:
+        if g["contorno"]:
+            t = g.get("traco", TRACO)
+            partes += [_forma_svg(f, extra=t, cor=contorno) for f in g["formas"]]   # silhueta escura levemente maior
+        partes += [_forma_svg(f, cor=g["cor"]) for f in g["formas"]]                  # preenchimento por cima
     boca = "".join(f"M{a[0]} {a[1]}Q{c[0]} {c[1]} {b[0]} {b[1]}" for a, c, b in BOCA)
-    partes.append(f'<path d="{boca}" fill="none" stroke="{ESCURO}" stroke-width="1.6" stroke-linecap="round"/>')
+    partes.append(f'<path d="{boca}" fill="none" stroke="{ESCURO}" stroke-width="2" stroke-linecap="round"/>')
     return "".join(partes)
 
 
@@ -139,9 +148,9 @@ def pituca_svg(x, y, tamanho):
 
 def selo_svg(cor_fundo, cor_pata, cor_bolha):
     """Selo redondo com a Pituca e bolhas de espuma (64x64)."""
-    t = 58
+    t = 64
     return (f'<circle cx="32" cy="34" r="28" fill="{cor_fundo}"/>'
-            f'{pituca_svg(32 - 50 * t / 100, 35 - 45 * t / 100, t)}'
+            f'{pituca_svg(32 - 50 * t / 100, 36 - 46 * t / 100, t)}'
             f'<circle cx="53" cy="12" r="7" fill="{BRANCO}" stroke="{cor_bolha}" stroke-width="2.2"/>'
             f'<circle cx="51" cy="10" r="2" fill="{cor_bolha}" opacity=".35"/>'
             f'<circle cx="62" cy="23" r="3.6" fill="{BRANCO}" stroke="{cor_bolha}" stroke-width="1.8"/>')
@@ -225,22 +234,25 @@ def desenhar_pata(draw, cx, cy, tamanho, cor):
 
 
 def desenhar_pituca(draw, x, y, tamanho):
-    """Desenha a Pituca com o canto superior esquerdo da caixa 100x100 em (x, y)."""
+    """Desenha a Pituca (mesmas formas do SVG) com o canto da caixa 100x100 em (x, y)."""
     s = tamanho / 100
-    w = max(1, round(2 * s))
-    for f in PITUCA:
-        if f[0] == "c":
-            _, cx, cy, rx, cor, traco = f
-            ry = rx
-        else:
-            _, cx, cy, rx, ry, cor, traco = f
-        caixa = [x + (cx - rx) * s, y + (cy - ry) * s, x + (cx + rx) * s, y + (cy + ry) * s]
-        draw.ellipse(caixa, fill=cor, outline=CONTORNO if traco else None, width=w if traco else 0)
+
+    def elipse(f, extra, cor):
+        rx = f[3] + extra
+        ry = (f[3] if f[0] == "c" else f[4]) + extra
+        draw.ellipse([x + (f[1] - rx) * s, y + (f[2] - ry) * s, x + (f[1] + rx) * s, y + (f[2] + ry) * s], fill=cor)
+
+    for g in PITUCA_GRUPOS:
+        if g["contorno"]:
+            for f in g["formas"]:
+                elipse(f, g.get("traco", TRACO), CONTORNO)
+        for f in g["formas"]:
+            elipse(f, 0, g["cor"])
     pontos = []
     for (x0, y0), (cx1, cy1), (x1, y1) in BOCA:
         pontos += [((1 - t) ** 2 * x0 + 2 * (1 - t) * t * cx1 + t * t * x1, (1 - t) ** 2 * y0 + 2 * (1 - t) * t * cy1 + t * t * y1)
                    for t in (i / 12 for i in range(13))]
-    draw.line([(x + px * s, y + py * s) for px, py in pontos], fill=ESCURO, width=max(1, round(1.6 * s)), joint="curve")
+    draw.line([(x + px * s, y + py * s) for px, py in pontos], fill=ESCURO, width=max(1, round(2 * s)), joint="curve")
 
 
 def gerar_icone(destino, px):
