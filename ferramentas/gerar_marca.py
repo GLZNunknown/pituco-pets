@@ -71,7 +71,9 @@ def texto_em_path(arq_fonte, texto, tamanho, x, y_base, espacamento=0.0):
         nome = cmap[ord(ch)]
         glifos[nome].draw(TransformPen(pen, (escala, 0, 0, -escala, cursor, y_base)))
         cursor += glifos[nome].width * escala + (espacamento if i < len(texto) - 1 else 0)
-    return pen.getCommands(), cursor - x
+    # Precisão subpixel suficiente para a marca; evita coordenadas com 15 casas.
+    desenho = re.sub(r'-?\d*\.\d+', lambda m: f'{float(m.group()):.3f}'.rstrip('0').rstrip('.'), pen.getCommands())
+    return desenho, cursor - x
 
 
 def altura_maiuscula(arq_fonte, tamanho, letra="P"):
@@ -94,11 +96,11 @@ def pata_svg(cx, cy, tamanho, cor):
 # piscadinha e linguinha de fora. Feito só de formas simples numa caixa 100x100, para sair igual
 # no SVG (logo e site) e no PNG (ícones).
 PELO, MANCHA, FOCINHO = "#ffffff", "#efd2ae", "#fff8f1"
-SOMBRA = "#e9defb"            # sombra lilás clarinha nos cachos (dá volume ao pelo branco)
+SOMBRA = "#eee6fa"            # volume suave, com menos contraste dentro dos cachos
 CONTORNO, ESCURO, LINGUA, BOCHECHA = "#3b2433", "#2b1d16", "#ff7fa3", "#ffaec7"
 BANDANA, BANDANA_SOMBRA, PINTA = "#b6e61e", "#8fc10a", "#5b1fa8"
 BOLHA, BOLHA_REFLEXO, BRILHO = "#cdeeff", "#ffd3ec", "#ffd23f"
-TRACO = 3.2   # espessura do contorno (na caixa 100x100)
+TRACO = 2.4   # contorno limpo sem fechar os detalhes da expressão
 
 
 def _estrela(cx, cy, R, r, pontas=4):
@@ -128,22 +130,28 @@ ROSTO = [("e", 50, 53, 18.5, 20)]
 
 
 def _bolha(cx, cy, r, traco):
-    return [
+    grupos = [
         {"cor": BOLHA, "contorno": True, "traco": traco, "formas": [("c", cx, cy, r)]},
         {"cor": BOLHA_REFLEXO, "contorno": False, "formas": [("c", cx + r * .25, cy + r * .25, r * .62)]},
         {"cor": BOLHA, "contorno": False, "formas": [("c", cx + r * .05, cy + r * .05, r * .5)]},
         {"cor": PELO, "contorno": False, "formas": [("c", cx - r * .38, cy - r * .38, r * .3)]},
     ]
+    for grupo in grupos:
+        grupo["parte"] = f"pituco-bubble pituco-bubble-{int(cx)}"
+        grupo["detalhe"] = True
+    return grupos
 
 
 # Cada grupo recebe UM contorno em volta do conjunto (sem riscos entre as bolinhas).
 # Formas: ("c", cx, cy, r) círculo | ("e", cx, cy, rx, ry) elipse | ("p", [(x, y), ...]) polígono
 PITUCO_GRUPOS = [
     # orelhas: base em sombra + luz em cada cacho
-    {"cor": SOMBRA, "contorno": True, "formas": ORELHAS},
-    {"cor": PELO, "contorno": False, "formas": _luz(ORELHAS)},
+    {"parte": "pituco-ear-left", "cor": SOMBRA, "contorno": True, "formas": ORELHAS[:3]},
+    {"parte": "pituco-ear-left", "cor": PELO, "contorno": False, "formas": _luz(ORELHAS[:3])},
     # mancha marrom clarinha na orelha direita dele (homenagem à Pituca)
-    {"cor": MANCHA, "contorno": False, "formas": [("c", 23.8, 61.2, 6.8), ("c", 26.3, 70.8, 6.2)]},
+    {"parte": "pituco-ear-left", "cor": MANCHA, "contorno": False, "formas": [("c", 23.8, 61.2, 6.8), ("c", 26.3, 70.8, 6.2)]},
+    {"parte": "pituco-ear-right", "cor": SOMBRA, "contorno": True, "formas": ORELHAS[3:]},
+    {"parte": "pituco-ear-right", "cor": PELO, "contorno": False, "formas": _luz(ORELHAS[3:])},
     # cabeça + topete numa silhueta só, com volume em cada cacho e rosto bem branquinho
     {"cor": SOMBRA, "contorno": True, "formas": ROSTO + TOPETE},
     {"cor": PELO, "contorno": False, "formas": _luz(TOPETE)},
@@ -151,27 +159,48 @@ PITUCO_GRUPOS = [
     # bandana verde-limão com sombra e bolinhas roxas
     {"cor": BANDANA, "contorno": True, "formas": [("p", [(32, 70.5), (68, 70.5), (50, 91)])]},
     {"cor": BANDANA_SOMBRA, "contorno": False, "formas": [("p", [(41.5, 81.5), (58.5, 81.5), (50, 91)])]},
-    {"cor": PINTA, "contorno": False, "formas": [("c", 42.5, 75.5, 1.9), ("c", 57.5, 75.5, 1.9), ("c", 50, 82.5, 1.9)]},
+    {"detalhe": True, "cor": PINTA, "contorno": False, "formas": [("c", 42.5, 75.5, 1.6), ("c", 57.5, 75.5, 1.6), ("c", 50, 82.5, 1.6)]},
     # bolhas de sabão furta-cor saindo do topete
-    *_bolha(75, 15, 6.4, 2.2), *_bolha(84.5, 26.5, 3.9, 2.0), *_bolha(66, 6.5, 3.1, 1.8),
+    *_bolha(75, 15, 6.1, 1.5), *_bolha(84.5, 27, 3.6, 1.2),
     # brilhinho amarelo do outro lado do topete
-    {"cor": BRILHO, "contorno": True, "traco": 1.6, "formas": [_estrela(19, 21, 6.2, 2.1)]},
-    {"cor": BRILHO, "contorno": True, "traco": 1.3, "formas": [_estrela(11, 33, 3.4, 1.2)]},
+    {"parte": "pituco-sparkle", "detalhe": True, "cor": BRILHO, "contorno": True, "traco": 1.1, "formas": [_estrela(19, 23, 4.6, 1.6)]},
     # focinho
     {"cor": FOCINHO, "contorno": True, "traco": 2.2, "formas": [("e", 50, 64.5, 10, 8.5)]},
     # linguinha de fora
-    {"cor": LINGUA, "contorno": True, "traco": 1.8, "formas": [("e", 52.5, 71, 3.4, 3.8)]},
-    {"cor": "#ff5f8c", "contorno": False, "formas": [("e", 52.6, 72.2, .7, 1.8)]},
+    {"parte": "pituco-tongue", "cor": LINGUA, "contorno": True, "traco": 1.8, "formas": [("e", 52.5, 71, 3.4, 3.8)]},
+    {"parte": "pituco-tongue", "cor": "#ff5f8c", "contorno": False, "formas": [("e", 52.6, 72.2, .7, 1.8)]},
     # bochechas, olho aberto (o outro pisca), dois reflexos no olho e nariz brilhante
-    {"cor": BOCHECHA, "contorno": False, "formas": [("e", 36.5, 58.8, 4, 3.2), ("e", 63.5, 58.8, 4, 3.2)]},
-    {"cor": ESCURO, "contorno": False, "formas": [("c", 42.5, 50.5, 4.3), ("e", 50, 59.8, 5.1, 3.8)]},
-    {"cor": PELO, "contorno": False, "formas": [("c", 43.9, 48.9, 1.6), ("c", 41.4, 52.1, .7), ("e", 48.5, 58.6, 1.5, .95)]},
+    {"detalhe": True, "cor": BOCHECHA, "contorno": False, "formas": [("e", 36.5, 58.8, 3.2, 2.1), ("e", 63.5, 58.8, 3.2, 2.1)]},
+    {"parte": "pituco-eye", "cor": ESCURO, "contorno": False, "formas": [("e", 42.5, 50.5, 4.4, 5.0)]},
+    {"parte": "pituco-eye", "cor": "#684333", "contorno": False, "formas": [("e", 42.8, 51.8, 2.6, 2.5)]},
+    {"parte": "pituco-eye", "cor": PELO, "contorno": False, "formas": [("c", 43.8, 48.5, 1.8), ("c", 41.2, 52.4, .8)]},
+    {"cor": ESCURO, "contorno": False, "formas": [("e", 50, 59.8, 5.1, 3.8)]},
+    {"cor": PELO, "contorno": False, "formas": [("e", 48.4, 58.5, 1.8, 1.0)]},
 ]
-# Traços (curvas): (lista de curvas quadráticas (início, controle, fim), espessura)
+CACHO = "#7b56b8"   # risquinho dos cachos, sempre bem transparente
+
+
+def _cachos_topete():
+    """Um arco em 'sorriso' sob cada cacho do topete (o do meio fica de fora, para a testa ficar limpa)."""
+    return [((cx - r * .42, cy + r * .38), (cx, cy + r * .72), (cx + r * .42, cy + r * .38)) for _, cx, cy, r in TOPETE[:3]]
+
+
+def _cachos_orelha(formas, lado):
+    """Arco no lado de fora de cada cacho da orelha (lado = -1 esquerda, 1 direita)."""
+    return [((cx + lado * r * .7, cy + r * .15), (cx + lado * r * .55, cy + r * .72), (cx - lado * r * .05, cy + r * .78))
+            for _, cx, cy, r in formas]
+
+
+# Traços (curvas): (lista de curvas quadráticas (início, controle, fim), espessura, opções)
+# opções: cor, opacidade, parte (grupo animável) e detalhe (some no favicon)
+SUAVE = {"cor": CACHO, "opacidade": .3, "detalhe": True}
 PITUCO_TRACOS = [
-    ([((53.2, 51.2), (57.5, 46.6), (61.8, 51.2))], 2.6),                     # piscadinha
-    ([((38.4, 44.2), (42.5, 41.2), (46.6, 43.6))], 1.9),                     # sobrancelha levantada
-    ([((45.6, 66.4), (47.8, 69.2), (50, 66.4)), ((50, 66.4), (52.2, 69.2), (54.4, 66.4))], 2.0),   # boquinha
+    (_cachos_orelha(ORELHAS[:3], -1), 1.3, {**SUAVE, "parte": "pituco-ear-left"}),
+    (_cachos_orelha(ORELHAS[3:], 1), 1.3, {**SUAVE, "parte": "pituco-ear-right"}),
+    (_cachos_topete(), 1.3, SUAVE),
+    ([((53.2, 51.2), (57.5, 46.6), (61.8, 51.2))], 2.6, {}),                     # piscadinha
+    ([((38.4, 44.2), (42.5, 41.2), (46.6, 43.6))], 1.9, {}),                     # sobrancelha levantada
+    ([((43.8, 65.8), (46.6, 70.8), (50, 67.1)), ((50, 67.1), (54.1, 70.7), (57.0, 65.5))], 2.0, {}),   # sorriso mais aberto
 ]
 
 
@@ -185,35 +214,66 @@ def _forma_svg(f, extra=0, cor="#000"):
     return f'<polygon points="{pts}" fill="{cor}"{traco}/>'
 
 
-def pituco_elementos(contorno=CONTORNO):
+def pituco_elementos(contorno=CONTORNO, simples=False):
     """Elementos SVG do Pituco na caixa 0..100."""
-    partes = []
+    partes = ['<g class="pituco-character">']
+    parte_atual = None
     for g in PITUCO_GRUPOS:
+        if simples and g.get("detalhe"):
+            continue
+        parte = g.get("parte")
+        if parte != parte_atual:
+            if parte_atual:
+                partes.append('</g>')
+            if parte:
+                partes.append(f'<g class="{parte}">')
+            parte_atual = parte
         if g["contorno"]:
             t = g.get("traco", TRACO)
             partes += [_forma_svg(f, extra=t, cor=contorno) for f in g["formas"]]   # silhueta escura levemente maior
         partes += [_forma_svg(f, cor=g["cor"]) for f in g["formas"]]                  # preenchimento por cima
-    for curvas, largura in PITUCO_TRACOS:
-        d = "".join(f"M{a[0]} {a[1]}Q{c[0]} {c[1]} {b[0]} {b[1]}" for a, c, b in curvas)
-        partes.append(f'<path d="{d}" fill="none" stroke="{ESCURO}" stroke-width="{largura}" stroke-linecap="round"/>')
+    if parte_atual:
+        partes.append('</g>')
+    for curvas, largura, op in PITUCO_TRACOS:
+        if simples and op.get("detalhe"):
+            continue
+        d = "".join(f"M{a[0]:g} {a[1]:g}Q{c[0]:g} {c[1]:g} {b[0]:g} {b[1]:g}" for a, c, b in ((tuple(round(v, 2) for v in pt) for pt in cv) for cv in curvas))
+        transp = f' stroke-opacity="{op["opacidade"]}"' if "opacidade" in op else ""
+        traco = f'<path d="{d}" fill="none" stroke="{op.get("cor", ESCURO)}"{transp} stroke-width="{largura}" stroke-linecap="round"/>'
+        partes.append(f'<g class="{op["parte"]}">{traco}</g>' if "parte" in op else traco)
+    partes.append('</g>')
     return "".join(partes)
 
 
-def pituco_svg(x, y, tamanho):
-    return f'<g transform="translate({x:.2f} {y:.2f}) scale({tamanho / 100:.4f})">{pituco_elementos()}</g>'
+def vida_svg():
+    """Movimentos curtos, sem repetição contínua e com alternativa estática."""
+    return '''<style>
+    .pituco-character { transform-origin: 50px 70px; }
+    .pituco-eye { transform-box: fill-box; transform-origin: center; }
+    .pituco-ear-left { transform-origin: 29px 45px; }
+    .pituco-ear-right { transform-origin: 71px 45px; }
+    @media (prefers-reduced-motion: no-preference) {
+      .pituco-eye { animation: pituco-blink 2.8s ease-in-out 1; }
+      .pituco-character { animation: pituco-hello 1.2s ease-out 1; }
+    }
+    @keyframes pituco-blink { 0%,42%,48%,76%,82%,100% { transform:scaleY(1); } 45%,79% { transform:scaleY(.12); } }
+    @keyframes pituco-hello { 0%,100% { transform:rotate(0); } 30% { transform:rotate(-4deg); } 65% { transform:rotate(3deg); } }
+    @media (prefers-reduced-motion: reduce) { .pituco-character,.pituco-eye { animation:none !important; transform:none !important; } }
+    </style>'''
+
+
+def pituco_svg(x, y, tamanho, simples=False):
+    return f'<g transform="translate({x:.2f} {y:.2f}) scale({tamanho / 100:.4f})">{pituco_elementos(simples=simples)}</g>'
 
 
 def selo_svg(cor_fundo, cor_pata, cor_bolha, gid="g"):
     """Selo redondo com o Pituco (64x64): degradê roxo, anel verde-limão e pontinhos de brilho."""
-    t = 62
-    brilhos = "".join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="#ffffff" opacity="{o}"/>'
-                      for x, y, r, o in [(9, 20, 1.1, .9), (56, 48, 1, .8), (12, 50, .8, .7)])
+    t = 58
     return (f'<defs><radialGradient id="{gid}" cx="40%" cy="35%" r="70%">'
             f'<stop offset="0" stop-color="#8a4ff0"/><stop offset=".6" stop-color="{cor_fundo}"/><stop offset="1" stop-color="#3f1478"/>'
             f'</radialGradient></defs>'
             f'<circle cx="32" cy="34" r="29" fill="url(#{gid})"/>'
-            f'<circle cx="32" cy="34" r="26.6" fill="none" stroke="{LIMAO}" stroke-width="1.7" stroke-dasharray="3.5 2.2" opacity=".95"/>'
-            f'{brilhos}'
+            f'<circle cx="32" cy="34" r="26.6" fill="none" stroke="{LIMAO}" stroke-width="1.4" opacity=".95"/>'
             f'{pituco_svg(32 - 50 * t / 100, 35 - 48 * t / 100, t)}')
 
 
@@ -233,15 +293,47 @@ def gerar_logo(destino, cor_texto, cor_selo, cor_pata, cor_bolha, cor_pilula, co
 
     largura = math.ceil(74 + larg_nome + 4)
     altura = math.ceil(pil_y + pil_h + 4)
+    gid = 'selo-' + destino.stem
+    escuro = cor_texto == BRANCO
+    # Nome: degradê roxo → framboesa no fundo claro; branco no fundo escuro. Sombra de profundidade logo abaixo.
+    if escuro:
+        degrade_nome, preenche_nome, sombra = "", cor_texto, (ROXO_ESCURO, .6)
+    else:
+        degrade_nome = (f'<linearGradient id="{gid}-nome-cor" x1="0" y1="0" x2="1" y2=".35">'
+                        f'<stop offset="0" stop-color="{cor_texto}"/><stop offset=".55" stop-color="#8a2fc0"/><stop offset="1" stop-color="#c2368f"/></linearGradient>')
+        preenche_nome, sombra = f"url(#{gid}-nome-cor)", (ROXO_ESCURO, .16)
+    pilula = (f'<linearGradient id="{gid}-pilula" x1="0" y1="0" x2="0" y2="1">'
+              f'<stop offset="0" stop-color="#d4f55c"/><stop offset="1" stop-color="{cor_pilula}"/></linearGradient>')
+    patinhas = "".join(pata_svg(x, pil_y + pil_h / 2, 9, cor_texto_pilula) for x in (74 + 11, 74 + larg_nome - 11))
     svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {largura} {altura}" width="{largura}" height="{altura}" role="img" aria-label="{titulo}">'
-           f'<title>{titulo}</title>'
-           f'<g transform="translate(0 {(altura - 64) / 2:.1f})">{selo_svg(cor_selo, cor_pata, cor_bolha, gid='selo-' + destino.stem)}</g>'
-           f'<path fill="{cor_texto}" d="{d_nome}"/>'
-           f'<rect x="74" y="{pil_y:.1f}" width="{larg_nome:.1f}" height="{pil_h}" rx="{pil_h / 2}" fill="{cor_pilula}"/>'
+           f'<title>{titulo}</title>{vida_svg()}'
+           f'<defs>{degrade_nome}{pilula}<path id="{gid}-nome" d="{d_nome}"/></defs>'
+           f'<g transform="scale({min(1, altura / 64):.4f})">{selo_svg(cor_selo, cor_pata, cor_bolha, gid=gid)}</g>'
+           f'<use href="#{gid}-nome" fill="{sombra[0]}" opacity="{sombra[1]}" transform="translate(.6 2.2)"/>'
+           f'<use href="#{gid}-nome" fill="{preenche_nome}"/>'
+           f'<rect x="74" y="{pil_y:.1f}" width="{larg_nome:.1f}" height="{pil_h}" rx="{pil_h / 2}" fill="url(#{gid}-pilula)"/>'
+           f'<g opacity=".45">{patinhas}</g>'
            f'<path fill="{cor_texto_pilula}" d="{d_pets}"/>'
            f'</svg>\n')
     destino.write_text(svg, encoding="utf-8")
     return largura, altura
+
+
+def logos_no_site(bruto):
+    """Logo em SVG inline: o mascote responde a hover/foco sem mover o nome da marca."""
+    def render(escuro):
+        arquivo = "logo-branco.svg" if escuro else "logo.svg"
+        modo = "dark" if escuro else "light"
+        svg = (IMG / arquivo).read_text(encoding="utf-8").strip()
+        # No site, as animações ficam uma única vez no CSS compartilhado.
+        svg = re.sub(r'<style>.*?</style>', '', svg, flags=re.S)
+        # As três instâncias da página precisam de IDs de degradê distintos.
+        render.contador += 1
+        svg = svg.replace(f'selo-{Path(arquivo).stem}', f'pituco-selo-{render.contador}')
+        return svg.replace('<svg ', f'<svg class="logo__img" data-pituco-logo="{modo}" ', 1)
+    render.contador = 0
+    padrao = r'<img\b[^>]*class="logo__img"[^>]*>|<svg\b[^>]*data-pituco-logo="(?:light|dark)"[^>]*>.*?</svg>'
+    return re.sub(padrao, lambda m: render("logo-branco" in m.group(0) or 'data-pituco-logo="dark"' in m.group(0)), bruto, flags=re.S)
 
 
 def gerar_favicon(destino):
@@ -249,7 +341,7 @@ def gerar_favicon(destino):
            '<defs><radialGradient id="f" cx="40%" cy="35%" r="75%"><stop offset="0" stop-color="#8a4ff0"/>'
            f'<stop offset=".6" stop-color="{ROXO}"/><stop offset="1" stop-color="#3f1478"/></radialGradient></defs>'
            '<rect width="64" height="64" rx="16" fill="url(#f)"/>'
-           f'{pituco_svg(32 - 33, 33 - 48 * .66, 66)}'
+           f'{pituco_svg(32 - 33, 33 - 48 * .66, 66, simples=True)}'
            '</svg>\n')
     destino.write_text(svg, encoding="utf-8")
 
@@ -321,12 +413,20 @@ def desenhar_pituco(draw, x, y, tamanho):
                 forma(f, g.get("traco", TRACO), CONTORNO)
         for f in g["formas"]:
             forma(f, 0, g["cor"])
-    for curvas, largura in PITUCO_TRACOS:
-        pontos = []
-        for (x0, y0), (cx1, cy1), (x1, y1) in curvas:
-            pontos += [P((1 - t) ** 2 * x0 + 2 * (1 - t) * t * cx1 + t * t * x1, (1 - t) ** 2 * y0 + 2 * (1 - t) * t * cy1 + t * t * y1)
-                       for t in (i / 14 for i in range(15))]
-        draw.line(pontos, fill=ESCURO, width=max(1, round(largura * s)), joint="curve")
+    for curvas, largura, op in PITUCO_TRACOS:
+        cor, w = op.get("cor", ESCURO), max(1, round(largura * s))
+        linhas = [[P((1 - t) ** 2 * x0 + 2 * (1 - t) * t * cx1 + t * t * x1, (1 - t) ** 2 * y0 + 2 * (1 - t) * t * cy1 + t * t * y1)
+                   for t in (i / 14 for i in range(15))] for (x0, y0), (cx1, cy1), (x1, y1) in curvas]
+        if "opacidade" not in op:
+            for pontos in linhas:
+                draw.line(pontos, fill=cor, width=w, joint="curve")
+            continue
+        # traço transparente: desenha numa máscara e aplica de uma vez (sem somar transparência nas emendas)
+        img = draw._image
+        mascara = Image.new("L", img.size, 0)
+        for pontos in linhas:
+            ImageDraw.Draw(mascara).line(pontos, fill=round(255 * op["opacidade"]), width=w, joint="curve")
+        img.paste(Image.new(img.mode, img.size, cor), (0, 0), mascara)
 
 
 def _degrade_radial(S, centro, cores):
@@ -438,12 +538,18 @@ if __name__ == "__main__":
     print("logo-branco.svg", gerar_logo(IMG / "logo-branco.svg", BRANCO, ROXO, ROXO, LIMAO, LIMAO, ROXO_ESCURO, "Pituco Pets"))
     gerar_favicon(IMG / "favicon.svg")
     # O Pituco sozinho: arquivo de referência e símbolo para o "sprite" de ícones do index.html
-    (IMG / "pituco.svg").write_text(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Pituco">{pituco_elementos()}</svg>\n', encoding="utf-8")
+    (IMG / "pituco.svg").write_text(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Pituco">{vida_svg()}{pituco_elementos()}</svg>\n', encoding="utf-8")
     # Atualiza o símbolo do Pituco no index.html (as outras páginas copiam dele ao rodar gerar_paginas.py)
     index = RAIZ / "index.html"
     bruto = index.read_bytes().decode("utf-8")
     simbolo = f'<symbol id="ic-pituco" viewBox="0 0 100 100">{pituco_elementos()}</symbol>'
     novo = re.sub(r'<symbol id="ic-pitu[ca]o?a?".*?</symbol>', lambda m: simbolo, bruto, count=1, flags=re.S)
+    novo = logos_no_site(novo)
+    # No topo, o Pituco é desenhado direto na página (e não via <use>) para cada parte poder se mexer
+    vivo = f'<svg class="bi pituco-vivo" viewBox="0 0 100 100">{pituco_elementos()}</svg>'
+    novo, n = re.subn(r'(<div class="mascot"[^>]*><span class="mascot__face">)<svg class="bi[^"]*"[^>]*>.*?</svg>(</span>)',
+                      lambda m: m.group(1) + vivo + m.group(2), novo, count=1, flags=re.S)
+    assert n == 1, "mascote do topo não encontrado no index.html"
     if novo != bruto:
         index.write_bytes(novo.encode("utf-8"))
     for px, nome in [(180, "icon-180.png"), (192, "icon-192.png"), (512, "icon-512.png")]:

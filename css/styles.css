@@ -1188,3 +1188,80 @@ details[open] > summary::after { content: "−"; background: var(--purple); colo
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+
+/* ---------- Pituco: expressão e movimento, sem animação contínua ---------- */
+.pituco-character { transform-origin: 50px 70px; }
+.pituco-eye { transform-box: fill-box; transform-origin: center; }
+.pituco-ear-left { transform-origin: 29px 45px; }
+.pituco-ear-right { transform-origin: 71px 45px; }
+.pituco-bubble, .pituco-sparkle { transform-box: fill-box; transform-origin: center; }
+.hero__media > .mascot, .quiz__mascot .mascot__face, .err-page .mascot__face { animation: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .pituco-character { animation: pituco-hello 1.2s ease-out 1; }
+  .pituco-eye { animation: pituco-blink 2.8s ease-in-out 1; }
+  .pituco-bubble { animation: pituco-bubble-rise 1.6s ease-out 1; }
+  .pituco-bubble-84 { animation-delay: .12s; }
+  .pituco-sparkle { animation: pituco-shine 1.6s ease-out 1; }
+  .logo:focus-visible .pituco-character { animation: pituco-nod 1.1s ease-in-out 1; }
+  .logo:focus-visible .pituco-eye { animation: pituco-blink .9s ease-in-out 1; }
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .logo:hover .pituco-character { animation: pituco-nod 1.1s ease-in-out 1; }
+  .logo:hover .pituco-eye { animation: pituco-blink .9s ease-in-out 1; }
+  .logo:hover .pituco-ear-left { animation: pituco-ear-left .9s ease-out 1; }
+  .logo:hover .pituco-ear-right { animation: pituco-ear-right .9s ease-out 1; }
+  .logo:hover .pituco-bubble { animation: pituco-bubble-greet 1s ease-out 1; }
+}
+@keyframes pituco-hello { 0%,100% { transform: rotate(0); } 30% { transform: rotate(-4deg); } 65% { transform: rotate(3deg); } }
+@keyframes pituco-nod { 0%,100% { transform: rotate(0); } 30% { transform: rotate(-5deg); } 65% { transform: rotate(2deg); } }
+@keyframes pituco-blink { 0%,42%,48%,76%,82%,100% { transform: scaleY(1); } 45%,79% { transform: scaleY(.12); } }
+@keyframes pituco-ear-left { 0%,100% { transform: rotate(0); } 35% { transform: rotate(6deg); } 65% { transform: rotate(-3deg); } }
+@keyframes pituco-ear-right { 0%,100% { transform: rotate(0); } 35% { transform: rotate(-5deg); } 65% { transform: rotate(2deg); } }
+@keyframes pituco-bubble-rise { 0%,100% { transform: translateY(0); } 45% { transform: translateY(-2px); } }
+@keyframes pituco-bubble-greet { 0%,100% { transform: translateY(0); } 45% { transform: translateY(-2.5px); } }
+@keyframes pituco-shine { 0%,100% { transform: scale(1); } 45% { transform: scale(1.15); } }
+@media (prefers-reduced-motion: reduce) {
+  .pituco-character, .pituco-eye, .pituco-ear-left, .pituco-ear-right, .pituco-bubble, .pituco-sparkle, .pituco-tongue { animation: none !important; transform: none !important; }
+}
+
+/* ---------- 27. Pituco vivo (topo da loja, Sobre e 404): mexe sozinho e faz festa ao toque ---------- */
+.pituco-vivo { overflow: visible; cursor: pointer; }
+.pituco-tongue { transform-origin: 52.5px 67.5px; }
+@media (prefers-reduced-motion: no-preference) {
+  .pituco-vivo .pituco-character { animation: pituco-sway 6s ease-in-out infinite; }
+  .pituco-vivo .pituco-eye { animation: pituco-blink-loop 5s ease-in-out 1.5s infinite; }
+  .pituco-vivo .pituco-ear-left { animation: pituco-ear-left 6s ease-in-out infinite; }
+  .pituco-vivo .pituco-ear-right { animation: pituco-ear-right 6s ease-in-out infinite; }
+  .pituco-vivo .pituco-tongue { animation: pituco-lick 3.2s ease-in-out infinite; }
+  .pituco-vivo .pituco-bubble { animation: pituco-float 3.4s ease-in-out infinite; }
+  .pituco-vivo .pituco-bubble-84 { animation-duration: 2.6s; animation-delay: -1.2s; }
+  .pituco-vivo .pituco-sparkle { animation: pituco-twinkle 2.4s ease-in-out infinite; }
+  /* festa: ao tocar (classe posta pelo main.js) ou ao passar o mouse */
+  .is-party .pituco-character { animation: pituco-party .6s ease-in-out 2; }
+  .is-party .pituco-tongue { animation: pituco-lick .5s ease-in-out 2; }
+  .is-party .pituco-bubble { animation: pituco-pop 1.2s ease-out 1; }
+  .is-party .pituco-sparkle { animation: pituco-twinkle .4s ease-in-out 3; }
+  .mascot__bubble { transition: transform .25s; }
+  .mascot.is-party .mascot__bubble { transform: scale(1.06) rotate(-2deg); }
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .mascot:hover .pituco-vivo .pituco-character, .pituco-vivo:hover .pituco-character { animation: pituco-party .6s ease-in-out 2; }
+  .mascot:hover .pituco-vivo .pituco-bubble, .pituco-vivo:hover .pituco-bubble { animation: pituco-pop 1.2s ease-out 1; }
+}
+@keyframes pituco-sway { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-3deg); } 75% { transform: rotate(3deg); } }
+@keyframes pituco-blink-loop { 0%,88%,94%,100% { transform: scaleY(1); } 91% { transform: scaleY(.1); } }
+@keyframes pituco-lick { 0%,55%,100% { transform: scaleY(1) rotate(0); } 68% { transform: scaleY(1.28) rotate(-7deg); } 80% { transform: scaleY(.92) rotate(0); } 90% { transform: scaleY(1.18) rotate(5deg); } }
+@keyframes pituco-float { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-4px) scale(1.06); } }
+@keyframes pituco-twinkle { 0%,100% { transform: scale(1) rotate(0); opacity: 1; } 50% { transform: scale(.55) rotate(45deg); opacity: .65; } }
+@keyframes pituco-party { 0%,100% { transform: translateY(0) rotate(0); } 30% { transform: translateY(-7px) rotate(-7deg); } 65% { transform: translateY(-2px) rotate(6deg); } }
+@keyframes pituco-pop { 0% { transform: translateY(0) scale(1); opacity: 1; } 55% { transform: translateY(-16px) scale(1.3); opacity: .15; } 56% { transform: translateY(0) scale(.2); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+
+/* ---------- 28. Ajustes finos ---------- */
+.footer__legal a { color: var(--lime); text-decoration: underline; text-underline-offset: 3px; }
+.footer__legal a:hover { color: #fff; }
+@media (max-width: 1100px) {
+  .chip { padding: 7px 12px; font-size: .86rem; }
+}
+@media (max-width: 560px) {
+  .hero .eyebrow--light { font-size: .68rem; letter-spacing: .05em; padding: 5px 11px; gap: 5px; }
+}

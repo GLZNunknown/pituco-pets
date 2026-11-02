@@ -148,6 +148,9 @@ def casca(index_html):
 def montar(pagina, raiz, ctx, *, titulo, descricao, caminho, conteudo, jsonld=None, og_tipo="website", imagem=None, noindex=False):
     antes, depois, versao, scripts = ctx["casca"]
     site = ctx["site"]
+    # O Pituco grande (Sobre e 404) é desenhado direto na página para poder se mexer, como no topo da loja
+    conteudo = re.sub(r'<svg class="bi"( aria-hidden="true")?><use href="#ic-pituco"/></svg>',
+                      lambda m: f'<svg class="bi pituco-vivo"{m.group(1) or ""} viewBox="0 0 100 100">{ctx["pituco"]}</svg>', conteudo)
     url = site + caminho
     imagem = imagem or f"{site}assets/img/og-image.jpg"
     ld = "".join(f'\n  <script type="application/ld+json">{json.dumps(x, ensure_ascii=False)}</script>' for x in (jsonld or []))
@@ -468,7 +471,9 @@ if __name__ == "__main__":
     d = carregar_dados()
     versao = carimbar_versao()
     site = d["config"]["siteUrl"].rstrip("/") + "/"
-    ctx = {"site": site, "casca": casca((RAIZ / "index.html").read_text(encoding="utf-8")), "paginas": []}
+    index_html = (RAIZ / "index.html").read_text(encoding="utf-8")
+    ctx = {"site": site, "casca": casca(index_html), "paginas": [],
+           "pituco": re.search(r'<symbol id="ic-pituco" viewBox="0 0 100 100">(.*?)</symbol>', index_html, re.S).group(1)}
     for p in d["products"]:
         pagina_produto(p, d, ctx)
     for c in d["categories"]:

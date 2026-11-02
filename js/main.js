@@ -62,15 +62,17 @@
     });
     $("#menuLayer").addEventListener("click", (e) => { if (e.target.closest("a")) ZP.u.closeLayer("#menuLayer"); });
 
-    // Destaca no menu a seção visível
-    const links = $$("#mainNav > a[href^='#'], #mainNav .nav__drop-btn");
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((en) => {
-        if (!en.isIntersecting) return;
-        links.forEach((a) => a.classList.toggle("is-active", a.getAttribute("href") === "#" + en.target.id));
-      });
-    }, { rootMargin: "-45% 0px -50% 0px" });
-    links.forEach((a) => { const h = a.getAttribute("href"); const sec = h.startsWith("#") && $(h); if (sec) io.observe(sec); });
+    // Destaca no menu a seção visível (e limpa o destaque em seções que não estão no menu)
+    const links = $$("#mainNav > a[href^='#'], #mainNav .nav__drop-btn[href^='#']");
+    if (links.length) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((en) => {
+          if (!en.isIntersecting) return;
+          links.forEach((a) => a.classList.toggle("is-active", a.getAttribute("href") === "#" + en.target.id));
+        });
+      }, { rootMargin: "-45% 0px -50% 0px" });
+      $$("main section[id]").forEach((sec) => io.observe(sec));
+    }
   }
 
   /* ---------- Dicas ---------- */
@@ -185,6 +187,24 @@
     abaixo.forEach((el) => { el.style.transition = ""; io.observe(el); });
   }
 
+  /* ---------- Pituco: festa ao tocar, com uma frase nova no balão ---------- */
+  function pituco() {
+    const frases = ["Hora do banho! 🛁", "Cheirinho de banho tomado ✨", "Espuma é comigo! 🫧", "Au au! Que bom te ver 🐾"];
+    let vez = 0;
+    $$(".pituco-vivo").forEach((svg) => {
+      const alvo = svg.closest(".mascot") || svg;
+      alvo.addEventListener("click", () => {
+        alvo.classList.remove("is-party");
+        void alvo.getBoundingClientRect();   // reinicia a animação se tocar de novo
+        alvo.classList.add("is-party");
+        clearTimeout(alvo._festa);
+        alvo._festa = setTimeout(() => alvo.classList.remove("is-party"), 1300);
+        const balao = $(".mascot__bubble", alvo);
+        if (balao) balao.textContent = frases[vez++ % frases.length];
+      });
+    });
+  }
+
   /* ---------- Aviso de cookies (LGPD) ---------- */
   function cookies() {
     if (storage.get("cookies-ok", false)) return;
@@ -205,6 +225,7 @@
     testimonials();
     customerGallery();
     forms();
+    pituco();
     cookies();
     reveal();
   });
