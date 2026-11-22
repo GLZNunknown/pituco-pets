@@ -21,7 +21,7 @@ ZP.config = {
 
   // Endereço público do site (usado em links de compartilhamento, sitemap e páginas geradas).
   // Se mudar (ex.: domínio próprio), atualize aqui e rode: python ferramentas/gerar_paginas.py
-  siteUrl: "https://izabelys818-arch.github.io/products-pets/",
+  siteUrl: "https://pitucopets.pages.dev/",
 
   /* ---------- ENTREGA ----------
      Por enquanto atendemos só o estado de São Paulo. Para ampliar no futuro,

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://izabelys818-arch.github.io/products-pets/sitemap.xml
+Sitemap: https://pitucopets.pages.dev/sitemap.xml
